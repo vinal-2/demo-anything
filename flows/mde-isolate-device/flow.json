@@ -1,6 +1,11 @@
 {
   "id": "mde-isolate-device",
   "name": "Isolating a device in Microsoft Defender for Endpoint",
+  "narrator": {
+    "provider": "kokoro",
+    "voice": "bm_george",
+    "speed": 1
+  },
   "font": "Inter",
   "aspectRatio": 0.5625,
   "theme": {
@@ -30,9 +35,90 @@
       "src": "assets/s01-incidents.png",
       "voice": {
         "script": "In this walkthrough you'll isolate a suspicious device from the network. Start from the device inventory in the left navigation.",
-        "audio": null,
-        "timings": [],
-        "hash": "702ee0418b6b"
+        "audio": "assets/v01.mp3",
+        "timings": [
+          {
+            "t": 0,
+            "word": "In"
+          },
+          {
+            "t": 0.5,
+            "word": "this"
+          },
+          {
+            "t": 0.62,
+            "word": "walkthrough"
+          },
+          {
+            "t": 1.24,
+            "word": "you'll"
+          },
+          {
+            "t": 1.76,
+            "word": "isolate"
+          },
+          {
+            "t": 2.14,
+            "word": "a"
+          },
+          {
+            "t": 2.48,
+            "word": "suspicious"
+          },
+          {
+            "t": 2.88,
+            "word": "device"
+          },
+          {
+            "t": 3.5,
+            "word": "from"
+          },
+          {
+            "t": 3.96,
+            "word": "the"
+          },
+          {
+            "t": 4.08,
+            "word": "network."
+          },
+          {
+            "t": 5.22,
+            "word": "Start"
+          },
+          {
+            "t": 5.3,
+            "word": "from"
+          },
+          {
+            "t": 5.64,
+            "word": "the"
+          },
+          {
+            "t": 5.76,
+            "word": "device"
+          },
+          {
+            "t": 6.1,
+            "word": "inventory"
+          },
+          {
+            "t": 6.38,
+            "word": "in"
+          },
+          {
+            "t": 7.3,
+            "word": "the"
+          },
+          {
+            "t": 7.4,
+            "word": "left"
+          },
+          {
+            "t": 7.58,
+            "word": "navigation."
+          }
+        ],
+        "hash": "8344e8c67aef"
       },
       "hotspot": null,
       "autoAdvance": true
@@ -54,9 +140,70 @@
       "src": "assets/s02-device-inventory.png",
       "voice": {
         "script": "This is the device inventory. Search for the affected host, then open its device page.",
-        "audio": null,
-        "timings": [],
-        "hash": "5d2c35158fd9"
+        "audio": "assets/v03.mp3",
+        "timings": [
+          {
+            "t": 0,
+            "word": "This"
+          },
+          {
+            "t": 0.58,
+            "word": "is"
+          },
+          {
+            "t": 0.82,
+            "word": "the"
+          },
+          {
+            "t": 1,
+            "word": "device"
+          },
+          {
+            "t": 1.26,
+            "word": "inventory."
+          },
+          {
+            "t": 2.58,
+            "word": "Search"
+          },
+          {
+            "t": 2.64,
+            "word": "for"
+          },
+          {
+            "t": 2.96,
+            "word": "the"
+          },
+          {
+            "t": 3.04,
+            "word": "affected"
+          },
+          {
+            "t": 3.42,
+            "word": "host,"
+          },
+          {
+            "t": 4.36,
+            "word": "then"
+          },
+          {
+            "t": 4.44,
+            "word": "open"
+          },
+          {
+            "t": 4.78,
+            "word": "its"
+          },
+          {
+            "t": 5.1,
+            "word": "device"
+          },
+          {
+            "t": 5.3,
+            "word": "page."
+          }
+        ],
+        "hash": "1772d7ae5486"
       },
       "hotspot": null,
       "autoAdvance": true
@@ -78,9 +225,90 @@
       "src": "assets/s03-device-page.png",
       "voice": {
         "script": "The device page shows risk level, exposure and active alerts. Response actions are in the menu at the top right.",
-        "audio": null,
-        "timings": [],
-        "hash": "fa656fbea60a"
+        "audio": "assets/v05.mp3",
+        "timings": [
+          {
+            "t": 0,
+            "word": "The"
+          },
+          {
+            "t": 0.46,
+            "word": "device"
+          },
+          {
+            "t": 0.68,
+            "word": "page"
+          },
+          {
+            "t": 1.1,
+            "word": "shows"
+          },
+          {
+            "t": 1.58,
+            "word": "risk"
+          },
+          {
+            "t": 1.86,
+            "word": "level,"
+          },
+          {
+            "t": 2.58,
+            "word": "exposure"
+          },
+          {
+            "t": 3.06,
+            "word": "and"
+          },
+          {
+            "t": 3.56,
+            "word": "active"
+          },
+          {
+            "t": 3.92,
+            "word": "alerts."
+          },
+          {
+            "t": 5.02,
+            "word": "Response"
+          },
+          {
+            "t": 5.22,
+            "word": "actions"
+          },
+          {
+            "t": 5.78,
+            "word": "are"
+          },
+          {
+            "t": 6.52,
+            "word": "in"
+          },
+          {
+            "t": 6.64,
+            "word": "the"
+          },
+          {
+            "t": 6.72,
+            "word": "menu"
+          },
+          {
+            "t": 7.02,
+            "word": "at"
+          },
+          {
+            "t": 7.22,
+            "word": "the"
+          },
+          {
+            "t": 7.32,
+            "word": "top"
+          },
+          {
+            "t": 7.54,
+            "word": "right."
+          }
+        ],
+        "hash": "2bec41c6d015"
       },
       "hotspot": null,
       "autoAdvance": true
@@ -125,9 +353,70 @@
       "src": "assets/s05-isolate-dialog.png",
       "voice": {
         "script": "Choose full or selective isolation. Selective isolation keeps Outlook and Teams working for the user.",
-        "audio": null,
-        "timings": [],
-        "hash": "aed3162eaedf"
+        "audio": "assets/v09.mp3",
+        "timings": [
+          {
+            "t": 0,
+            "word": "Choose"
+          },
+          {
+            "t": 0.58,
+            "word": "full"
+          },
+          {
+            "t": 1,
+            "word": "or"
+          },
+          {
+            "t": 1.3,
+            "word": "selective"
+          },
+          {
+            "t": 1.72,
+            "word": "isolation."
+          },
+          {
+            "t": 3.16,
+            "word": "Selective"
+          },
+          {
+            "t": 3.7,
+            "word": "isolation"
+          },
+          {
+            "t": 4.1,
+            "word": "keeps"
+          },
+          {
+            "t": 4.86,
+            "word": "Outlook"
+          },
+          {
+            "t": 5.24,
+            "word": "and"
+          },
+          {
+            "t": 5.82,
+            "word": "Teams"
+          },
+          {
+            "t": 6.06,
+            "word": "working"
+          },
+          {
+            "t": 6.76,
+            "word": "for"
+          },
+          {
+            "t": 7.06,
+            "word": "the"
+          },
+          {
+            "t": 7.16,
+            "word": "user."
+          }
+        ],
+        "hash": "abff3b4c415c"
       },
       "hotspot": null,
       "autoAdvance": true
@@ -149,9 +438,66 @@
       "src": "assets/s06-isolate-comment.png",
       "voice": {
         "script": "Add a comment explaining why. This is recorded in the Action Center audit trail.",
-        "audio": null,
-        "timings": [],
-        "hash": "13e760620c69"
+        "audio": "assets/v11.mp3",
+        "timings": [
+          {
+            "t": 0,
+            "word": "Add"
+          },
+          {
+            "t": 0.52,
+            "word": "a"
+          },
+          {
+            "t": 0.58,
+            "word": "comment"
+          },
+          {
+            "t": 0.96,
+            "word": "explaining"
+          },
+          {
+            "t": 1.66,
+            "word": "why."
+          },
+          {
+            "t": 2.26,
+            "word": "This"
+          },
+          {
+            "t": 3,
+            "word": "is"
+          },
+          {
+            "t": 3.18,
+            "word": "recorded"
+          },
+          {
+            "t": 3.58,
+            "word": "in"
+          },
+          {
+            "t": 3.96,
+            "word": "the"
+          },
+          {
+            "t": 4.08,
+            "word": "Action"
+          },
+          {
+            "t": 4.32,
+            "word": "Center"
+          },
+          {
+            "t": 4.78,
+            "word": "audit"
+          },
+          {
+            "t": 5.16,
+            "word": "trail."
+          }
+        ],
+        "hash": "6ae8731c1619"
       },
       "hotspot": null,
       "autoAdvance": true
@@ -185,9 +531,78 @@
       "src": "assets/s07-action-center.png",
       "voice": {
         "script": "The action is now pending in the Action Center. Once the device checks in, isolation takes effect.",
-        "audio": null,
-        "timings": [],
-        "hash": "8233eab824ba"
+        "audio": "assets/v14.mp3",
+        "timings": [
+          {
+            "t": 0,
+            "word": "The"
+          },
+          {
+            "t": 0.48,
+            "word": "action"
+          },
+          {
+            "t": 0.72,
+            "word": "is"
+          },
+          {
+            "t": 1.16,
+            "word": "now"
+          },
+          {
+            "t": 1.44,
+            "word": "pending"
+          },
+          {
+            "t": 1.72,
+            "word": "in"
+          },
+          {
+            "t": 2.1,
+            "word": "the"
+          },
+          {
+            "t": 2.22,
+            "word": "Action"
+          },
+          {
+            "t": 2.42,
+            "word": "Center."
+          },
+          {
+            "t": 3,
+            "word": "Once"
+          },
+          {
+            "t": 3.72,
+            "word": "the"
+          },
+          {
+            "t": 3.96,
+            "word": "device"
+          },
+          {
+            "t": 4.2,
+            "word": "checks"
+          },
+          {
+            "t": 4.68,
+            "word": "in,"
+          },
+          {
+            "t": 4.98,
+            "word": "isolation"
+          },
+          {
+            "t": 5.54,
+            "word": "takes"
+          },
+          {
+            "t": 6.2,
+            "word": "effect."
+          }
+        ],
+        "hash": "b394ff663677"
       },
       "hotspot": null,
       "autoAdvance": true
@@ -197,9 +612,78 @@
       "src": "assets/s08-isolated-status.png",
       "voice": {
         "script": "The device now shows as isolated. To reverse this, use 'Release from isolation' from the same menu.",
-        "audio": null,
-        "timings": [],
-        "hash": "de2953446fc7"
+        "audio": "assets/v15.mp3",
+        "timings": [
+          {
+            "t": 0,
+            "word": "The"
+          },
+          {
+            "t": 0.46,
+            "word": "device"
+          },
+          {
+            "t": 0.7,
+            "word": "now"
+          },
+          {
+            "t": 1.18,
+            "word": "shows"
+          },
+          {
+            "t": 1.5,
+            "word": "as"
+          },
+          {
+            "t": 1.8,
+            "word": "isolated."
+          },
+          {
+            "t": 2.28,
+            "word": "To"
+          },
+          {
+            "t": 3.22,
+            "word": "reverse"
+          },
+          {
+            "t": 3.48,
+            "word": "this,"
+          },
+          {
+            "t": 3.88,
+            "word": "use"
+          },
+          {
+            "t": 4.4,
+            "word": "'Release"
+          },
+          {
+            "t": 4.78,
+            "word": "from"
+          },
+          {
+            "t": 5.14,
+            "word": "isolation'"
+          },
+          {
+            "t": 5.42,
+            "word": "from"
+          },
+          {
+            "t": 6.36,
+            "word": "the"
+          },
+          {
+            "t": 6.5,
+            "word": "same"
+          },
+          {
+            "t": 6.78,
+            "word": "menu."
+          }
+        ],
+        "hash": "9f5c7309835d"
       },
       "hotspot": null,
       "autoAdvance": true

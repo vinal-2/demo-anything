@@ -1,6 +1,11 @@
 {
   "id": "example",
   "name": "Example: turn on email alerts",
+  "narrator": {
+    "provider": "kokoro",
+    "voice": "bm_george",
+    "speed": 1
+  },
   "font": "Inter",
   "aspectRatio": 0.5625,
   "theme": {
@@ -31,8 +36,78 @@
       "alt": "Acme Admin home screen",
       "voice": {
         "script": "To turn on email alerts, start on the home page and open Settings in the left-hand menu.",
-        "audio": null,
-        "timings": []
+        "audio": "assets/v01.mp3",
+        "timings": [
+          {
+            "t": 0,
+            "word": "To"
+          },
+          {
+            "t": 0.46,
+            "word": "turn"
+          },
+          {
+            "t": 0.74,
+            "word": "on"
+          },
+          {
+            "t": 0.96,
+            "word": "email"
+          },
+          {
+            "t": 1.28,
+            "word": "alerts,"
+          },
+          {
+            "t": 2.36,
+            "word": "start"
+          },
+          {
+            "t": 2.68,
+            "word": "on"
+          },
+          {
+            "t": 2.92,
+            "word": "the"
+          },
+          {
+            "t": 3.2,
+            "word": "home"
+          },
+          {
+            "t": 3.64,
+            "word": "page"
+          },
+          {
+            "t": 4.2,
+            "word": "and"
+          },
+          {
+            "t": 4.48,
+            "word": "open"
+          },
+          {
+            "t": 4.88,
+            "word": "Settings"
+          },
+          {
+            "t": 5.48,
+            "word": "in"
+          },
+          {
+            "t": 5.58,
+            "word": "the"
+          },
+          {
+            "t": 5.76,
+            "word": "left-hand"
+          },
+          {
+            "t": 6.08,
+            "word": "menu."
+          }
+        ],
+        "hash": "64f911197568"
       },
       "hotspot": null,
       "autoAdvance": true
@@ -56,8 +131,50 @@
       "alt": "Settings screen on the General tab",
       "voice": {
         "script": "Settings opens on the General tab. Select the Notifications tab.",
-        "audio": null,
-        "timings": []
+        "audio": "assets/v03.mp3",
+        "timings": [
+          {
+            "t": 0,
+            "word": "Settings"
+          },
+          {
+            "t": 0.62,
+            "word": "opens"
+          },
+          {
+            "t": 1.14,
+            "word": "on"
+          },
+          {
+            "t": 1.62,
+            "word": "the"
+          },
+          {
+            "t": 1.74,
+            "word": "General"
+          },
+          {
+            "t": 2.08,
+            "word": "tab."
+          },
+          {
+            "t": 3.14,
+            "word": "Select"
+          },
+          {
+            "t": 3.34,
+            "word": "the"
+          },
+          {
+            "t": 3.7,
+            "word": "Notifications"
+          },
+          {
+            "t": 4.34,
+            "word": "tab."
+          }
+        ],
+        "hash": "b370813d07fb"
       },
       "hotspot": null,
       "autoAdvance": true
@@ -87,8 +204,54 @@
       "muted": true,
       "voice": {
         "script": "Turn on Email alerts, then select Save to keep the change.",
-        "audio": null,
-        "timings": []
+        "audio": "assets/v05.mp3",
+        "timings": [
+          {
+            "t": 0,
+            "word": "Turn"
+          },
+          {
+            "t": 0.62,
+            "word": "on"
+          },
+          {
+            "t": 0.8,
+            "word": "Email"
+          },
+          {
+            "t": 1.08,
+            "word": "alerts,"
+          },
+          {
+            "t": 2.16,
+            "word": "then"
+          },
+          {
+            "t": 2.34,
+            "word": "select"
+          },
+          {
+            "t": 2.66,
+            "word": "Save"
+          },
+          {
+            "t": 3.12,
+            "word": "to"
+          },
+          {
+            "t": 3.46,
+            "word": "keep"
+          },
+          {
+            "t": 3.66,
+            "word": "the"
+          },
+          {
+            "t": 3.86,
+            "word": "change."
+          }
+        ],
+        "hash": "dd577cfbdea2"
       },
       "autoAdvance": true
     },
