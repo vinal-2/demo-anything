@@ -441,7 +441,17 @@ export function mountPlayer(root, flow, base) {
         if (captions.hasTimings) captions.setTime(a.currentTime);
         else captions.setWord(Math.floor((a.currentTime / dur()) * n));
       };
+      // timeupdate fires only about four times a second, so captions would trail the voice
+      // by up to a word. Update on every frame while playing; timeupdate stays as the
+      // fallback for background tabs, where frames pause.
+      let frame = 0;
+      const everyFrame = () => {
+        if (!a.paused) onTime();
+        frame = requestAnimationFrame(everyFrame);
+      };
+      frame = requestAnimationFrame(everyFrame);
       const cleanup = () => {
+        cancelAnimationFrame(frame);
         a.removeEventListener('timeupdate', onTime);
         a.removeEventListener('ended', onEnded);
         a.removeEventListener('error', onError);
