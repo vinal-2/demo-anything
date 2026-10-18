@@ -7,7 +7,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import sharp from 'sharp';
 import { readJson } from './lib/flows.mjs';
-import { pngSize } from './lib/png-size.mjs';
+import { imageSize } from './lib/image-size.mjs';
 
 const SHOT_NAME = /^(\d+)-.+\.png$/i;
 
@@ -25,7 +25,7 @@ export async function previewBoxes(captureDir) {
 
   const written = [];
   for (const shot of (await readdir(shotsDir)).filter((file) => SHOT_NAME.test(file)).sort()) {
-    const { width, height } = await pngSize(join(shotsDir, shot));
+    const { width, height } = imageSize(join(shotsDir, shot));
     const rects = [];
     const hotspot = hotspots.get(Number(SHOT_NAME.exec(shot)[1]));
     if (hotspot) rects.push(rect(hotspot, '#ff7a00'));

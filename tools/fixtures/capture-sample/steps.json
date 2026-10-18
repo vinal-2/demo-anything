@@ -1,0 +1,41 @@
+[
+  {
+    "step": 1,
+    "screen": "Home",
+    "element": "Settings",
+    "box": {
+      "x": 16,
+      "y": 250,
+      "width": 228,
+      "height": 44
+    },
+    "why": "Every admin option lives under Settings.",
+    "say": "Start on the home page and open Settings in the left-hand menu."
+  },
+  {
+    "step": 2,
+    "screen": "Settings",
+    "element": "Notifications",
+    "box": {
+      "x": 452,
+      "y": 140,
+      "width": 190,
+      "height": 48
+    },
+    "why": "Alert options are grouped on their own tab.",
+    "say": "Settings opens on the General tab. Select the Notifications tab."
+  },
+  {
+    "step": 3,
+    "screen": "Notifications",
+    "element": "Email alerts switch",
+    "box": {
+      "x": 892,
+      "y": 226,
+      "width": 88,
+      "height": 48
+    },
+    "why": "This is the switch that turns email alerts on.",
+    "say": "Turn on Email alerts, then select Save to keep the change."
+  }
+]

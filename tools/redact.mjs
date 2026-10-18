@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import sharp from 'sharp';
 import { readJson } from './lib/flows.mjs';
-import { pngSize } from './lib/png-size.mjs';
+import { imageSize } from './lib/image-size.mjs';
 
 const PIXEL_BLOCK = 12;
 const BLUR_SIGMA = 8;
@@ -34,7 +34,7 @@ export async function redact({ rawDir, cleanDir }) {
   for (const shot of shots) {
     const input = join(shotsDir, shot);
     const output = join(cleanDir, 'shots', shot);
-    const size = await pngSize(input);
+    const size = imageSize(input);
     if (!Array.isArray(plan[shot])) throw new Error(`redact.json: ${shot} must be a list of areas`);
 
     const patches = [];
