@@ -5,6 +5,7 @@ import path from 'node:path';
 import { validateFlow } from '../tools/validate-flow.mjs';
 import { importSteps, imageSize } from '../tools/import-steps.mjs';
 import { wordsFromCharacters } from '../tools/make-voice.mjs';
+import { redact } from '../tools/redact.mjs';
 
 const FIXTURE = 'tools/fixtures/capture-sample';
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'demo-anything-'));
@@ -90,6 +91,21 @@ test('the validator refuses an aspect ratio that does not match the screenshots'
   expect(validateFlow(dir).errors.join('\n')).toContain('"aspectRatio" is 0.75 but the screenshots are 0.5625');
 });
 
+test('the validator checks narrators and their voice files', () => {
+  const dir = copyExample();
+  editFlow(dir, (flow) => {
+    flow.narrators.push({ id: 'george', label: 'Again', provider: 'kokoro' }, { id: 'robot', provider: 'speakomatic' });
+    flow.steps[1].voice.variants = { nobody: { audio: 'assets/v01.mp3' }, emma: { audio: 'assets/emma/missing.mp3' } };
+    flow.steps[3].voice.variants = { emma: { audio: '../../outside.mp3' } };
+  });
+  const errors = validateFlow(dir).errors.join('\n');
+  expect(errors).toContain('the id "george" is used twice');
+  expect(errors).toContain('unknown provider "speakomatic"');
+  expect(errors).toContain('voice variant "nobody" isn\'t one of the flow\'s narrators');
+  expect(errors).toContain('emma audio "assets/emma/missing.mp3" is missing');
+  expect(errors).toContain('emma audio "../../outside.mp3" must be inside the flow folder');
+});
+
 test('import-steps turns a capture into a valid flow with hotspots on the boxes', () => {
   const dir = path.join(tmp(), 'flows', 'imported');
   const flow = importSteps(FIXTURE, dir, { name: 'Turning on email alerts in Acme Admin' });
@@ -113,11 +129,39 @@ test('import-steps turns a capture into a valid flow with hotspots on the boxes'
   expect(() => importSteps(FIXTURE, dir, {})).toThrow(/already exists/);
 });
 
-test('import-steps refuses screenshots of different sizes', () => {
+// A raw capture made from the fixture, run through redact so it has a real manifest.
+async function redactedCopy(change = () => {}) {
+  const root = tmp();
+  const raw = path.join(root, 'raw');
+  fs.cpSync(FIXTURE, raw, { recursive: true });
+  change(raw);
+  const plan = Object.fromEntries(fs.readdirSync(path.join(raw, 'shots')).map((f) => [f, []]));
+  fs.writeFileSync(path.join(raw, 'redact.json'), JSON.stringify(plan));
+  const clean = path.join(root, 'clean');
+  await redact({ rawDir: raw, cleanDir: clean });
+  return clean;
+}
+
+test('import-steps refuses screenshots of different sizes', async () => {
+  const clean = await redactedCopy((raw) => fs.copyFileSync('docs/assets/player.png', path.join(raw, 'shots', '02-settings.png')));
+  expect(() => importSteps(clean, path.join(tmp(), 'flows', 'mixed'), {})).toThrow(/must be the same size/);
+});
+
+test('import-steps refuses a folder that was never redacted', () => {
   const capture = path.join(tmp(), 'capture');
   fs.cpSync(FIXTURE, capture, { recursive: true });
-  fs.copyFileSync('docs/assets/player.png', path.join(capture, 'shots', '02-settings.png'));
-  expect(() => importSteps(capture, path.join(tmp(), 'flows', 'mixed'), {})).toThrow(/must be the same size/);
+  fs.rmSync(path.join(capture, 'redaction.json'));
+  expect(() => importSteps(capture, path.join(tmp(), 'flows', 'raw'), {})).toThrow(/has no redaction\.json.*npm run redact/);
+});
+
+test('import-steps refuses a screenshot that changed or appeared after redaction', async () => {
+  const changed = await redactedCopy();
+  fs.copyFileSync(path.join(FIXTURE, 'shots', '01-home.png'), path.join(changed, 'shots', '02-settings.png'));
+  expect(() => importSteps(changed, path.join(tmp(), 'flows', 'changed'), {})).toThrow(/02-settings\.png changed after redaction/);
+
+  const added = await redactedCopy();
+  fs.copyFileSync(path.join(FIXTURE, 'shots', '01-home.png'), path.join(added, 'shots', '04-extra.png'));
+  expect(() => importSteps(added, path.join(tmp(), 'flows', 'added'), {})).toThrow(/04-extra\.png isn't in redaction\.json/);
 });
 
 test('image sizes are read from PNG headers', () => {

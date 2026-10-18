@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
-import { access, cp, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { access, cp, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, before, describe, test } from 'node:test';
 import sharp from 'sharp';
+import { sha256 } from '../tools/lib/manifest.mjs';
 import { previewBoxes } from '../tools/preview-boxes.mjs';
 import { redact } from '../tools/redact.mjs';
 import { saveShot } from '../tools/save-shot.mjs';
@@ -62,12 +63,60 @@ describe('redact', () => {
     await assert.rejects(redact({ rawDir, cleanDir: join(work, 'outside', 'clean') }), /outside the screenshot/);
   });
 
-  test('copies a screenshot with nothing to hide unchanged', async () => {
+  test('keeps the pixels of a screenshot with nothing to hide but drops its metadata', async () => {
     const rawDir = await makeRaw('nothing', { '01-home.png': [] });
+    const raw = join(rawDir, 'shots', '01-home.png');
+    const tagged = join(rawDir, 'tagged.png');
+    await sharp(raw).withExif({ IFD0: { Copyright: 'Contoso tenant 1234' } }).png().toFile(tagged);
+    await cp(tagged, raw);
+    assert.ok((await sharp(raw).metadata()).exif, 'the test image should start with metadata');
+
     const cleanDir = join(work, 'nothing', 'clean');
     await redact({ rawDir, cleanDir });
+    const clean = join(cleanDir, 'shots', '01-home.png');
+    assert.equal(await areaDifference(raw, clean, { x: 0, y: 0, width: 1600, height: 900 }), 0);
+    assert.equal((await sharp(clean).metadata()).exif, undefined);
+  });
+
+  test('pads each area by 8 px so the edges of text are covered', async () => {
+    const rawDir = await makeRaw('pad', { '01-home.png': [HEADING] });
+    const cleanDir = join(work, 'pad', 'clean');
+    await redact({ rawDir, cleanDir });
     const raw = join(rawDir, 'shots', '01-home.png');
-    assert.equal(await areaDifference(raw, join(cleanDir, 'shots', '01-home.png'), { x: 0, y: 0, width: 1600, height: 900 }), 0);
+    const clean = join(cleanDir, 'shots', '01-home.png');
+    // A strip just outside the listed box is now inside the padding.
+    assert.ok(await areaDifference(raw, clean, { x: HEADING.x - 6, y: HEADING.y, width: 4, height: HEADING.height }) > 0);
+    assert.equal(await areaDifference(raw, clean, { x: HEADING.x - 30, y: HEADING.y, width: 4, height: HEADING.height }), 0);
+  });
+
+  test('a solid area becomes one opaque colour', async () => {
+    const rawDir = await makeRaw('solid', { '01-home.png': [{ ...HEADING, style: 'solid', pad: 0 }] });
+    const cleanDir = join(work, 'solid', 'clean');
+    await redact({ rawDir, cleanDir });
+    // stats() reads the whole input, so crop to a buffer first.
+    const crop = await sharp(join(cleanDir, 'shots', '01-home.png')).extract({ left: HEADING.x, top: HEADING.y, width: HEADING.width, height: HEADING.height }).png().toBuffer();
+    const { channels } = await sharp(crop).stats();
+    channels.slice(0, 3).forEach((c) => assert.equal(c.min, c.max));
+  });
+
+  test('empties the clean folder first, so old screenshots cannot linger', async () => {
+    const rawDir = await makeRaw('stale', { '01-home.png': [] });
+    const cleanDir = join(work, 'stale', 'clean');
+    await mkdir(join(cleanDir, 'shots'), { recursive: true });
+    await writeFile(join(cleanDir, 'shots', '01-old-name.png'), 'old');
+    await redact({ rawDir, cleanDir });
+    assert.deepEqual(await readdir(join(cleanDir, 'shots')), ['01-home.png']);
+  });
+
+  test('writes redaction.json with the hash of every cleaned screenshot', async () => {
+    const rawDir = await makeRaw('manifest', { '01-home.png': [HEADING] });
+    const cleanDir = join(work, 'manifest', 'clean');
+    await redact({ rawDir, cleanDir });
+    const manifest = JSON.parse(await readFile(join(cleanDir, 'redaction.json'), 'utf8'));
+    assert.equal(manifest.files.length, 1);
+    assert.equal(manifest.files[0].file, 'shots/01-home.png');
+    assert.equal(manifest.files[0].areas, 1);
+    assert.equal(manifest.files[0].sha256, await sha256(join(cleanDir, 'shots', '01-home.png')));
   });
 });
 

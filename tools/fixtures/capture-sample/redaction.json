@@ -1,0 +1,27 @@
+{
+  "tool": "demo-anything redact",
+  "version": 1,
+  "files": [
+    {
+      "file": "shots/01-home.png",
+      "sha256": "5f0847e0dac2f6bd69eabac292f19f1f4e594d966e168ed06a280e9cfc8c716b",
+      "source": "shots/01-home.png",
+      "sourceSha256": "a5cdd12445137292306d49d606c49e2ec152535d80d0cb034e075023c231e140",
+      "areas": 0
+    },
+    {
+      "file": "shots/02-settings.png",
+      "sha256": "c68f881feaebfb6e6bda0c7dcc69e0b3273f02a4b86d2c0ce35e2d5a078a0f00",
+      "source": "shots/02-settings.png",
+      "sourceSha256": "ae07f07512eeba0d10ffacd4b5e70d4339b6becd44543d12d5228089890efeca",
+      "areas": 0
+    },
+    {
+      "file": "shots/03-notifications.png",
+      "sha256": "f6ee36fd7fab026905c416206b23717e4013e3ad23539396a1f9a0d840fdcd25",
+      "source": "shots/03-notifications.png",
+      "sourceSha256": "6bcf69da9782e2abcfcc44c8703a34301d6cedb1b421b6bd6761ae2f7a80d668",
+      "areas": 0
+    }
+  ]
+}

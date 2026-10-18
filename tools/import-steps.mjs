@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// Turns a capture folder (screenshots + steps.json, as written by the Claude in Chrome capture prompt)
+// Turns a redacted capture folder (screenshots + steps.json + redaction.json from `npm run redact`)
 // into a playable flow: cover, then for each step a narration step and a checkpoint on the same
-// screenshot, then an end card. Pixel boxes become hotspot centres as 0–1 fractions.
+// screenshot, then an end card. Pixel boxes become hotspot centres as 0–1 fractions. A folder
+// without redaction.json, or with a screenshot that changed since, is refused.
 //
 // Usage: node tools/import-steps.mjs <capture-folder> flows/<new-id> [--name "Flow name"] [--force]
 //
@@ -19,6 +20,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { imageSize } from './lib/image-size.mjs';
+import { verifyManifest } from './lib/manifest.mjs';
 import { validateFlow } from './validate-flow.mjs';
 
 export { imageSize };
@@ -43,6 +45,9 @@ function findShot(captureDir, n, explicit) {
 export function importSteps(captureDir, flowDir, { name, force = false } = {}) {
   const stepsFile = path.join(captureDir, 'steps.json');
   if (!fs.existsSync(stepsFile)) throw new Error(`There is no steps.json in ${captureDir}.`);
+  // Only redacted screenshots may become a flow: redact writes redaction.json, and every
+  // screenshot must still match it.
+  verifyManifest(captureDir);
   const raw = JSON.parse(fs.readFileSync(stepsFile, 'utf8'));
   const entries = (Array.isArray(raw) ? raw : raw.steps || []).slice();
   if (!entries.length) throw new Error('steps.json has no steps.');
