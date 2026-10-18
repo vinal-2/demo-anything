@@ -10,11 +10,13 @@
 //
 // Which narrator: --provider/--voice/--speed, then "narrator" in flow.json, then the
 // environment (TTS_PROVIDER, KOKORO_VOICE, ELEVENLABS_VOICE_ID, GOOGLE_TTS_VOICE, TTS_SPEED).
+// A flow can instead list several "narrators" ({ id, label, provider, voice, speed }) so
+// viewers can switch voice in the player; each is made in turn (--narrator <id> for one).
 // Keys live only in .env (never commit it). voice-lexicon.json changes how words are said
 // without changing the captions. Unchanged steps are skipped; --force redoes them.
 //
 // Usage: node tools/make-voice.mjs flows/<id> [--provider p] [--voice v] [--speed 1.0]
-//          [--only <step>] [--force] [--align] [--list-voices] [--check-scripts]
+//          [--narrator <id>] [--only <step>] [--force] [--align] [--list-voices] [--check-scripts]
 
 import crypto from 'node:crypto';
 import fs from 'node:fs';
@@ -54,6 +56,7 @@ export function parseArgs(argv) {
     else if (a === '--voice') { opts.voice = valueOf(k); k += 1; }
     else if (a === '--speed') { opts.speed = Number(valueOf(k)); k += 1; }
     else if (a === '--only') { opts.only = Number(valueOf(k)); k += 1; }
+    else if (a === '--narrator') { opts.narrator = valueOf(k); k += 1; }
     else if (a.startsWith('--')) throw new Error(`Unknown option ${a}.`);
     else opts.dir = a;
   }
@@ -72,8 +75,32 @@ export function resolveNarrator(flow, opts, env = process.env) {
   return { provider, voice, speed };
 }
 
+// Every narrator to make. A flow can list several in "narrators" so viewers can switch
+// voice; the first is the default. Flags only change the default narrator.
+export function narratorList(flow, opts, env = process.env) {
+  const listed = Array.isArray(flow?.narrators) && flow.narrators.length ? flow.narrators : null;
+  if (!listed) return [{ id: 'default', ...resolveNarrator(flow, opts, env) }];
+  const seen = new Set();
+  return listed.map((n, k) => {
+    const id = String(n?.id || '');
+    if (!/^[a-z0-9-]+$/.test(id)) throw new Error(`Narrator ids use lower-case letters, numbers and dashes (got "${id}").`);
+    if (seen.has(id)) throw new Error(`Two narrators are called "${id}".`);
+    seen.add(id);
+    return { id, ...resolveNarrator({ narrator: n }, k === 0 ? opts : {}, env) };
+  });
+}
+
 const sha = (data) => crypto.createHash('sha1').update(data).digest('hex').slice(0, 12);
-const audioPath = (i) => `assets/v${String(i).padStart(2, '0')}.mp3`;
+const pad2 = (i) => String(i).padStart(2, '0');
+// The default narrator keeps assets/vNN.mp3; the others use assets/<id>/vNN.mp3.
+const audioPath = (i, folder) => (folder ? `assets/${folder}/v${pad2(i)}.mp3` : `assets/v${pad2(i)}.mp3`);
+// Where a narrator's audio and timings live inside step.voice.
+const slotFor = (v, folder) => {
+  if (!folder) return v;
+  v.variants ??= {};
+  v.variants[folder] ??= {};
+  return v.variants[folder];
+};
 
 function loadLexicon() {
   const file = path.join(ROOT, 'voice-lexicon.json');
@@ -88,9 +115,9 @@ function narratedSteps(flow, only) {
   return picked;
 }
 
-// The newest recording for step i: assets/vNN.wav, .m4a, .mp3, .ogg or .flac.
-function findRecording(dir, i) {
-  const base = path.join(dir, 'assets', `v${String(i).padStart(2, '0')}`);
+// The newest recording for step i: assets/[<narrator>/]vNN.wav, .m4a, .mp3, .ogg or .flac.
+function findRecording(dir, i, folder) {
+  const base = path.join(dir, 'assets', ...(folder ? [folder] : []), `v${pad2(i)}`);
   return RECORDED_TYPES.map((ext) => base + ext).filter((f) => fs.existsSync(f))
     .sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs)[0];
 }
@@ -102,14 +129,37 @@ async function timingsFor(script, spoken, outFile, durationSec, providerTimings,
 }
 
 async function narrate(flow, dir, opts) {
-  const narrator = resolveNarrator(flow, opts);
-  const { provider, voice, speed } = narrator;
-  const lexicon = loadLexicon();
+  const all = narratorList(flow, opts);
+  const chosen = opts.narrator ? all.filter((n) => n.id === opts.narrator) : all;
+  if (!chosen.length) throw new Error(`No narrator "${opts.narrator}". This flow has: ${all.map((n) => n.id).join(', ')}.`);
   const steps = narratedSteps(flow, opts.only);
+  const lexicon = loadLexicon();
+  const results = [];
+  for (const narrator of chosen) {
+    const folder = narrator === all[0] ? '' : narrator.id;
+    results.push({ narrator, ...(await narrateOne(steps, dir, narrator, folder, lexicon, opts)) });
+  }
+  if (!opts.narrator) dropUnlistedVariants(flow, all);
+  return results;
+}
 
+// Removes variants for narrators no longer listed, and the empty "variants" object.
+function dropUnlistedVariants(flow, all) {
+  const keep = new Set(all.slice(1).filter((n) => n.provider !== 'browser').map((n) => n.id));
+  for (const step of flow.steps) {
+    const variants = step.voice?.variants;
+    if (!variants) continue;
+    for (const id of Object.keys(variants)) if (!keep.has(id)) delete variants[id];
+    if (!Object.keys(variants).length) delete step.voice.variants;
+  }
+}
+
+async function narrateOne(steps, dir, narrator, folder, lexicon, opts) {
+  const { provider, voice, speed } = narrator;
   if (provider === 'browser') {
-    for (const { step } of steps) Object.assign(step.voice, { audio: null, timings: [], hash: sha(`browser|${step.voice.script}`) });
-    return { narrator, made: steps.length, skipped: 0 };
+    // The player reads these with the browser's voice; only the default narrator stores anything.
+    if (!folder) for (const { step } of steps) Object.assign(step.voice, { audio: null, timings: [], hash: sha(`browser|${step.voice.script}`) });
+    return { made: folder ? 0 : steps.length, skipped: 0 };
   }
   await checkFfmpeg();
   if (opts.align && !(await whisperAvailable())) throw new Error('--align needs Whisper: pip install faster-whisper');
@@ -120,23 +170,25 @@ async function narrate(flow, dir, opts) {
   try {
     for (const { step, i } of steps) {
       const v = step.voice;
-      const rel = audioPath(i);
+      const slot = slotFor(v, folder);
+      const rel = audioPath(i, folder);
       const out = path.join(dir, rel);
       const spoken = applyLexicon(v.script, lexicon);
+      const label = `  step ${i}${folder ? ` (${folder})` : ''}`;
       let raw;
       let providerTimings = null;
 
       if (provider === 'recorded') {
-        const source = findRecording(dir, i);
-        if (!source) { console.log(`  step ${i}: no recording (add ${rel}, .wav or .m4a), skipped`); skipped += 1; continue; }
-        if (!opts.force && v.hash === sha(fs.readFileSync(source)) && v.audio === rel) { skipped += 1; continue; }
+        const source = findRecording(dir, i, folder);
+        if (!source) { console.log(`${label}: no recording (add ${rel}, .wav or .m4a), skipped`); skipped += 1; continue; }
+        if (!opts.force && slot.hash === sha(fs.readFileSync(source)) && slot.audio === rel) { skipped += 1; continue; }
         raw = path.join(work, `in${path.extname(source)}`);
         fs.copyFileSync(source, raw);
       } else {
         const hash = sha(`${provider}|${voice}|${speed}|${spoken}`);
-        if (!opts.force && v.hash === hash && v.audio === rel && fs.existsSync(out)) { skipped += 1; continue; }
+        if (!opts.force && slot.hash === hash && slot.audio === rel && fs.existsSync(out)) { skipped += 1; continue; }
         raw = path.join(work, `raw-${i}${provider === 'kokoro' ? '.wav' : '.mp3'}`);
-        process.stdout.write(`  step ${i}: ${provider} ${voice} … `);
+        process.stdout.write(`${label}: ${provider} ${voice} … `);
         ({ timings: providerTimings } = await SYNTH[provider].synth(spoken, { voice, speed }, raw));
       }
 
@@ -144,17 +196,17 @@ async function narrate(flow, dir, opts) {
       const finished = path.join(work, `out-${i}.mp3`);
       const length = await finishAudio(raw, finished);
       fs.copyFileSync(finished, out);
-      v.timings = await timingsFor(v.script, spoken, out, length, providerTimings, opts.align);
-      v.audio = rel;
-      v.hash = provider === 'recorded' ? sha(fs.readFileSync(out)) : sha(`${provider}|${voice}|${speed}|${spoken}`);
-      if (provider === 'recorded') console.log(`  step ${i}: recorded, ${length.toFixed(1)} s`);
-      else console.log(`${length.toFixed(1)} s, ${v.timings.length} words timed`);
+      slot.timings = await timingsFor(v.script, spoken, out, length, providerTimings, opts.align);
+      slot.audio = rel;
+      slot.hash = provider === 'recorded' ? sha(fs.readFileSync(out)) : sha(`${provider}|${voice}|${speed}|${spoken}`);
+      if (provider === 'recorded') console.log(`${label}: recorded, ${length.toFixed(1)} s`);
+      else console.log(`${length.toFixed(1)} s, ${slot.timings.length} words timed`);
       made += 1;
     }
   } finally {
     fs.rmSync(work, { recursive: true, force: true });
   }
-  return { narrator, made, skipped };
+  return { made, skipped };
 }
 
 function printScriptChecks(flow) {
@@ -186,10 +238,13 @@ async function main() {
   const flow = JSON.parse(fs.readFileSync(file, 'utf8'));
   if (opts.checkScripts) return printScriptChecks(flow);
 
-  const { narrator, made, skipped } = await narrate(flow, dir, opts);
+  const results = await narrate(flow, dir, opts);
   fs.writeFileSync(file, `${JSON.stringify(flow, null, 2)}\n`);
-  const who = narrator.provider === 'browser' ? 'browser voice' : `${narrator.provider} ${narrator.voice} at ${narrator.speed}×`;
-  console.log(`${who}: updated ${made} step${made === 1 ? '' : 's'}, skipped ${skipped} unchanged.`);
+  for (const { narrator, made, skipped } of results) {
+    const who = narrator.provider === 'browser' ? 'browser voice' : `${narrator.provider} ${narrator.voice} at ${narrator.speed}×`;
+    const name = narrator.id === 'default' ? '' : `${narrator.id}: `;
+    console.log(`${name}${who}: updated ${made} step${made === 1 ? '' : 's'}, skipped ${skipped} unchanged.`);
+  }
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

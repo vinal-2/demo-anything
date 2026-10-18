@@ -13,6 +13,7 @@ import { imageSize } from './lib/image-size.mjs';
 const RATIO_TOLERANCE = 0.002;
 
 const TYPES = new Set(['cover', 'image', 'video', 'end']);
+const VOICE_PROVIDERS = new Set(['browser', 'kokoro', 'elevenlabs', 'google', 'recorded']);
 const STOP = new Set(('the and for you your this that with from into then its their there are was were will can has have had not but '
   + 'all any our out how what when where which who why use used using step steps here now just also than them they '
   + 'show shows open click select choose next back about after before over under same each more most other some such').split(' '));
@@ -72,6 +73,21 @@ export function validateFlow(flowDir) {
   const where = (i) => `Step ${i} (${steps[i].type || 'no type'})`;
   const imageSizes = new Map();
 
+  const narratorIds = new Set();
+  if (flow.narrators != null) {
+    if (!Array.isArray(flow.narrators) || !flow.narrators.length) errors.push('"narrators" must be a list with at least one narrator.');
+    else {
+      flow.narrators.forEach((n, k) => {
+        const id = String(n?.id || '');
+        if (!/^[a-z0-9-]+$/.test(id)) errors.push(`Narrator ${k}: "id" must use lower-case letters, numbers and dashes.`);
+        else if (narratorIds.has(id)) errors.push(`Narrator ${k}: the id "${id}" is used twice.`);
+        narratorIds.add(id);
+        if (!VOICE_PROVIDERS.has(String(n?.provider || ''))) errors.push(`Narrator ${k} (${id}): unknown provider "${n?.provider}". Use ${[...VOICE_PROVIDERS].join(', ')}.`);
+        if (!n?.label) warnings.push(`Narrator ${k} (${id}): no "label", so the voice menu shows its id.`);
+      });
+    }
+  }
+
   steps.forEach((s, i) => {
     if (!s || typeof s !== 'object') { errors.push(`Step ${i} isn't an object.`); return; }
     if (!TYPES.has(s.type)) errors.push(`${where(i)}: unknown type. Use cover, image, video or end.`);
@@ -89,7 +105,13 @@ export function validateFlow(flowDir) {
         }
       });
     }
-    if (s.voice && s.voice.audio && missing(s.voice.audio)) errors.push(`${where(i)}: voice audio "${s.voice.audio}" is missing from ${flowDir}.`);
+    if (s.voice && s.voice.audio && outside(s.voice.audio)) errors.push(`${where(i)}: voice audio "${s.voice.audio}" must be inside the flow folder.`);
+    else if (s.voice && s.voice.audio && missing(s.voice.audio)) errors.push(`${where(i)}: voice audio "${s.voice.audio}" is missing from ${flowDir}.`);
+    Object.entries((s.voice && s.voice.variants) || {}).forEach(([id, alt]) => {
+      if (!narratorIds.has(id)) errors.push(`${where(i)}: voice variant "${id}" isn't one of the flow's narrators.`);
+      if (alt && alt.audio && outside(alt.audio)) errors.push(`${where(i)}: ${id} audio "${alt.audio}" must be inside the flow folder.`);
+      else if (alt && alt.audio && missing(alt.audio)) errors.push(`${where(i)}: ${id} audio "${alt.audio}" is missing from ${flowDir}.`);
+    });
     if (s.voice && s.voice.timings != null && !Array.isArray(s.voice.timings)) errors.push(`${where(i)}: voice.timings must be a list.`);
     ['logo', 'bg'].forEach((k) => { if (s[k] && missing(s[k])) errors.push(`${where(i)}: ${k} file "${s[k]}" is missing from ${flowDir}.`); });
 

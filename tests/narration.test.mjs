@@ -1,7 +1,38 @@
 import assert from 'node:assert/strict';
 import { describe, test } from 'node:test';
 import { applyLexicon, checkScript, estimateTimings, mapTimings, shiftTimings } from '../tools/lib/narration.mjs';
-import { parseArgs, resolveNarrator } from '../tools/make-voice.mjs';
+import { narratorList, parseArgs, resolveNarrator } from '../tools/make-voice.mjs';
+
+describe('a list of narrators', () => {
+  const flow = {
+    narrators: [
+      { id: 'george', provider: 'kokoro', voice: 'bm_george' },
+      { id: 'emma', provider: 'kokoro', voice: 'bf_emma', speed: 0.9 },
+      { id: 'browser', provider: 'browser' },
+    ],
+  };
+
+  test('keeps each narrator in order, with the first as the default', () => {
+    const list = narratorList(flow, {}, {});
+    assert.deepEqual(list.map((n) => [n.id, n.provider, n.voice, n.speed]),
+      [['george', 'kokoro', 'bm_george', 1], ['emma', 'kokoro', 'bf_emma', 0.9], ['browser', 'browser', '', 1]]);
+  });
+
+  test('flags change only the default narrator', () => {
+    const list = narratorList(flow, { voice: 'bm_daniel' }, {});
+    assert.equal(list[0].voice, 'bm_daniel');
+    assert.equal(list[1].voice, 'bf_emma');
+  });
+
+  test('a flow with one narrator still works', () => {
+    assert.deepEqual(narratorList({ narrator: { provider: 'kokoro' } }, {}, {}), [{ id: 'default', provider: 'kokoro', voice: 'bm_george', speed: 1 }]);
+  });
+
+  test('refuses bad or repeated ids', () => {
+    assert.throws(() => narratorList({ narrators: [{ id: 'Emma Smith', provider: 'kokoro' }] }, {}, {}), /lower-case letters/);
+    assert.throws(() => narratorList({ narrators: [{ id: 'a', provider: 'kokoro' }, { id: 'a', provider: 'browser' }] }, {}, {}), /Two narrators are called "a"/);
+  });
+});
 
 describe('choosing the narrator', () => {
   const flow = { narrator: { provider: 'kokoro', voice: 'bf_emma', speed: 1.1 } };
