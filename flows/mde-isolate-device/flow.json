@@ -1,0 +1,224 @@
+{
+  "id": "mde-isolate-device",
+  "name": "Isolating a device in Microsoft Defender for Endpoint",
+  "font": "Inter",
+  "aspectRatio": 0.5625,
+  "theme": {
+    "brand": "#0E676C",
+    "brandText": "#FFFFFF",
+    "hotspot": "#D06A12"
+  },
+  "showBackNextButtons": true,
+  "keyboardNav": true,
+  "backgroundMusic": {
+    "src": null,
+    "volume": 0.1
+  },
+  "steps": [
+    {
+      "type": "cover",
+      "title": "Isolating a device in Microsoft Defender for Endpoint",
+      "subtitle": "Contain a compromised endpoint while keeping the Defender connection alive",
+      "buttonText": "Get Started",
+      "logo": "assets/logo.svg",
+      "logoText": "SOC lab",
+      "bg": null,
+      "align": "left"
+    },
+    {
+      "type": "image",
+      "src": "assets/s01-incidents.png",
+      "voice": {
+        "script": "In this walkthrough you'll isolate a suspicious device from the network. Start from the device inventory in the left navigation.",
+        "audio": null,
+        "timings": [],
+        "hash": "702ee0418b6b"
+      },
+      "hotspot": null,
+      "autoAdvance": true
+    },
+    {
+      "type": "image",
+      "src": "assets/s01-incidents.png",
+      "hotspot": {
+        "x": 0.0625,
+        "y": 0.3296,
+        "size": 40,
+        "style": "pulsating",
+        "label": "Devices"
+      },
+      "autoAdvance": false
+    },
+    {
+      "type": "image",
+      "src": "assets/s02-device-inventory.png",
+      "voice": {
+        "script": "This is the device inventory. Search for the affected host, then open its device page.",
+        "audio": null,
+        "timings": [],
+        "hash": "5d2c35158fd9"
+      },
+      "hotspot": null,
+      "autoAdvance": true
+    },
+    {
+      "type": "image",
+      "src": "assets/s02-device-inventory.png",
+      "hotspot": {
+        "x": 0.1833,
+        "y": 0.2944,
+        "size": 40,
+        "style": "pulsating",
+        "label": "Open LAB-WS22-01"
+      },
+      "autoAdvance": false
+    },
+    {
+      "type": "image",
+      "src": "assets/s03-device-page.png",
+      "voice": {
+        "script": "The device page shows risk level, exposure and active alerts. Response actions are in the menu at the top right.",
+        "audio": null,
+        "timings": [],
+        "hash": "fa656fbea60a"
+      },
+      "hotspot": null,
+      "autoAdvance": true
+    },
+    {
+      "type": "image",
+      "src": "assets/s03-device-page.png",
+      "hotspot": {
+        "x": 0.9521,
+        "y": 0.1185,
+        "size": 40,
+        "style": "pulsating",
+        "label": "More actions"
+      },
+      "autoAdvance": false
+    },
+    {
+      "type": "video",
+      "src": [
+        "assets/t01-actions-menu.webm",
+        "assets/t01-actions-menu.mp4"
+      ],
+      "start": 0,
+      "end": 1.2,
+      "muted": true,
+      "autoAdvance": true
+    },
+    {
+      "type": "image",
+      "src": "assets/s04-actions-menu.png",
+      "hotspot": {
+        "x": 0.8833,
+        "y": 0.3519,
+        "size": 40,
+        "style": "pulsating",
+        "label": "Isolate device"
+      },
+      "autoAdvance": false
+    },
+    {
+      "type": "image",
+      "src": "assets/s05-isolate-dialog.png",
+      "voice": {
+        "script": "Choose full or selective isolation. Selective isolation keeps Outlook and Teams working for the user.",
+        "audio": null,
+        "timings": [],
+        "hash": "aed3162eaedf"
+      },
+      "hotspot": null,
+      "autoAdvance": true
+    },
+    {
+      "type": "image",
+      "src": "assets/s05-isolate-dialog.png",
+      "hotspot": {
+        "x": 0.3333,
+        "y": 0.3556,
+        "size": 40,
+        "style": "pulsating",
+        "label": "Choose Full"
+      },
+      "autoAdvance": false
+    },
+    {
+      "type": "image",
+      "src": "assets/s06-isolate-comment.png",
+      "voice": {
+        "script": "Add a comment explaining why. This is recorded in the Action Center audit trail.",
+        "audio": null,
+        "timings": [],
+        "hash": "13e760620c69"
+      },
+      "hotspot": null,
+      "autoAdvance": true
+    },
+    {
+      "type": "image",
+      "src": "assets/s06-isolate-comment.png",
+      "hotspot": {
+        "x": 0.5,
+        "y": 0.5935,
+        "size": 40,
+        "style": "pulsating",
+        "label": "Add a comment"
+      },
+      "autoAdvance": false
+    },
+    {
+      "type": "image",
+      "src": "assets/s06-isolate-comment.png",
+      "hotspot": {
+        "x": 0.6583,
+        "y": 0.8037,
+        "size": 40,
+        "style": "pulsating",
+        "label": "Confirm"
+      },
+      "autoAdvance": false
+    },
+    {
+      "type": "image",
+      "src": "assets/s07-action-center.png",
+      "voice": {
+        "script": "The action is now pending in the Action Center. Once the device checks in, isolation takes effect.",
+        "audio": null,
+        "timings": [],
+        "hash": "8233eab824ba"
+      },
+      "hotspot": null,
+      "autoAdvance": true
+    },
+    {
+      "type": "image",
+      "src": "assets/s08-isolated-status.png",
+      "voice": {
+        "script": "The device now shows as isolated. To reverse this, use 'Release from isolation' from the same menu.",
+        "audio": null,
+        "timings": [],
+        "hash": "de2953446fc7"
+      },
+      "hotspot": null,
+      "autoAdvance": true
+    },
+    {
+      "type": "end",
+      "title": "Thank you for watching!",
+      "subtitle": "Read more in the [Defender for Endpoint docs](https://learn.microsoft.com/defender-endpoint/respond-machine-alerts)",
+      "buttons": [
+        {
+          "text": "Replay",
+          "action": "restart"
+        },
+        {
+          "text": "Make your own demo",
+          "action": "url",
+          "href": "https://github.com/vinal-2/demo-anything"
+        }
+      ]
+    }
+  ]
+}

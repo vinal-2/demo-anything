@@ -98,6 +98,7 @@ See [docs/player.md](docs/player.md) for the controls, the editor, voice and emb
 | Demo | What it shows |
 | --- | --- |
 | [Example: turn on email alerts](https://vinal-2.github.io/demo-anything/?flow=example) | A three-step tour of a fictional admin app. Start here. |
+| [Isolating a device in Microsoft Defender for Endpoint](https://vinal-2.github.io/demo-anything/?flow=mde-isolate-device) | A SOC lab walkthrough: contain a compromised endpoint while keeping the Defender connection alive. Built on placeholder screens of a fictional lab, with narration, a video step and a confirmation dialog. |
 
 Made a demo? Open a pull request; see [CONTRIBUTING.md](CONTRIBUTING.md).
 

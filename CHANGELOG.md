@@ -21,6 +21,8 @@ All notable changes are listed here. The format follows
 
 ### Added
 
+- Showcase flow `mde-isolate-device`: isolating a device in Microsoft Defender for
+  Endpoint, on placeholder screens of a fictional SOC lab.
 - `AGENTS.md`: rules for coding agents working in the repository (with a
   `CLAUDE.md` that points to it).
 - `voice` tool: records narration with Azure or ElevenLabs.
