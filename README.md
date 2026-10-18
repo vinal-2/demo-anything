@@ -16,8 +16,8 @@ npx playwright install chromium   # only needed to run the tests
 npm start
 ```
 
-Open <http://127.0.0.1:4173/?flow=example> to play the example, or
-<http://127.0.0.1:4173/> to see every flow.
+Open <http://localhost:4173/?flow=example> to play the example, or
+<http://localhost:4173/> to see every flow.
 
 Click the hotspot, or use **Next** / **Back**, or the **→** / **←** keys.
 
