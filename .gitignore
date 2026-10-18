@@ -30,3 +30,6 @@ voice-samples/
 
 # Built GitHub Pages site
 _site/
+
+# Launch drafts (posted by hand, never committed)
+launch/

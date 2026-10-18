@@ -14,13 +14,20 @@
 
 **[Live demos](https://vinal-2.github.io/demo-anything/) · [Guides](docs/getting-started.md) · [Agent skill](skills/demo-anything/SKILL.md)**
 
-[Quick start](#quick-start) · [How it works](#how-it-works) · [Player](#whats-in-the-player) · [Showcases](#showcases) · [FAQ](#faq) · [Documentation](#documentation) · [Star history](#star-history)
+[Quick start](#quick-start) · [How it works](#how-it-works) · [Player](#whats-in-the-player) · [Showcases](#showcases) · [Use cases](#use-cases) · [How it compares](#how-it-compares) · [FAQ](#faq) · [Documentation](#documentation) · [Star history](#star-history)
 
 <br />
 
 <a href="https://vinal-2.github.io/demo-anything/?flow=example"><img src="docs/assets/player.png" alt="The Demo Anything player: an admin Settings page in a browser frame, with a pulsing hotspot and the tooltip 'Open the Notifications tab' beside the cursor" width="1000" /></a>
 
 </div>
+
+**Demo Anything is an open-source tool for making interactive, click-through product
+demos from screenshots.** Each demo is a guided tour: the viewer clicks a pulsing
+hotspot on each screen while a natural voice explains the step, with captions and a
+guided cursor. Your coding agent can build one from a real web app in your browser,
+redact it, and test it. The result is a folder of static files you can host free on
+GitHub Pages or anywhere else, with no account and no build step.
 
 ---
 
@@ -113,6 +120,44 @@ See [docs/player.md](docs/player.md) for the controls, the editor, voice and emb
 | [Isolating a device in Microsoft Defender for Endpoint](https://vinal-2.github.io/demo-anything/?flow=mde-isolate-device) | A SOC lab walkthrough: contain a compromised endpoint while keeping the Defender connection alive. Built on placeholder screens of a fictional lab, with narration, a video step and a confirmation dialog. |
 
 Made a demo? Open a pull request; see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Use cases
+
+| Use case | For |
+| --- | --- |
+| [Security and SOC training](docs/use-cases/security-and-soc-training.md) | Blue teams, MSSPs, security trainers |
+| [SaaS product tours](docs/use-cases/saas-product-tours.md) | Founders, product marketing |
+| [Sales and pre-sales leave-behinds](docs/use-cases/sales-leave-behinds.md) | Solution engineers, account teams |
+| [Customer onboarding and help-centre how-tos](docs/use-cases/customer-onboarding.md) | Support, customer success |
+| [IT runbooks](docs/use-cases/it-runbooks.md) | Service desks, system admins |
+| [Developer docs and API consoles](docs/use-cases/developer-docs.md) | DevRel, technical writers |
+| [Teaching software](docs/use-cases/teaching-software.md) | Lecturers, bootcamps, trainers |
+| [Release notes and "what's new" tours](docs/use-cases/release-tours.md) | Product managers |
+| [Compliance and audit walkthroughs](docs/use-cases/compliance-walkthroughs.md) | GRC and audit teams |
+| [Bug reproduction](docs/use-cases/bug-reproduction.md) | QA, engineers |
+| [Workshops and internal talks](docs/use-cases/workshops.md) | Anyone presenting |
+
+## How it compares
+
+Demo Anything is one way to make interactive demos. What is true of this project:
+
+- **Static files you host.** A demo is `flow.json` plus images and audio. GitHub Pages
+  works out of the box; any static host or intranet server works too. There is no
+  account, sign-in or per-viewer pricing.
+- **Built by your agent, or by hand.** The agent skill walks a real app in your own
+  browser, read-only, and builds the flow. You can also make one from screenshots you
+  took yourself. There is no browser-extension recorder.
+- **Redaction built in and enforced.** Areas are blurred or filled, every image is
+  re-encoded, import refuses unredacted screenshots, and `validate` fails on emails,
+  tenant IDs, public IPs and tokens in the text.
+- **Docs as code.** Flows live in git and are reviewed in pull requests; CI plays every
+  demo in a real browser before it is published.
+- **Natural voices for free.** A local voice (Kokoro) costs nothing; cloud voices and
+  your own recordings are optional. Viewers can switch voice.
+- **MIT licence.** You own the files and can change anything.
+
+It does not include viewer analytics, CRM integrations, a visual recorder or a hosted
+editor. If you need those, a hosted product may suit you better.
 
 ## FAQ
 
