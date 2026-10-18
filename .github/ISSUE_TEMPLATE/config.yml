@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security problem or leaked data in a flow
+    url: https://github.com/vinal-2/demo-anything/security/advisories/new
+    about: Report privately. Please do not open a public issue.

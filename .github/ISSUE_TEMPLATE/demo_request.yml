@@ -1,0 +1,22 @@
+name: Demo idea
+description: Suggest a walkthrough you would like to see.
+labels: [demo]
+body:
+  - type: input
+    id: app
+    attributes:
+      label: App or product
+      placeholder: "Microsoft Defender for Endpoint"
+    validations:
+      required: true
+  - type: textarea
+    id: path
+    attributes:
+      label: The steps to show
+      placeholder: "Home → Settings → Endpoints → Onboarding"
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Who would use it, and why?

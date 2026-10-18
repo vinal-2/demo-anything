@@ -1,0 +1,28 @@
+name: Bug report
+description: Something in the player or the tools does not work.
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what you saw instead.
+    validations:
+      required: true
+  - type: input
+    id: flow
+    attributes:
+      label: Flow or command
+      placeholder: "?flow=example or npm run validate -- flows/my-flow"
+  - type: input
+    id: environment
+    attributes:
+      label: Browser, Node.js version and operating system
+      placeholder: "Chrome 141, Node 22, Windows 11"
+  - type: checkboxes
+    id: safe
+    attributes:
+      label: Before you post
+      options:
+        - label: My report and attachments contain no personal or organisation data.
+          required: true
