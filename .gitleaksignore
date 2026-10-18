@@ -1,0 +1,3 @@
+# Known false positives. Each line is a gitleaks fingerprint (commit:file:rule:line).
+# A fake JSON web token used to test validate's sensitive-text scan; not a real secret.
+42c1f2082942c1ab9d5fe2898529cb980c7f99db:tests/tools.spec.mjs:jwt:117
