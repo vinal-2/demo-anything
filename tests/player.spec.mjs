@@ -304,6 +304,61 @@ for (const id of findFlows('flows').map((dir) => path.basename(dir))) {
   });
 }
 
+// The player plays narration through new Audio() objects that never join the page.
+async function trackAudio(page) {
+  await page.addInitScript(() => {
+    const Original = window.Audio;
+    window.__audios = [];
+    window.Audio = function TrackedAudio(...args) { const a = new Original(...args); window.__audios.push(a); return a; };
+    window.Audio.prototype = Original.prototype;
+  });
+}
+
+test('the voice menu switches narrator straight away and remembers the choice', async ({ page }) => {
+  await trackAudio(page);
+  await start(page);
+  const voice = page.getByRole('button', { name: 'Narrator voice' });
+  await voice.click();
+  await expect(page.getByRole('menuitemradio')).toHaveText(['George (British, male)', 'Emma (British, female)', 'Browser voice']);
+  await expect(page.getByRole('menuitemradio', { name: 'George (British, male)' })).toHaveAttribute('aria-checked', 'true');
+  await page.getByRole('menuitemradio', { name: 'Emma (British, female)' }).click();
+
+  await expect(voice).toBeFocused();
+  await expect(dp(page)).toHaveAttribute('data-step', '1');
+  await expect.poll(() => page.evaluate(() => window.__audios.some((a) => a.src.endsWith('/flows/example/assets/emma/v01.mp3')))).toBe(true);
+  await expect(page.locator('[data-role="status"]')).toHaveText('Narrator: Emma (British, female)');
+
+  await page.reload();
+  await page.getByRole('button', { name: 'Narrator voice' }).click();
+  await expect(page.getByRole('menuitemradio', { name: 'Emma (British, female)' })).toHaveAttribute('aria-checked', 'true');
+});
+
+test('the voice menu works from the keyboard', async ({ page }) => {
+  await open(page);
+  const voice = page.getByRole('button', { name: 'Narrator voice' });
+  await voice.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('menuitemradio', { name: 'George (British, male)' })).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(page.getByRole('menuitemradio', { name: 'Emma (British, female)' })).toBeFocused();
+  await page.keyboard.press('ArrowUp');
+  await page.keyboard.press('ArrowUp');
+  await expect(page.getByRole('menuitemradio', { name: 'Browser voice' })).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('menuitemradio', { name: 'Browser voice' })).toBeHidden();
+  await expect(voice).toBeFocused();
+});
+
+test('a flow with one narrator shows no voice menu', async ({ page }) => {
+  await page.route('**/flows/example/flow.json', async (route) => {
+    const flow = await (await route.fetch()).json();
+    delete flow.narrators;
+    await route.fulfill({ json: flow });
+  });
+  await open(page);
+  await expect(page.getByRole('button', { name: 'Narrator voice' })).toHaveCount(0);
+});
+
 test('the local server never serves capture/ or project files', async ({ request }) => {
   expect((await request.get('/capture/raw/steps.json')).status()).toBe(404);
   expect((await request.get('/package.json')).status()).toBe(404);

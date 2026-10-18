@@ -21,6 +21,7 @@ const ICONS = {
   link: '<path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/>',
   reload: '<path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/>',
   globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/>',
+  voice: '<path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><path d="M12 17.5V21"/>',
   sound: '<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7"/><path d="M19 6a8.5 8.5 0 0 1 0 12"/>',
   mute: '<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 9.5l5 5"/><path d="M22 9.5l-5 5"/>',
   cc: '<rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M10.5 10.2a2.5 2.5 0 1 0 0 3.6"/><path d="M17 10.2a2.5 2.5 0 1 0 0 3.6"/>',
@@ -129,6 +130,21 @@ export function mountPlayer(root, flow, base) {
   const resolve = (p) => (!p ? '' : /^(?:[a-z][a-z0-9+.-]*:|\/)/i.test(p) ? p : base + p);
   const synth = 'speechSynthesis' in window ? window.speechSynthesis : null;
 
+  // Narrators the viewer can switch between. The first owns voice.audio and voice.timings;
+  // the others live in voice.variants[id]. A narrator with provider "browser" uses speech.
+  const narrators = (Array.isArray(flow.narrators) ? flow.narrators : [])
+    .filter((n) => n && /^[a-z0-9-]+$/i.test(String(n.id || '')));
+  const voiceKey = `dp.voice.${flowId}`;
+  const savedVoice = (() => { try { return localStorage.getItem(voiceKey); } catch { return null; } })();
+  const initialVoice = narrators.some((n) => n.id === savedVoice) ? savedVoice : (narrators[0] ? narrators[0].id : null);
+  const voiceMenu = narrators.length > 1 ? `
+          <div class="dp-menu-wrap">
+            <button type="button" class="dp-ico" data-act="voice" aria-label="Narrator voice" aria-haspopup="menu" aria-expanded="false">${ico('voice')}</button>
+            <div class="dp-menu" role="menu" aria-label="Narrator voice" hidden>
+              ${narrators.map((n) => `<button type="button" role="menuitemradio" aria-checked="${n.id === initialVoice}" data-act="voice-pick" data-voice="${esc(n.id)}">${esc(n.label || n.id)}</button>`).join('')}
+            </div>
+          </div>` : '';
+
   root.innerHTML = `
     <div class="dp no-controls" role="region" aria-label="Interactive demo: ${esc(name)}" tabindex="-1">
       <div class="dp-bar">
@@ -142,7 +158,7 @@ export function mountPlayer(root, flow, base) {
           <span class="dp-url-text" title="${esc(name)}">${esc(name)}</span>
           <button type="button" class="dp-ico" data-act="restart" aria-label="Restart the demo">${ico('reload')}</button>
         </div>
-        <div class="dp-bar-right">
+        <div class="dp-bar-right">${voiceMenu}
           <div class="dp-menu-wrap">
             <button type="button" class="dp-ico" data-act="lang" aria-label="Language" aria-haspopup="menu" aria-expanded="false">${ico('globe')}</button>
             <div class="dp-menu" role="menu" hidden>
@@ -183,7 +199,7 @@ export function mountPlayer(root, flow, base) {
   const segsEl = dp.querySelector('.dp-segs');
   const statusEl = dp.querySelector('[data-role="status"]');
   const btn = (act) => dp.querySelector(`[data-act="${act}"]`);
-  const menu = dp.querySelector('.dp-menu');
+  const menus = [...dp.querySelectorAll('.dp-menu')];
 
   dp.style.setProperty('--brand', theme.brand);
   dp.style.setProperty('--brand-rgb', hexToRgb(theme.brand));
@@ -203,6 +219,7 @@ export function mountPlayer(root, flow, base) {
     mode: 'cover',
     sound: readPref('dp.sound', true),
     cc: readPref('dp.cc', true),
+    voice: initialVoice,
     rate: 1,
     paused: false,
     progress: 0,
@@ -216,10 +233,21 @@ export function mountPlayer(root, flow, base) {
   let ttsActive = false;
   let bgMusic = null;
 
+  // The step's narration for the chosen narrator: its audio and timings, falling back to
+  // the default narrator when a variant hasn't been made.
+  function voiceFor(step) {
+    const v = step.voice || {};
+    if (!st.voice || !narrators.length || st.voice === narrators[0].id) return v;
+    const chosen = narrators.find((n) => n.id === st.voice);
+    if (chosen && chosen.provider === 'browser') return { ...v, audio: null, timings: [] };
+    const alt = v.variants && v.variants[st.voice];
+    return alt && alt.audio ? { ...v, audio: alt.audio, timings: alt.timings || [] } : v;
+  }
+
   // ---------- Durations and the timeline ----------
 
   function narrationEstimate(step) {
-    const v = step.voice;
+    const v = voiceFor(step);
     if (!v || !v.script) return 0;
     if (Array.isArray(v.timings) && v.timings.length) return v.timings[v.timings.length - 1].t + 0.6;
     return Math.max(MIN_NARRATION, wordCount(v.script) * SECONDS_PER_WORD);
@@ -349,7 +377,8 @@ export function mountPlayer(root, flow, base) {
     a.src = src;
     a.addEventListener('loadedmetadata', () => {
       steps.forEach((s, k) => {
-        if (s.voice && s.voice.audio && resolve(s.voice.audio) === src && Number.isFinite(a.duration)) {
+        const audio = voiceFor(s).audio;
+        if (audio && resolve(audio) === src && Number.isFinite(a.duration)) {
           setDuration(k, Math.max(a.duration, s.type === 'video' ? baseDuration(s) : 0));
         }
       });
@@ -371,7 +400,8 @@ export function mountPlayer(root, flow, base) {
           imageCache.set(url, img);
         });
       }
-      if (s.voice && s.voice.audio && st.sound) getAudio(resolve(s.voice.audio));
+      const audio = voiceFor(s).audio;
+      if (audio && st.sound) getAudio(resolve(audio));
     }
   }
 
@@ -392,7 +422,7 @@ export function mountPlayer(root, flow, base) {
   // Video steps pass trackProgress: false because the clip drives the timeline there.
   function narrate(step, r, onEnd, opts = {}) {
     const track = opts.trackProgress !== false;
-    const v = step.voice || {};
+    const v = voiceFor(step);
     const script = String(v.script || '').trim();
     captions.load(script, v.timings);
     captions.setEnabled(st.cc);
@@ -950,8 +980,32 @@ export function mountPlayer(root, flow, base) {
   }
 
   function closeMenu() {
-    menu.hidden = true;
-    btn('lang').setAttribute('aria-expanded', 'false');
+    menus.forEach((m) => { m.hidden = true; });
+    dp.querySelectorAll('[aria-haspopup="menu"]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+  }
+  // Opens the menu next to a toggle button (or closes it if it is already open).
+  function toggleMenu(toggle) {
+    const m = toggle.nextElementSibling;
+    const open = m.hidden;
+    closeMenu();
+    m.hidden = !open;
+    toggle.setAttribute('aria-expanded', String(open));
+    if (open) (m.querySelector('[aria-checked="true"]') || m.querySelector('button')).focus();
+  }
+  function chooseVoice(id) {
+    if (!narrators.some((n) => n.id === id)) return;
+    st.voice = id;
+    try { localStorage.setItem(voiceKey, id); } catch { /* storage unavailable */ }
+    dp.querySelectorAll('[data-act="voice-pick"]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.voice === id)));
+    // Durations follow the chosen narrator's timings; real lengths arrive as audio loads.
+    steps.forEach((s, k) => { durations[k] = baseDuration(s); });
+    buildSegments();
+    updateTimeline();
+    // Restart the current line so it plays in the new voice, then announce the change
+    // (restarting a step announces the step, so this has to come second).
+    if (st.mode === 'playing' || st.mode === 'paused') enterStep(st.i);
+    const chosen = narrators.find((n) => n.id === id);
+    statusEl.textContent = `Narrator: ${chosen.label || chosen.id}`;
   }
 
   function act(name, el, event) {
@@ -1004,14 +1058,16 @@ export function mountPlayer(root, flow, base) {
           if (enter) Promise.resolve(enter.call(dp)).catch(() => {});
         }
         break;
-      case 'lang': {
-        const open = menu.hidden;
-        menu.hidden = !open;
-        el.setAttribute('aria-expanded', String(open));
-        if (open) menu.querySelector('button').focus();
+      case 'lang':
+      case 'voice':
+        toggleMenu(el);
         break;
-      }
       case 'lang-en': closeMenu(); btn('lang').focus(); break;
+      case 'voice-pick':
+        closeMenu();
+        btn('voice').focus();
+        chooseVoice(el.dataset.voice);
+        break;
       default: break;
     }
   }
@@ -1049,7 +1105,19 @@ export function mountPlayer(root, flow, base) {
   document.addEventListener('click', (e) => { if (!dp.contains(e.target)) closeMenu(); });
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') { if (!menu.hidden) { closeMenu(); btn('lang').focus(); } return; }
+    const openMenu = menus.find((m) => !m.hidden);
+    if (e.key === 'Escape') {
+      if (openMenu) { closeMenu(); openMenu.previousElementSibling.focus(); }
+      return;
+    }
+    // Up and Down move through an open menu's items.
+    if (openMenu && (e.key === 'ArrowDown' || e.key === 'ArrowUp') && openMenu.contains(e.target)) {
+      e.preventDefault();
+      const items = [...openMenu.querySelectorAll('button')];
+      const k = items.indexOf(e.target);
+      items[(k + (e.key === 'ArrowDown' ? 1 : items.length - 1)) % items.length].focus();
+      return;
+    }
     if (!keyboardNav || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
     const t = e.target;
     if (t && t.closest && t.closest('input, textarea, select, [contenteditable="true"], .dp-menu')) return;
