@@ -1,4 +1,5 @@
-// Serves the player on http://127.0.0.1:4173 (set PORT to change it).
+// Serves the player on http://localhost:4173 (set PORT to change it).
+// Listens on 127.0.0.1 only, so nothing else on the network can reach it.
 // Only the player and flows/ are served: capture/ holds unredacted images and is never exposed.
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
@@ -35,4 +36,4 @@ createServer(async (req, res) => {
   } catch {
     res.writeHead(404).end('Not found');
   }
-}).listen(PORT, '127.0.0.1', () => console.log(`Demo player running at http://127.0.0.1:${PORT}/`));
+}).listen(PORT, '127.0.0.1', () => console.log(`Demo player running at http://localhost:${PORT}/`));

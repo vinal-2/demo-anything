@@ -1,19 +1,42 @@
 {
   "name": "demo-anything",
   "version": "0.1.0",
-  "description": "Turn screenshots into click-through walkthroughs that anyone can play in a browser.",
+  "description": "Turn any web app into a click-through walkthrough, with your agent.",
   "private": true,
   "type": "module",
+  "license": "MIT",
+  "homepage": "https://vinal-2.github.io/demo-anything/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vinal-2/demo-anything.git"
+  },
+  "bugs": "https://github.com/vinal-2/demo-anything/issues",
+  "keywords": [
+    "walkthrough",
+    "product-demo",
+    "interactive-demo",
+    "screenshots",
+    "claude-code",
+    "agent-skills",
+    "playwright"
+  ],
   "engines": {
     "node": ">=20.11"
   },
   "scripts": {
     "start": "node tools/serve.mjs",
+    "import": "node tools/import-steps.mjs",
     "validate": "node tools/validate-flow.mjs",
+    "validate:all": "node tools/validate-flow.mjs --all",
+    "save-shot": "node tools/save-shot.mjs",
+    "redact": "node tools/redact.mjs",
+    "preview": "node tools/preview-boxes.mjs",
     "test": "node --test \"tests/*.test.mjs\" && playwright test"
   },
-  "devDependencies": {
-    "@playwright/test": "^1.64.1",
+  "dependencies": {
     "sharp": "^0.35.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
   }
 }

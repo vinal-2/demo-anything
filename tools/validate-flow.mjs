@@ -1,6 +1,8 @@
-// Checks a flow before it is published.
-//   node tools/validate-flow.mjs <flowDir>
+// Checks flows before they are published.
+//   node tools/validate-flow.mjs <flowDir> [<flowDir> ...]
+//   node tools/validate-flow.mjs --all        every folder in flows/ with a flow.json
 // Exits with 1 when there are errors. A flow is ready when it prints PASS with 0 warnings.
+import { readdir } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { FLOW_ID, readJson } from './lib/flows.mjs';
@@ -108,16 +110,33 @@ async function checkListed(flowDir, id, warn) {
 const hasText = (value) => typeof value === 'string' && value.trim() !== '';
 const isPositiveInt = (value) => Number.isInteger(value) && value > 0;
 
+// Every folder in flowsRoot that has a flow.json.
+export async function findFlows(flowsRoot) {
+  const dirs = [];
+  for (const entry of await readdir(flowsRoot, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const contents = await readdir(join(flowsRoot, entry.name));
+    if (contents.includes('flow.json')) dirs.push(join(flowsRoot, entry.name));
+  }
+  return dirs.sort();
+}
+
+const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
+
 if (import.meta.url === pathToFileURL(process.argv[1]).href) {
-  const flowDir = process.argv[2];
-  if (!flowDir) {
-    console.error('Usage: node tools/validate-flow.mjs <flowDir>');
+  const args = process.argv.slice(2);
+  const flowDirs = args.includes('--all') ? await findFlows(resolve(import.meta.dirname, '..', 'flows')) : args;
+  if (flowDirs.length === 0) {
+    console.error('Usage: node tools/validate-flow.mjs <flowDir> [<flowDir> ...] | --all');
     process.exit(2);
   }
-  const { errors, warnings } = await validateFlow(flowDir);
-  const summary = `${errors.length} error${errors.length === 1 ? '' : 's'}, ${warnings.length} warning${warnings.length === 1 ? '' : 's'}`;
-  console.log(`${errors.length ? 'FAIL' : 'PASS'} ${flowDir}: ${summary}`);
-  for (const message of errors) console.log(`  error    ${message}`);
-  for (const message of warnings) console.log(`  warning  ${message}`);
-  process.exit(errors.length ? 1 : 0);
+  let failed = 0;
+  for (const flowDir of flowDirs) {
+    const { errors, warnings } = await validateFlow(flowDir);
+    if (errors.length) failed += 1;
+    console.log(`${errors.length ? 'FAIL' : 'PASS'} ${flowDir}: ${plural(errors.length, 'error')}, ${plural(warnings.length, 'warning')}`);
+    for (const message of errors) console.log(`  error    ${message}`);
+    for (const message of warnings) console.log(`  warning  ${message}`);
+  }
+  process.exit(failed ? 1 : 0);
 }

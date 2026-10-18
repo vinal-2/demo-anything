@@ -1,9 +1,16 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { expect, test } from '@playwright/test';
 import { playFlow } from './play-flow.mjs';
 
-test('example flow plays from cover to end card', async ({ page }) => {
-  await playFlow(page, 'example');
-});
+// Every published flow gets its own test, so a new flow is checked as soon as it is listed.
+const flows = JSON.parse(readFileSync(join(import.meta.dirname, '..', 'flows', 'index.json'), 'utf8'));
+
+for (const { id } of flows) {
+  test(`${id} plays from cover to end card`, async ({ page }) => {
+    await playFlow(page, id);
+  });
+}
 
 test('home page lists the flows', async ({ page }) => {
   await page.goto('/');
