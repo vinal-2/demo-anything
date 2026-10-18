@@ -17,7 +17,7 @@ You need Node.js 20.11 or later (`.nvmrc` pins the version CI uses).
 1. Follow [docs/getting-started.md](docs/getting-started.md) to capture, redact,
    import and check your flow.
 2. Before you open a pull request, check that:
-   - every screenshot in `flows/<id>/shots/` is redacted, and you have looked at
+   - every screenshot in `flows/<id>/assets/` is redacted, and you have looked at
      each one
    - `npm run validate -- flows/<id>` prints `PASS` with `0 warnings`
    - `npm test` passes

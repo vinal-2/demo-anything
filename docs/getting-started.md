@@ -31,12 +31,13 @@ You can build a flow without an agent. The steps are the same ones the
 3. **Redact.** List what to hide in `capture/raw/redact.json`, then
    `npm run redact -- capture/raw capture/clean`. See [redaction.md](redaction.md).
 4. **Import.** `npm run import -- capture/clean flows/my-flow --name "My flow"`
-5. **Finish.** Set the cover subtitle, hotspot labels and end card in
-   `flows/my-flow/flow.json`.
+5. **Finish.** Set the cover subtitle and logo text, check each hotspot label and
+   narration, and change the end card in `flows/my-flow/flow.json`. Or open
+   <http://localhost:4173/?flow=my-flow&edit> to place hotspots by clicking, then
+   export the file. See [player.md](player.md#authoring-mode-edit).
 6. **Check.** `npm run validate -- flows/my-flow` must print `PASS` with
    `0 warnings`, and `npm test` must pass.
-7. **Publish.** Commit `flows/my-flow/` and `flows/index.json`. See
-   [publishing.md](publishing.md).
+7. **Publish.** Commit `flows/my-flow/`. See [publishing.md](publishing.md).
 
 On Windows PowerShell, if `npm` is blocked by script signing, use `npm.cmd`.
 
@@ -44,10 +45,11 @@ On Windows PowerShell, if `npm` is blocked by script signing, use `npm.cmd`.
 
 | Command | What it does |
 | --- | --- |
-| `npm start` | Plays flows at <http://localhost:4173/> |
+| `npm start` | Plays flows at <http://localhost:4173/>; add `?flow=<id>&edit` to edit one |
 | `npm run save-shot -- <in> <out.png>` | Copies a screenshot into a capture as PNG |
 | `npm run preview -- <captureDir>` | Draws hotspot and redaction boxes on copies |
 | `npm run redact -- <rawDir> <cleanDir>` | Hides the areas in `redact.json` |
 | `npm run import -- <captureDir> <flowDir> --name "…"` | Builds a flow from a capture |
 | `npm run validate -- <flowDir>` | Checks one flow (`npm run validate:all` checks all) |
+| `npm run voice -- <flowDir>` | Records narration with Azure or ElevenLabs (optional) |
 | `npm test` | Tool tests, then plays every flow in a browser |

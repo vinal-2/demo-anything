@@ -86,11 +86,17 @@ behaviour. Keep each `say` to one or two short sentences.
 ## Phase 3: build and check the flow
 
 1. `npm run import -- capture/clean flows/<flow-id> --name "<Flow name>"`
-2. Edit `flows/<flow-id>/flow.json`: set `cover.subtitle`, give each hotspot a short
-   label (40 characters or fewer), and adjust the `end` card.
+2. Edit `flows/<flow-id>/flow.json` (the format is in `docs/flow-format.md`):
+   - on the `cover` step, set `subtitle` and `logoText`
+   - make each hotspot `label` a short instruction, such as "Open Settings"
+   - read every `voice.script` aloud in your head: plain British English, one or two
+     short sentences, and the first one should mention what the flow is about
+   - set the `end` card's `title`, `subtitle` and buttons
+   To move a hotspot, open `http://localhost:4173/?flow=<flow-id>&edit` after
+   `npm start`, click the right spot, and export the JSON.
 3. `npm run validate -- flows/<flow-id>` must print `PASS` with `0 warnings`.
-4. `npm test` must pass. Every flow in `flows/index.json` is played from cover to end
-   card and each hotspot is checked to sit inside its screenshot.
+4. `npm test` must pass. Every flow in `flows/` is played from cover to end card and
+   each hotspot is checked to sit on its screenshot.
 5. Commit in small steps. Check `git status` first: nothing under `capture/` may be
    staged.
 

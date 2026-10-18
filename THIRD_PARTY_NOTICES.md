@@ -19,8 +19,18 @@ package in `node_modules/` after `npm install`.
 | [@playwright/test](https://github.com/microsoft/playwright) | Browser tests | Apache-2.0 |
 | Chromium (downloaded by `npx playwright install chromium`) | Browser for the tests | BSD-3-Clause and others; see the Chromium credits |
 
+## Player
+
 The player in `index.html` and `player/` uses no third-party code and is what
-GitHub Pages publishes.
+GitHub Pages publishes. It loads one web font:
+
+| Asset | Used for | Licence |
+| --- | --- | --- |
+| [Inter](https://rsms.me/inter/), served by [Google Fonts](https://fonts.google.com/specimen/Inter) | The player's text | SIL Open Font License 1.1 |
+
+Loading it means each viewer's browser contacts Google's font servers. To avoid
+that, remove the two Google Fonts lines from `index.html`; the player falls back to
+the system font.
 
 ## Products shown in demos
 

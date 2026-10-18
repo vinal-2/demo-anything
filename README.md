@@ -4,7 +4,7 @@
 
 ### Turn any web app into a click-through walkthrough, with your agent.
 
-**Show someone how a product works, one click at a time, without recording a video.**
+**Show someone how a product works, one click at a time: narration, captions and a guided cursor, without recording a video.**
 
 [![CI](https://github.com/vinal-2/demo-anything/actions/workflows/ci.yml/badge.svg)](https://github.com/vinal-2/demo-anything/actions/workflows/ci.yml)
 [![Pages](https://github.com/vinal-2/demo-anything/actions/workflows/pages.yml/badge.svg)](https://vinal-2.github.io/demo-anything/)
@@ -14,11 +14,11 @@
 
 **[Live demos](https://vinal-2.github.io/demo-anything/) · [Guides](docs/getting-started.md) · [Agent skill](skills/demo-anything/SKILL.md)**
 
-[Quick start](#quick-start) · [How it works](#how-it-works) · [Showcases](#showcases) · [FAQ](#faq) · [Documentation](#documentation) · [Star history](#star-history)
+[Quick start](#quick-start) · [How it works](#how-it-works) · [Player](#whats-in-the-player) · [Showcases](#showcases) · [FAQ](#faq) · [Documentation](#documentation) · [Star history](#star-history)
 
 <br />
 
-<a href="https://vinal-2.github.io/demo-anything/?flow=example"><img src="docs/assets/player.png" alt="The Demo Anything player showing step 1 of 3: a highlighted Settings link on an admin home page, with narration below" width="1000" /></a>
+<a href="https://vinal-2.github.io/demo-anything/?flow=example"><img src="docs/assets/player.png" alt="The Demo Anything player: an admin Settings page in a browser frame, with a pulsing hotspot and the tooltip 'Open the Notifications tab' beside the cursor" width="1000" /></a>
 
 </div>
 
@@ -52,6 +52,7 @@ never clicks Save, Submit or Delete. See [docs/agent-workflow.md](docs/agent-wor
 ```bash
 npm install
 npm start                      # http://localhost:4173/?flow=example
+                               # add &edit to place hotspots by clicking
 npm run validate -- flows/my-flow
 npm test
 ```
@@ -73,10 +74,24 @@ flowchart LR
   served, so unredacted images cannot be published by accident.
 - **Redact.** `redact.json` must list every screenshot, and the tool refuses to skip
   one.
-- **Play.** The player is plain HTML, CSS and JavaScript with no build step. It
-  works with the keyboard and screen readers, and on any static host.
+- **Play.** The player is plain HTML, CSS and JavaScript with no build step, so it
+  runs on any static host.
 - **Check.** CI blocks raw captures, scans for secrets, validates every flow and
   plays each one from cover to end card in a real browser.
+
+## What's in the player
+
+| Feature | What it does |
+| --- | --- |
+| Narration and captions | Each step is read aloud by the browser, or by recorded Azure or ElevenLabs audio, with word-by-word captions |
+| Guided cursor and hotspots | A cursor glides to a pulsing hotspot; the flow waits until the viewer clicks the right place |
+| Video steps | Short clips (WebM or MP4) for transitions, played with narration |
+| Controls | Play and pause, progress segments to jump between steps, 1× to 2× speed, sound, captions and full screen |
+| Authoring mode | Open `?flow=<id>&edit` to place hotspots by clicking and edit narration, then export `flow.json` |
+| Embedding | `?embed` for iframes, with step and completion events for learning platforms |
+| Accessible | Works with the keyboard alone and with screen readers, and fits phone, tablet and desktop screens |
+
+See [docs/player.md](docs/player.md) for the controls, the editor, voice and embedding.
 
 ## Showcases
 
@@ -164,6 +179,7 @@ it privately; see [SECURITY.md](SECURITY.md).
 ## Documentation
 
 - [Getting started](docs/getting-started.md): install, make a flow by hand, commands
+- [The player](docs/player.md): controls, authoring mode, voice and embedding
 - [Build flows with an agent](docs/agent-workflow.md): the skill and what it does
 - [Redaction](docs/redaction.md): what to hide and how
 - [Flow format](docs/flow-format.md): `steps.json`, `flow.json` and validation rules

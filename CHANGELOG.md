@@ -6,7 +6,24 @@ All notable changes are listed here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- The player is now the fuller demo-player engine: narration with word-by-word
+  captions, a guided cursor, video steps, a control bar with progress segments and
+  speed, sound, captions and full-screen buttons, `?embed` with progress events,
+  and an `?flow=<id>&edit` authoring mode.
+- Flows use typed steps (`cover`, `image`, `video`, `end`), store files in
+  `assets/`, and place hotspots as fractions of the screenshot.
+  See [docs/flow-format.md](docs/flow-format.md).
+- `validate` also refuses files outside the flow folder, screenshots of different
+  sizes and an `aspectRatio` that does not match, and warns about narration copied
+  between flows.
+
 ### Added
+
+- `voice` tool: records narration with Azure or ElevenLabs.
+- The example flow has a video step; the local server streams video.
+- [docs/player.md](docs/player.md).
 
 - `redact` tool: blurs the areas listed in `redact.json` and refuses to skip any
   screenshot.
