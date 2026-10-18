@@ -37,23 +37,69 @@ plain HTML, CSS and JavaScript with no build step.
 
 ## Voice
 
-Without recorded audio, the browser reads each script aloud. Voices differ between
-browsers and operating systems. To record narration instead:
+Each narration step can play a real recording with word-by-word captions. Without
+one, the browser reads the script aloud; that works everywhere but sounds robotic
+and differs between browsers.
 
-1. Copy `.env.example` to `.env` (git ignores `.env`, so keys are never committed).
-2. Set `TTS_PROVIDER` and the keys for your provider.
-3. Run `npm run voice -- flows/<id>`.
+### Choose a voice
 
-| Provider | Needs | Result |
-| --- | --- | --- |
-| `browser` (default) | nothing | No files; the player uses the browser's voice |
-| `azure` | `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`, and `npm install microsoft-cognitiveservices-speech-sdk` | `assets/vNN.mp3` with word timings |
-| `elevenlabs` | `ELEVENLABS_API_KEY`, `ELEVENLABS_VOICE_ID` | `assets/vNN.mp3` with word timings |
+| Provider | Sounds like | Cost | Needs | Word timings |
+| --- | --- | --- | --- | --- |
+| `kokoro` | Natural; 8 British voices (default `bm_george`) | Free, runs on your computer ([Apache-2.0](https://github.com/hexgrad/kokoro)) | `npm install kokoro-js` (about 210 MB) and ffmpeg; downloads a ~90 MB model once | Estimated, or measured with `--align` |
+| `elevenlabs` | Very natural, many voices | Paid; plans from $6 a month, API Multilingual v2 listed at $0.08 per 1,000 characters ([pricing](https://elevenlabs.io/pricing/api)). Check the plan's terms for commercial use | `ELEVENLABS_API_KEY`, a voice ID | From the API |
+| `google` | Natural; Chirp 3 HD British voices (default `en-GB-Chirp3-HD-Charon`) | Paid per character after a monthly free allowance ([pricing](https://cloud.google.com/text-to-speech/pricing)) | `GOOGLE_API_KEY` restricted to the Text-to-Speech API | Estimated, or measured with `--align` |
+| `recorded` | You | Free | Your own `assets/vNN.mp3`, `.wav` or `.m4a` files | Estimated, or measured with `--align` |
+| `browser` | Robotic, varies | Free | Nothing | Estimated by the player |
 
-Each step keeps a hash of its script and voice, so only changed scripts are
-recorded again. Add `--force` to record them all. The Azure and ElevenLabs paths
-follow each provider's documented API but have not yet been run against a live
-account: try one step first.
+The demos in this repository use Kokoro's `bm_george`. ElevenLabs and Google follow
+their current API documentation but have not yet been run against a live account
+here, so try one step first.
+
+To compare voices, run `npm run voice:sample`. It reads one sentence with every
+provider you can use, in a few voices each, and writes `voice-samples/index.html`
+(git-ignored) so you can listen side by side.
+
+### Make the narration
+
+1. Pick the narrator in `flow.json`:
+   ```json
+   "narrator": { "provider": "kokoro", "voice": "bm_george", "speed": 1.0 }
+   ```
+   `--provider`, `--voice` and `--speed` override it for one run; the environment
+   (`TTS_PROVIDER`, `KOKORO_VOICE`, `ELEVENLABS_VOICE_ID`, `GOOGLE_TTS_VOICE`,
+   `TTS_SPEED`) is used last.
+2. Keys go in `.env` (copy `.env.example`). Git ignores `.env`.
+3. Run `npm run voice -- flows/<id>`. Add `--only <step>` for one step, `--force` to
+   redo every step, and `--align` for measured word timings if
+   [faster-whisper](https://github.com/SYSTRAN/faster-whisper) or openai-whisper is
+   installed (`pip install faster-whisper`).
+
+Every file is a mono MP3 at 44.1 kHz and about 96 kbps, normalised to -16 LUFS,
+with 150 ms of silence at each end, so steps sound even. Each step keeps a hash of
+its provider, voice, speed and spoken text, so only changed steps are made again.
+
+### Your own voice
+
+Record each narration step and save it as `flows/<id>/assets/vNN.wav`, `.m4a` or
+`.mp3`, where `NN` is the step number (two digits). Then run
+`npm run voice -- flows/<id> --provider recorded`. The tool converts and normalises
+each file and fills in the timings.
+
+### Pronunciation
+
+`voice-lexicon.json` at the repository root says how to pronounce words:
+
+```json
+{ "LAB-WS22-01": "lab W S twenty-two oh one", "MDE": "M D E", "KQL": "K Q L" }
+```
+
+Only the text sent to the voice changes; captions keep the original words.
+
+### Scripts that read well aloud
+
+`npm run voice -- flows/<id> --check-scripts` lists scripts over 30 words or with
+brackets, slashes, symbols or abbreviations, each with a suggested rewrite. It
+changes nothing.
 
 ## Embedding
 

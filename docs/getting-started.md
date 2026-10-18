@@ -51,5 +51,6 @@ On Windows PowerShell, if `npm` is blocked by script signing, use `npm.cmd`.
 | `npm run redact -- <rawDir> <cleanDir>` | Hides the areas in `redact.json` |
 | `npm run import -- <captureDir> <flowDir> --name "…"` | Builds a flow from a capture |
 | `npm run validate -- <flowDir>` | Checks one flow (`npm run validate:all` checks all) |
-| `npm run voice -- <flowDir>` | Records narration with Azure or ElevenLabs (optional) |
+| `npm run voice -- <flowDir>` | Makes natural narration (Kokoro, ElevenLabs, Google or your own recordings); see [player.md](player.md#voice) |
+| `npm run voice:sample` | Renders one sentence in several voices so you can choose |
 | `npm test` | Tool tests, then plays every flow in a browser |

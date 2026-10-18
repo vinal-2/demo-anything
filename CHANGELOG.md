@@ -25,7 +25,13 @@ All notable changes are listed here. The format follows
   Endpoint, on placeholder screens of a fictional SOC lab.
 - `AGENTS.md`: rules for coding agents working in the repository (with a
   `CLAUDE.md` that points to it).
-- `voice` tool: records narration with Azure or ElevenLabs.
+- Natural narration: `npm run voice` with Kokoro (free, local), ElevenLabs, Google
+  Chirp 3 HD or your own recordings; per-flow `narrator`; audio normalised to
+  -16 LUFS with even padding; word timings from the provider, measured with
+  `--align` (Whisper), or estimated from the audio length; `voice-lexicon.json` for
+  pronunciation; `--only`, `--list-voices` and `--check-scripts`.
+- `npm run voice:sample` renders one sentence in several voices to compare.
+- Both demos are narrated by Kokoro's `bm_george`.
 - The example flow has a video step; the local server streams video.
 - [docs/player.md](docs/player.md).
 

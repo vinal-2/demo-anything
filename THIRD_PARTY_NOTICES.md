@@ -12,6 +12,18 @@ package in `node_modules/` after `npm install`.
 | [libvips](https://github.com/libvips/libvips) (prebuilt binaries installed with sharp) | Image processing inside sharp | LGPL-3.0-or-later |
 | [@img/colour](https://github.com/lovell/colour) (installed with sharp) | Colour conversion inside sharp | MIT |
 
+## Optional, for making narration
+
+Not installed by `npm install`; add them only if you make narration.
+
+| Package | Used for | Licence |
+| --- | --- | --- |
+| [kokoro-js](https://github.com/hexgrad/kokoro) and the Kokoro-82M model | Free local voice (`npm install kokoro-js`) | Apache-2.0 |
+| [faster-whisper](https://github.com/SYSTRAN/faster-whisper) | Measured word timings with `--align` (`pip install faster-whisper`) | MIT |
+| [FFmpeg](https://ffmpeg.org/) | Converting and normalising audio | LGPL or GPL, depending on the build |
+
+Narration files in `flows/*/assets/v*.mp3` were made with Kokoro (`bm_george`).
+
 ## Development and tests
 
 | Package | Used for | Licence |

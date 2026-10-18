@@ -99,8 +99,14 @@ screenshot. The player keeps the image between them, so nothing flickers.
 
 With `audio` set, the player plays that file and highlights words from `timings`
 (`[{ "t": 0.41, "word": "Open" }, …]`). Without it, the browser reads the script
-aloud. `npm run voice` can record every script with Azure or ElevenLabs; see
-[player.md](player.md#voice).
+aloud. `npm run voice` makes the audio and timings for every script with the
+flow's narrator:
+
+```json
+"narrator": { "provider": "kokoro", "voice": "bm_george", "speed": 1.0 }
+```
+
+See [player.md](player.md#voice) for the providers.
 
 ## What `validate` checks
 

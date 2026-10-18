@@ -83,7 +83,7 @@ flowchart LR
 
 | Feature | What it does |
 | --- | --- |
-| Narration and captions | Each step is read aloud by the browser, or by recorded Azure or ElevenLabs audio, with word-by-word captions |
+| Natural narration and captions | Steps are narrated by a natural voice (free local Kokoro, ElevenLabs, Google, or your own recordings) with word-by-word captions; the browser's voice is the no-setup fallback |
 | Guided cursor and hotspots | A cursor glides to a pulsing hotspot; the flow waits until the viewer clicks the right place |
 | Video steps | Short clips (WebM or MP4) for transitions, played with narration |
 | Controls | Play and pause, progress segments to jump between steps, 1× to 2× speed, sound, captions and full screen |
