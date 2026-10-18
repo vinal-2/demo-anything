@@ -1,11 +1,27 @@
 {
   "id": "example",
   "name": "Example: turn on email alerts",
-  "narrator": {
-    "provider": "kokoro",
-    "voice": "bm_george",
-    "speed": 1
-  },
+  "narrators": [
+    {
+      "id": "george",
+      "label": "George (British, male)",
+      "provider": "kokoro",
+      "voice": "bm_george",
+      "speed": 1
+    },
+    {
+      "id": "emma",
+      "label": "Emma (British, female)",
+      "provider": "kokoro",
+      "voice": "bf_emma",
+      "speed": 1
+    },
+    {
+      "id": "browser",
+      "label": "Browser voice",
+      "provider": "browser"
+    }
+  ],
   "font": "Inter",
   "aspectRatio": 0.5625,
   "theme": {
@@ -107,7 +123,83 @@
             "word": "menu."
           }
         ],
-        "hash": "64f911197568"
+        "hash": "64f911197568",
+        "variants": {
+          "emma": {
+            "timings": [
+              {
+                "t": 0,
+                "word": "To"
+              },
+              {
+                "t": 0.48,
+                "word": "turn"
+              },
+              {
+                "t": 0.72,
+                "word": "on"
+              },
+              {
+                "t": 0.84,
+                "word": "email"
+              },
+              {
+                "t": 1.06,
+                "word": "alerts,"
+              },
+              {
+                "t": 2.12,
+                "word": "start"
+              },
+              {
+                "t": 2.34,
+                "word": "on"
+              },
+              {
+                "t": 2.58,
+                "word": "the"
+              },
+              {
+                "t": 2.82,
+                "word": "home"
+              },
+              {
+                "t": 3.22,
+                "word": "page"
+              },
+              {
+                "t": 3.46,
+                "word": "and"
+              },
+              {
+                "t": 3.76,
+                "word": "open"
+              },
+              {
+                "t": 4.06,
+                "word": "Settings"
+              },
+              {
+                "t": 4.44,
+                "word": "in"
+              },
+              {
+                "t": 4.54,
+                "word": "the"
+              },
+              {
+                "t": 4.7,
+                "word": "left-hand"
+              },
+              {
+                "t": 4.94,
+                "word": "menu."
+              }
+            ],
+            "audio": "assets/emma/v01.mp3",
+            "hash": "366ea994e953"
+          }
+        }
       },
       "hotspot": null,
       "autoAdvance": true
@@ -174,7 +266,55 @@
             "word": "tab."
           }
         ],
-        "hash": "b370813d07fb"
+        "hash": "b370813d07fb",
+        "variants": {
+          "emma": {
+            "timings": [
+              {
+                "t": 0,
+                "word": "Settings"
+              },
+              {
+                "t": 0.62,
+                "word": "opens"
+              },
+              {
+                "t": 1.06,
+                "word": "on"
+              },
+              {
+                "t": 1.42,
+                "word": "the"
+              },
+              {
+                "t": 1.54,
+                "word": "General"
+              },
+              {
+                "t": 1.8,
+                "word": "tab."
+              },
+              {
+                "t": 2.74,
+                "word": "Select"
+              },
+              {
+                "t": 2.92,
+                "word": "the"
+              },
+              {
+                "t": 3.16,
+                "word": "Notifications"
+              },
+              {
+                "t": 3.82,
+                "word": "tab."
+              }
+            ],
+            "audio": "assets/emma/v03.mp3",
+            "hash": "2c2f7562e502"
+          }
+        }
       },
       "hotspot": null,
       "autoAdvance": true
@@ -251,7 +391,59 @@
             "word": "change."
           }
         ],
-        "hash": "dd577cfbdea2"
+        "hash": "dd577cfbdea2",
+        "variants": {
+          "emma": {
+            "timings": [
+              {
+                "t": 0,
+                "word": "Turn"
+              },
+              {
+                "t": 0.6,
+                "word": "on"
+              },
+              {
+                "t": 0.72,
+                "word": "Email"
+              },
+              {
+                "t": 0.9,
+                "word": "alerts,"
+              },
+              {
+                "t": 1.76,
+                "word": "then"
+              },
+              {
+                "t": 1.84,
+                "word": "select"
+              },
+              {
+                "t": 2.1,
+                "word": "Save"
+              },
+              {
+                "t": 2.46,
+                "word": "to"
+              },
+              {
+                "t": 2.68,
+                "word": "keep"
+              },
+              {
+                "t": 2.82,
+                "word": "the"
+              },
+              {
+                "t": 2.96,
+                "word": "change."
+              }
+            ],
+            "audio": "assets/emma/v05.mp3",
+            "hash": "f1cccb7ef052"
+          }
+        }
       },
       "autoAdvance": true
     },

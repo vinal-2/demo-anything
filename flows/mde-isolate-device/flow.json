@@ -1,11 +1,27 @@
 {
   "id": "mde-isolate-device",
   "name": "Isolating a device in Microsoft Defender for Endpoint",
-  "narrator": {
-    "provider": "kokoro",
-    "voice": "bm_george",
-    "speed": 1
-  },
+  "narrators": [
+    {
+      "id": "george",
+      "label": "George (British, male)",
+      "provider": "kokoro",
+      "voice": "bm_george",
+      "speed": 1
+    },
+    {
+      "id": "emma",
+      "label": "Emma (British, female)",
+      "provider": "kokoro",
+      "voice": "bf_emma",
+      "speed": 1
+    },
+    {
+      "id": "browser",
+      "label": "Browser voice",
+      "provider": "browser"
+    }
+  ],
   "font": "Inter",
   "aspectRatio": 0.5625,
   "theme": {
@@ -118,7 +134,95 @@
             "word": "navigation."
           }
         ],
-        "hash": "8344e8c67aef"
+        "hash": "8344e8c67aef",
+        "variants": {
+          "emma": {
+            "timings": [
+              {
+                "t": 0,
+                "word": "In"
+              },
+              {
+                "t": 0.52,
+                "word": "this"
+              },
+              {
+                "t": 0.64,
+                "word": "walkthrough"
+              },
+              {
+                "t": 1.16,
+                "word": "you'll"
+              },
+              {
+                "t": 1.4,
+                "word": "isolate"
+              },
+              {
+                "t": 1.58,
+                "word": "a"
+              },
+              {
+                "t": 1.58,
+                "word": "suspicious"
+              },
+              {
+                "t": 2.2,
+                "word": "device"
+              },
+              {
+                "t": 2.76,
+                "word": "from"
+              },
+              {
+                "t": 3.12,
+                "word": "the"
+              },
+              {
+                "t": 3.26,
+                "word": "network."
+              },
+              {
+                "t": 4.24,
+                "word": "Start"
+              },
+              {
+                "t": 4.52,
+                "word": "from"
+              },
+              {
+                "t": 4.8,
+                "word": "the"
+              },
+              {
+                "t": 4.94,
+                "word": "device"
+              },
+              {
+                "t": 5.18,
+                "word": "inventory"
+              },
+              {
+                "t": 5.6,
+                "word": "in"
+              },
+              {
+                "t": 6.02,
+                "word": "the"
+              },
+              {
+                "t": 6.12,
+                "word": "left"
+              },
+              {
+                "t": 6.3,
+                "word": "navigation."
+              }
+            ],
+            "audio": "assets/emma/v01.mp3",
+            "hash": "7202eabdd5d2"
+          }
+        }
       },
       "hotspot": null,
       "autoAdvance": true
@@ -203,7 +307,75 @@
             "word": "page."
           }
         ],
-        "hash": "1772d7ae5486"
+        "hash": "1772d7ae5486",
+        "variants": {
+          "emma": {
+            "timings": [
+              {
+                "t": 0,
+                "word": "This"
+              },
+              {
+                "t": 0.54,
+                "word": "is"
+              },
+              {
+                "t": 0.7,
+                "word": "the"
+              },
+              {
+                "t": 0.86,
+                "word": "device"
+              },
+              {
+                "t": 1.06,
+                "word": "inventory."
+              },
+              {
+                "t": 2.24,
+                "word": "Search"
+              },
+              {
+                "t": 2.42,
+                "word": "for"
+              },
+              {
+                "t": 2.64,
+                "word": "the"
+              },
+              {
+                "t": 2.74,
+                "word": "affected"
+              },
+              {
+                "t": 3.06,
+                "word": "host,"
+              },
+              {
+                "t": 3.42,
+                "word": "then"
+              },
+              {
+                "t": 3.82,
+                "word": "open"
+              },
+              {
+                "t": 4.12,
+                "word": "its"
+              },
+              {
+                "t": 4.36,
+                "word": "device"
+              },
+              {
+                "t": 4.56,
+                "word": "page."
+              }
+            ],
+            "audio": "assets/emma/v03.mp3",
+            "hash": "192442a4034d"
+          }
+        }
       },
       "hotspot": null,
       "autoAdvance": true
@@ -308,7 +480,95 @@
             "word": "right."
           }
         ],
-        "hash": "2bec41c6d015"
+        "hash": "2bec41c6d015",
+        "variants": {
+          "emma": {
+            "timings": [
+              {
+                "t": 0,
+                "word": "The"
+              },
+              {
+                "t": 0.48,
+                "word": "device"
+              },
+              {
+                "t": 0.68,
+                "word": "page"
+              },
+              {
+                "t": 1.02,
+                "word": "shows"
+              },
+              {
+                "t": 1.4,
+                "word": "risk"
+              },
+              {
+                "t": 1.64,
+                "word": "level,"
+              },
+              {
+                "t": 2.36,
+                "word": "exposure"
+              },
+              {
+                "t": 2.74,
+                "word": "and"
+              },
+              {
+                "t": 3.08,
+                "word": "active"
+              },
+              {
+                "t": 3.32,
+                "word": "alerts."
+              },
+              {
+                "t": 4.52,
+                "word": "Response"
+              },
+              {
+                "t": 4.8,
+                "word": "actions"
+              },
+              {
+                "t": 5.24,
+                "word": "are"
+              },
+              {
+                "t": 5.62,
+                "word": "in"
+              },
+              {
+                "t": 5.72,
+                "word": "the"
+              },
+              {
+                "t": 5.8,
+                "word": "menu"
+              },
+              {
+                "t": 6,
+                "word": "at"
+              },
+              {
+                "t": 6.22,
+                "word": "the"
+              },
+              {
+                "t": 6.3,
+                "word": "top"
+              },
+              {
+                "t": 6.46,
+                "word": "right."
+              }
+            ],
+            "audio": "assets/emma/v05.mp3",
+            "hash": "ea5d1449c47a"
+          }
+        }
       },
       "hotspot": null,
       "autoAdvance": true
@@ -416,7 +676,75 @@
             "word": "user."
           }
         ],
-        "hash": "abff3b4c415c"
+        "hash": "abff3b4c415c",
+        "variants": {
+          "emma": {
+            "timings": [
+              {
+                "t": 0,
+                "word": "Choose"
+              },
+              {
+                "t": 0.6,
+                "word": "full"
+              },
+              {
+                "t": 0.92,
+                "word": "or"
+              },
+              {
+                "t": 1.14,
+                "word": "selective"
+              },
+              {
+                "t": 1.48,
+                "word": "isolation."
+              },
+              {
+                "t": 2.9,
+                "word": "Selective"
+              },
+              {
+                "t": 3.34,
+                "word": "isolation"
+              },
+              {
+                "t": 3.58,
+                "word": "keeps"
+              },
+              {
+                "t": 4.16,
+                "word": "Outlook"
+              },
+              {
+                "t": 4.5,
+                "word": "and"
+              },
+              {
+                "t": 4.84,
+                "word": "Teams"
+              },
+              {
+                "t": 5.04,
+                "word": "working"
+              },
+              {
+                "t": 5.48,
+                "word": "for"
+              },
+              {
+                "t": 5.74,
+                "word": "the"
+              },
+              {
+                "t": 5.82,
+                "word": "user."
+              }
+            ],
+            "audio": "assets/emma/v09.mp3",
+            "hash": "bc9c955a6076"
+          }
+        }
       },
       "hotspot": null,
       "autoAdvance": true
@@ -497,7 +825,71 @@
             "word": "trail."
           }
         ],
-        "hash": "6ae8731c1619"
+        "hash": "6ae8731c1619",
+        "variants": {
+          "emma": {
+            "timings": [
+              {
+                "t": 0,
+                "word": "Add"
+              },
+              {
+                "t": 0.54,
+                "word": "a"
+              },
+              {
+                "t": 0.6,
+                "word": "comment"
+              },
+              {
+                "t": 0.88,
+                "word": "explaining"
+              },
+              {
+                "t": 1.4,
+                "word": "why."
+              },
+              {
+                "t": 2.48,
+                "word": "This"
+              },
+              {
+                "t": 2.58,
+                "word": "is"
+              },
+              {
+                "t": 2.7,
+                "word": "recorded"
+              },
+              {
+                "t": 3.06,
+                "word": "in"
+              },
+              {
+                "t": 3.34,
+                "word": "the"
+              },
+              {
+                "t": 3.44,
+                "word": "Action"
+              },
+              {
+                "t": 3.64,
+                "word": "Center"
+              },
+              {
+                "t": 4.08,
+                "word": "audit"
+              },
+              {
+                "t": 4.38,
+                "word": "trail."
+              }
+            ],
+            "audio": "assets/emma/v11.mp3",
+            "hash": "c40e2374f84f"
+          }
+        }
       },
       "hotspot": null,
       "autoAdvance": true
@@ -602,7 +994,83 @@
             "word": "effect."
           }
         ],
-        "hash": "b394ff663677"
+        "hash": "b394ff663677",
+        "variants": {
+          "emma": {
+            "timings": [
+              {
+                "t": 0,
+                "word": "The"
+              },
+              {
+                "t": 0.5,
+                "word": "action"
+              },
+              {
+                "t": 0.72,
+                "word": "is"
+              },
+              {
+                "t": 1,
+                "word": "now"
+              },
+              {
+                "t": 1.22,
+                "word": "pending"
+              },
+              {
+                "t": 1.5,
+                "word": "in"
+              },
+              {
+                "t": 1.78,
+                "word": "the"
+              },
+              {
+                "t": 1.88,
+                "word": "Action"
+              },
+              {
+                "t": 2.08,
+                "word": "Center."
+              },
+              {
+                "t": 3.24,
+                "word": "Once"
+              },
+              {
+                "t": 3.4,
+                "word": "the"
+              },
+              {
+                "t": 3.58,
+                "word": "device"
+              },
+              {
+                "t": 3.78,
+                "word": "checks"
+              },
+              {
+                "t": 4.18,
+                "word": "in,"
+              },
+              {
+                "t": 4.62,
+                "word": "isolation"
+              },
+              {
+                "t": 4.88,
+                "word": "takes"
+              },
+              {
+                "t": 5.36,
+                "word": "effect."
+              }
+            ],
+            "audio": "assets/emma/v14.mp3",
+            "hash": "711ac8010f71"
+          }
+        }
       },
       "hotspot": null,
       "autoAdvance": true
@@ -683,7 +1151,83 @@
             "word": "menu."
           }
         ],
-        "hash": "9f5c7309835d"
+        "hash": "9f5c7309835d",
+        "variants": {
+          "emma": {
+            "timings": [
+              {
+                "t": 0,
+                "word": "The"
+              },
+              {
+                "t": 0.48,
+                "word": "device"
+              },
+              {
+                "t": 0.72,
+                "word": "now"
+              },
+              {
+                "t": 1.02,
+                "word": "shows"
+              },
+              {
+                "t": 1.36,
+                "word": "as"
+              },
+              {
+                "t": 1.6,
+                "word": "isolated."
+              },
+              {
+                "t": 2.9,
+                "word": "To"
+              },
+              {
+                "t": 3,
+                "word": "reverse"
+              },
+              {
+                "t": 3.2,
+                "word": "this,"
+              },
+              {
+                "t": 3.84,
+                "word": "use"
+              },
+              {
+                "t": 3.94,
+                "word": "'Release"
+              },
+              {
+                "t": 4.24,
+                "word": "from"
+              },
+              {
+                "t": 4.52,
+                "word": "isolation'"
+              },
+              {
+                "t": 4.82,
+                "word": "from"
+              },
+              {
+                "t": 5.38,
+                "word": "the"
+              },
+              {
+                "t": 5.5,
+                "word": "same"
+              },
+              {
+                "t": 5.74,
+                "word": "menu."
+              }
+            ],
+            "audio": "assets/emma/v15.mp3",
+            "hash": "4de13109f0c4"
+          }
+        }
       },
       "hotspot": null,
       "autoAdvance": true
