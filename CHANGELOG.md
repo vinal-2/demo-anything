@@ -21,6 +21,8 @@ All notable changes are listed here. The format follows
 
 ### Added
 
+- `AGENTS.md`: rules for coding agents working in the repository (with a
+  `CLAUDE.md` that points to it).
 - `voice` tool: records narration with Azure or ElevenLabs.
 - The example flow has a video step; the local server streams video.
 - [docs/player.md](docs/player.md).

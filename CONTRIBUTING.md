@@ -27,6 +27,8 @@ You need Node.js 20.11 or later (`.nvmrc` pins the version CI uses).
 
 ## Change the code
 
+Coding agents and people follow the same rules: see [AGENTS.md](AGENTS.md).
+
 - Keep changes small and focused, with a test that fails without the change.
 - The player is plain HTML, CSS and JavaScript with no build step. Keep it that way.
 - Never insert flow text as HTML.
