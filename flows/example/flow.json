@@ -1,0 +1,61 @@
+{
+  "id": "example",
+  "name": "Example: turn on email alerts",
+  "cover": {
+    "title": "Example: turn on email alerts",
+    "subtitle": "Find the setting and see where to switch it on"
+  },
+  "aspectRatio": 0.5625,
+  "imageSize": {
+    "width": 1600,
+    "height": 900
+  },
+  "steps": [
+    {
+      "step": 1,
+      "screen": "Home",
+      "image": "shots/01-home.png",
+      "hotspot": {
+        "x": 16,
+        "y": 250,
+        "width": 228,
+        "height": 44,
+        "label": "Settings"
+      },
+      "say": "Start on the home page and open Settings in the left-hand menu.",
+      "why": "Every admin option lives under Settings."
+    },
+    {
+      "step": 2,
+      "screen": "Settings",
+      "image": "shots/02-settings.png",
+      "hotspot": {
+        "x": 452,
+        "y": 140,
+        "width": 190,
+        "height": 48,
+        "label": "Notifications tab"
+      },
+      "say": "Settings opens on the General tab. Select the Notifications tab.",
+      "why": "Alert options are grouped on their own tab."
+    },
+    {
+      "step": 3,
+      "screen": "Notifications",
+      "image": "shots/03-notifications.png",
+      "hotspot": {
+        "x": 892,
+        "y": 226,
+        "width": 88,
+        "height": 48,
+        "label": "Email alerts switch"
+      },
+      "say": "Turn on Email alerts, then select Save to keep the change.",
+      "why": "This is the switch that turns email alerts on."
+    }
+  ],
+  "end": {
+    "title": "All done",
+    "text": "You know where email alerts live in Acme Admin. Make your own demo next: see the README."
+  }
+}
