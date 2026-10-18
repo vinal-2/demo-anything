@@ -20,3 +20,10 @@ blob-report/
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Voice sampler output (listen locally, never commit)
+voice-samples/
+
+# Installers downloaded into the folder by mistake
+*.msi
+*.exe
