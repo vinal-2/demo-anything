@@ -1,7 +1,11 @@
 name: Pages
 
+# Deploys only after CI has passed on a push to main, so a flow that fails validation or
+# tests never goes live. Publishes index.html, player/ and the files each flow references.
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
   workflow_dispatch:
 
@@ -16,22 +20,32 @@ concurrency:
 
 jobs:
   deploy:
+    # A pull request from a fork can have a branch called "main" too, so also require a
+    # push to this repository.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
-      # Publish only the player and the redacted flows, nothing else in the repo.
-      - name: Collect the site
-        run: |
-          mkdir _site
-          cp -r index.html player flows _site/
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version-file: .nvmrc
 
-      - uses: actions/upload-pages-artifact@v3
+      - name: Build the site
+        run: node tools/build-site.mjs _site
+
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: _site
 
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5

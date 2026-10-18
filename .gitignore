@@ -27,3 +27,6 @@ voice-samples/
 # Installers downloaded into the folder by mistake
 *.msi
 *.exe
+
+# Built GitHub Pages site
+_site/
