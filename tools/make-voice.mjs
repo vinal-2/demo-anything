@@ -1,149 +1,195 @@
 #!/usr/bin/env node
-// Turns each step's voice.script into narration.
+// Turns each step's voice.script into narration: assets/vNN.mp3 plus voice.timings.
 //
-//   TTS_PROVIDER=browser     (default) No files. The player speaks with the browser's own voice and
-//                            estimates word timings, so the flow runs with no API keys.
-//   TTS_PROVIDER=azure       Azure AI Speech. Needs AZURE_SPEECH_KEY and AZURE_SPEECH_REGION, plus
-//                            `npm install microsoft-cognitiveservices-speech-sdk`.
-//                            Voice: AZURE_SPEECH_VOICE (default en-GB-RyanNeural).
-//   TTS_PROVIDER=elevenlabs  ElevenLabs "with timestamps" endpoint. Needs ELEVENLABS_API_KEY and
-//                            ELEVENLABS_VOICE_ID. Model: ELEVENLABS_MODEL (default eleven_multilingual_v2).
+// Providers
+//   browser     (default) no files; the player reads the script with the browser's voice
+//   kokoro      free and local (npm install kokoro-js); default voice bm_george
+//   elevenlabs  ELEVENLABS_API_KEY; voice from ELEVENLABS_VOICE_ID or --voice
+//   google      GOOGLE_API_KEY; Chirp 3 HD, default en-GB-Chirp3-HD-Charon
+//   recorded    your own voice: put assets/vNN.mp3, .wav or .m4a in the flow and run this
 //
-// Settings come from the environment or a .env file in the project root (never commit .env).
-// Each step stores a hash of its script and provider, so unchanged steps are skipped.
+// Which narrator: --provider/--voice/--speed, then "narrator" in flow.json, then the
+// environment (TTS_PROVIDER, KOKORO_VOICE, ELEVENLABS_VOICE_ID, GOOGLE_TTS_VOICE, TTS_SPEED).
+// Keys live only in .env (never commit it). voice-lexicon.json changes how words are said
+// without changing the captions. Unchanged steps are skipped; --force redoes them.
 //
-// Usage: node tools/make-voice.mjs [flows/<flow-id>] [--force]
+// Usage: node tools/make-voice.mjs flows/<id> [--provider p] [--voice v] [--speed 1.0]
+//          [--only <step>] [--force] [--align] [--list-voices] [--check-scripts]
 
-import fs from 'node:fs';
-import path from 'node:path';
 import crypto from 'node:crypto';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { checkFfmpeg, finishAudio } from './lib/audio.mjs';
+import { loadDotEnv } from './lib/env.mjs';
+import { applyLexicon, checkScript, estimateTimings, mapTimings, PAD_SECONDS, shiftTimings } from './lib/narration.mjs';
+import { alignWords, whisperAvailable } from './voice/align.mjs';
+import * as elevenlabs from './voice/elevenlabs.mjs';
+import * as google from './voice/google.mjs';
+import * as kokoro from './voice/kokoro.mjs';
+
+export { wordsFromCharacters } from './voice/elevenlabs.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const SYNTH = { kokoro, elevenlabs, google };
+const PROVIDERS = ['browser', ...Object.keys(SYNTH), 'recorded'];
+const VOICE_ENV = { kokoro: 'KOKORO_VOICE', elevenlabs: 'ELEVENLABS_VOICE_ID', google: 'GOOGLE_TTS_VOICE' };
+const RECORDED_TYPES = ['.wav', '.m4a', '.mp3', '.ogg', '.flac'];
 
-function loadDotEnv() {
-  const file = path.join(ROOT, '.env');
-  if (!fs.existsSync(file)) return;
-  for (const raw of fs.readFileSync(file, 'utf8').split(/\r?\n/)) {
-    const line = raw.trim();
-    if (!line || line.startsWith('#')) continue;
-    const eq = line.indexOf('=');
-    if (eq < 1) continue;
-    const key = line.slice(0, eq).trim().replace(/^export\s+/, '');
-    let value = line.slice(eq + 1).trim();
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) value = value.slice(1, -1);
-    if (!(key in process.env)) process.env[key] = value;
-  }
-}
-
-function need(name) {
-  const v = process.env[name];
-  if (!v) throw new Error(`${name} isn't set. Add it to .env or the environment.`);
-  return v;
-}
-
-// Group character timings into word timings: [{ t, word }].
-export function wordsFromCharacters(chars, starts) {
-  const out = [];
-  let word = '';
-  let t = 0;
-  chars.forEach((ch, k) => {
-    if (/\s/.test(ch)) {
-      if (word) out.push({ t: Math.round(t * 1000) / 1000, word });
-      word = '';
-      return;
-    }
-    if (!word) t = starts[k];
-    word += ch;
-  });
-  if (word) out.push({ t: Math.round(t * 1000) / 1000, word });
-  return out;
-}
-
-async function azure(script, outFile) {
-  let sdk;
-  try {
-    sdk = await import('microsoft-cognitiveservices-speech-sdk');
-    sdk = sdk.default || sdk;
-  } catch {
-    throw new Error('Azure needs the Speech SDK: npm install microsoft-cognitiveservices-speech-sdk');
-  }
-  const config = sdk.SpeechConfig.fromSubscription(need('AZURE_SPEECH_KEY'), need('AZURE_SPEECH_REGION'));
-  config.speechSynthesisVoiceName = process.env.AZURE_SPEECH_VOICE || 'en-GB-RyanNeural';
-  const formats = sdk.SpeechSynthesisOutputFormat;
-  config.speechSynthesisOutputFormat = formats.Audio24Khz48KBitRateMonoMp3 ?? formats.Audio16Khz32KBitRateMonoMp3;
-  const synthesizer = new sdk.SpeechSynthesizer(config, sdk.AudioConfig.fromAudioFileOutput(outFile));
-  const timings = [];
-  synthesizer.wordBoundary = (_s, e) => {
-    const isWord = sdk.SpeechSynthesisBoundaryType ? e.boundaryType === sdk.SpeechSynthesisBoundaryType.Word : true;
-    if (isWord && e.text) timings.push({ t: Math.round((e.audioOffset / 1e7) * 1000) / 1000, word: e.text });
+export function parseArgs(argv) {
+  const opts = { force: false, align: false, listVoices: false, checkScripts: false };
+  const valueOf = (k) => {
+    const v = argv[k + 1];
+    if (v === undefined || v.startsWith('--')) throw new Error(`${argv[k]} needs a value.`);
+    return v;
   };
-  await new Promise((resolve, reject) => {
-    synthesizer.speakTextAsync(script, (result) => {
-      synthesizer.close();
-      if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) resolve();
-      else reject(new Error(`Azure Speech didn't finish: ${result.errorDetails || result.reason}`));
-    }, (err) => {
-      synthesizer.close();
-      reject(new Error(`Azure Speech failed: ${err}`));
-    });
-  });
-  return timings;
+  for (let k = 0; k < argv.length; k += 1) {
+    const a = argv[k];
+    if (a === '--force') opts.force = true;
+    else if (a === '--align') opts.align = true;
+    else if (a === '--list-voices') opts.listVoices = true;
+    else if (a === '--check-scripts') opts.checkScripts = true;
+    else if (a === '--provider') { opts.provider = valueOf(k).toLowerCase(); k += 1; }
+    else if (a === '--voice') { opts.voice = valueOf(k); k += 1; }
+    else if (a === '--speed') { opts.speed = Number(valueOf(k)); k += 1; }
+    else if (a === '--only') { opts.only = Number(valueOf(k)); k += 1; }
+    else if (a.startsWith('--')) throw new Error(`Unknown option ${a}.`);
+    else opts.dir = a;
+  }
+  return opts;
 }
 
-async function elevenlabs(script, outFile) {
-  const voice = need('ELEVENLABS_VOICE_ID');
-  const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(voice)}/with-timestamps?output_format=mp3_44100_128`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'xi-api-key': need('ELEVENLABS_API_KEY') },
-    body: JSON.stringify({ text: script, model_id: process.env.ELEVENLABS_MODEL || 'eleven_multilingual_v2' }),
-  });
-  if (!res.ok) throw new Error(`ElevenLabs answered ${res.status}: ${(await res.text()).slice(0, 300)}`);
-  const data = await res.json();
-  fs.writeFileSync(outFile, Buffer.from(data.audio_base64, 'base64'));
-  const a = data.alignment || data.normalized_alignment;
-  return a ? wordsFromCharacters(a.characters, a.character_start_times_seconds) : [];
+// Flags first, then the flow's own narrator, then the environment.
+export function resolveNarrator(flow, opts, env = process.env) {
+  const own = flow?.narrator || {};
+  const provider = (opts.provider || own.provider || env.TTS_PROVIDER || 'browser').toLowerCase();
+  if (!PROVIDERS.includes(provider)) throw new Error(`Unknown provider "${provider}". Use ${PROVIDERS.join(', ')}.`);
+  const sameProvider = !opts.provider || opts.provider === own.provider;
+  const voice = opts.voice || (sameProvider ? own.voice : undefined) || env[VOICE_ENV[provider]] || SYNTH[provider]?.DEFAULT_VOICE || '';
+  const speed = Number(opts.speed || (sameProvider ? own.speed : undefined) || env.TTS_SPEED || 1);
+  if (!(speed > 0)) throw new Error('Speed must be a positive number, such as 1.0.');
+  return { provider, voice, speed };
 }
 
-async function main() {
-  loadDotEnv();
-  const args = process.argv.slice(2);
-  const force = args.includes('--force');
-  const dir = path.resolve(args.find((a) => !a.startsWith('--')) || path.join(ROOT, 'flows', 'example'));
-  const file = path.join(dir, 'flow.json');
-  const flow = JSON.parse(fs.readFileSync(file, 'utf8'));
-  const provider = (process.env.TTS_PROVIDER || 'browser').toLowerCase();
-  if (!['browser', 'azure', 'elevenlabs'].includes(provider)) throw new Error(`Unknown TTS_PROVIDER "${provider}". Use browser, azure or elevenlabs.`);
-  const voiceName = provider === 'azure' ? (process.env.AZURE_SPEECH_VOICE || 'en-GB-RyanNeural')
-    : provider === 'elevenlabs' ? (process.env.ELEVENLABS_VOICE_ID || '') : '';
+const sha = (data) => crypto.createHash('sha1').update(data).digest('hex').slice(0, 12);
+const audioPath = (i) => `assets/v${String(i).padStart(2, '0')}.mp3`;
+
+function loadLexicon() {
+  const file = path.join(ROOT, 'voice-lexicon.json');
+  return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : {};
+}
+
+function narratedSteps(flow, only) {
+  const list = flow.steps.map((step, i) => ({ step, i })).filter(({ step }) => step.voice?.script?.trim());
+  if (only === undefined) return list;
+  const picked = list.filter(({ i }) => i === only);
+  if (!picked.length) throw new Error(`Step ${only} has no narration script. Narrated steps: ${list.map(({ i }) => i).join(', ')}.`);
+  return picked;
+}
+
+// The newest recording for step i: assets/vNN.wav, .m4a, .mp3, .ogg or .flac.
+function findRecording(dir, i) {
+  const base = path.join(dir, 'assets', `v${String(i).padStart(2, '0')}`);
+  return RECORDED_TYPES.map((ext) => base + ext).filter((f) => fs.existsSync(f))
+    .sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs)[0];
+}
+
+async function timingsFor(script, spoken, outFile, durationSec, providerTimings, align) {
+  if (providerTimings?.length) return mapTimings(script, shiftTimings(providerTimings, PAD_SECONDS));
+  if (align) return mapTimings(script, await alignWords(outFile));
+  return mapTimings(script, estimateTimings(spoken, durationSec));
+}
+
+async function narrate(flow, dir, opts) {
+  const narrator = resolveNarrator(flow, opts);
+  const { provider, voice, speed } = narrator;
+  const lexicon = loadLexicon();
+  const steps = narratedSteps(flow, opts.only);
+
+  if (provider === 'browser') {
+    for (const { step } of steps) Object.assign(step.voice, { audio: null, timings: [], hash: sha(`browser|${step.voice.script}`) });
+    return { narrator, made: steps.length, skipped: 0 };
+  }
+  await checkFfmpeg();
+  if (opts.align && !(await whisperAvailable())) throw new Error('--align needs Whisper: pip install faster-whisper');
 
   let made = 0;
   let skipped = 0;
-  for (const [i, step] of flow.steps.entries()) {
-    const v = step.voice;
-    if (!v || !v.script || !String(v.script).trim()) continue;
-    const hash = crypto.createHash('sha1').update(`${provider}|${voiceName}|${v.script}`).digest('hex').slice(0, 12);
-    const audioOk = provider === 'browser' || (v.audio && fs.existsSync(path.join(dir, v.audio)));
-    if (!force && v.hash === hash && audioOk) { skipped += 1; continue; }
-
-    if (provider === 'browser') {
-      v.audio = null;
-      v.timings = [];
-    } else {
-      const rel = `assets/v${String(i).padStart(2, '0')}.mp3`;
+  const work = fs.mkdtempSync(path.join(os.tmpdir(), 'demo-voice-'));
+  try {
+    for (const { step, i } of steps) {
+      const v = step.voice;
+      const rel = audioPath(i);
       const out = path.join(dir, rel);
+      const spoken = applyLexicon(v.script, lexicon);
+      let raw;
+      let providerTimings = null;
+
+      if (provider === 'recorded') {
+        const source = findRecording(dir, i);
+        if (!source) { console.log(`  step ${i}: no recording (add ${rel}, .wav or .m4a), skipped`); skipped += 1; continue; }
+        if (!opts.force && v.hash === sha(fs.readFileSync(source)) && v.audio === rel) { skipped += 1; continue; }
+        raw = path.join(work, `in${path.extname(source)}`);
+        fs.copyFileSync(source, raw);
+      } else {
+        const hash = sha(`${provider}|${voice}|${speed}|${spoken}`);
+        if (!opts.force && v.hash === hash && v.audio === rel && fs.existsSync(out)) { skipped += 1; continue; }
+        raw = path.join(work, `raw-${i}${provider === 'kokoro' ? '.wav' : '.mp3'}`);
+        process.stdout.write(`  step ${i}: ${provider} ${voice} … `);
+        ({ timings: providerTimings } = await SYNTH[provider].synth(spoken, { voice, speed }, raw));
+      }
+
       fs.mkdirSync(path.dirname(out), { recursive: true });
-      process.stdout.write(`  step ${i}: generating ${rel} … `);
-      v.timings = provider === 'azure' ? await azure(v.script, out) : await elevenlabs(v.script, out);
+      const finished = path.join(work, `out-${i}.mp3`);
+      const length = await finishAudio(raw, finished);
+      fs.copyFileSync(finished, out);
+      v.timings = await timingsFor(v.script, spoken, out, length, providerTimings, opts.align);
       v.audio = rel;
-      console.log(`${v.timings.length} word timings`);
+      v.hash = provider === 'recorded' ? sha(fs.readFileSync(out)) : sha(`${provider}|${voice}|${speed}|${spoken}`);
+      if (provider === 'recorded') console.log(`  step ${i}: recorded, ${length.toFixed(1)} s`);
+      else console.log(`${length.toFixed(1)} s, ${v.timings.length} words timed`);
+      made += 1;
     }
-    v.hash = hash;
-    made += 1;
+  } finally {
+    fs.rmSync(work, { recursive: true, force: true });
   }
+  return { narrator, made, skipped };
+}
+
+function printScriptChecks(flow) {
+  let problems = 0;
+  for (const { step, i } of narratedSteps(flow)) {
+    const result = checkScript(step.voice.script);
+    if (!result) continue;
+    problems += 1;
+    console.log(`Step ${i}: ${result.issues.join('; ')}`);
+    console.log(`  now:       ${step.voice.script}`);
+    console.log(`  suggested: ${result.suggestion}`);
+  }
+  console.log(problems ? `${problems} script${problems === 1 ? '' : 's'} to look at. Nothing was changed.` : 'Every script reads well aloud.');
+}
+
+async function main() {
+  loadDotEnv(ROOT);
+  const opts = parseArgs(process.argv.slice(2));
+  if (opts.listVoices) {
+    const provider = (opts.provider || process.env.TTS_PROVIDER || '').toLowerCase();
+    if (!SYNTH[provider]) throw new Error(`--list-voices needs --provider ${Object.keys(SYNTH).join(', ')}.`);
+    const voices = await SYNTH[provider].listVoices();
+    voices.forEach((v) => console.log(`${v.name.padEnd(36)} ${v.id}`));
+    console.log(`${voices.length} British English voice${voices.length === 1 ? '' : 's'} for ${provider}.`);
+    return;
+  }
+  const dir = path.resolve(opts.dir || path.join(ROOT, 'flows', 'example'));
+  const file = path.join(dir, 'flow.json');
+  const flow = JSON.parse(fs.readFileSync(file, 'utf8'));
+  if (opts.checkScripts) return printScriptChecks(flow);
+
+  const { narrator, made, skipped } = await narrate(flow, dir, opts);
   fs.writeFileSync(file, `${JSON.stringify(flow, null, 2)}\n`);
-  console.log(`${provider}: updated ${made} step${made === 1 ? '' : 's'}, skipped ${skipped} unchanged.`);
-  if (provider === 'browser') console.log('The player will read these scripts with the browser\'s built-in voice.');
+  const who = narrator.provider === 'browser' ? 'browser voice' : `${narrator.provider} ${narrator.voice} at ${narrator.speed}×`;
+  console.log(`${who}: updated ${made} step${made === 1 ? '' : 's'}, skipped ${skipped} unchanged.`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

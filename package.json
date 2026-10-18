@@ -29,6 +29,7 @@
     "validate": "node tools/validate-flow.mjs",
     "validate:all": "node tools/validate-flow.mjs --all",
     "voice": "node tools/make-voice.mjs",
+    "voice:sample": "node tools/voice-sampler.mjs",
     "save-shot": "node tools/save-shot.mjs",
     "redact": "node tools/redact.mjs",
     "preview": "node tools/preview-boxes.mjs",
