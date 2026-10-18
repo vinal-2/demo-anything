@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Embed test host</title>
+  <style>
+    body { margin: 0; padding: 24px; font-family: system-ui, sans-serif; }
+    iframe { width: 100%; max-width: 960px; aspect-ratio: 16 / 10; border: 0; display: block; }
+  </style>
+</head>
+<body>
+  <!-- Used by the Playwright embed test. Shows how a host page receives progress events. -->
+  <iframe src="/?embed" title="Demo" allow="fullscreen"></iframe>
+  <script>
+    window.demoEvents = [];
+    window.addEventListener('message', (e) => {
+      if (e.data && typeof e.data.type === 'string' && e.data.type.startsWith('demo:')) window.demoEvents.push(e.data);
+    });
+  </script>
+</body>
+</html>

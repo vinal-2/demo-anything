@@ -1,0 +1,125 @@
+{
+  "id": "example",
+  "name": "Example: turn on email alerts",
+  "font": "Inter",
+  "aspectRatio": 0.5625,
+  "theme": {
+    "brand": "#0E676C",
+    "brandText": "#FFFFFF",
+    "hotspot": "#D06A12"
+  },
+  "showBackNextButtons": true,
+  "keyboardNav": true,
+  "backgroundMusic": {
+    "src": null,
+    "volume": 0.1
+  },
+  "steps": [
+    {
+      "type": "cover",
+      "title": "Example: turn on email alerts",
+      "subtitle": "Find the setting in Acme Admin and see where to switch it on.",
+      "buttonText": "Get Started",
+      "logo": null,
+      "logoText": "Acme Admin",
+      "bg": null,
+      "align": "left"
+    },
+    {
+      "type": "image",
+      "src": "assets/01-home.png",
+      "alt": "Acme Admin home screen",
+      "voice": {
+        "script": "To turn on email alerts, start on the home page and open Settings in the left-hand menu.",
+        "audio": null,
+        "timings": []
+      },
+      "hotspot": null,
+      "autoAdvance": true
+    },
+    {
+      "type": "image",
+      "src": "assets/01-home.png",
+      "alt": "Acme Admin home screen",
+      "hotspot": {
+        "x": 0.0813,
+        "y": 0.3022,
+        "size": 40,
+        "style": "pulsating",
+        "label": "Open Settings"
+      },
+      "autoAdvance": false
+    },
+    {
+      "type": "image",
+      "src": "assets/02-settings.png",
+      "alt": "Settings screen on the General tab",
+      "voice": {
+        "script": "Settings opens on the General tab. Select the Notifications tab.",
+        "audio": null,
+        "timings": []
+      },
+      "hotspot": null,
+      "autoAdvance": true
+    },
+    {
+      "type": "image",
+      "src": "assets/02-settings.png",
+      "alt": "Settings screen on the General tab",
+      "hotspot": {
+        "x": 0.3419,
+        "y": 0.1822,
+        "size": 40,
+        "style": "pulsating",
+        "label": "Open the Notifications tab"
+      },
+      "autoAdvance": false
+    },
+    {
+      "type": "video",
+      "src": [
+        "assets/t01-open-notifications.webm",
+        "assets/t01-open-notifications.mp4"
+      ],
+      "alt": "The Notifications tab opening",
+      "start": 0,
+      "end": 1.8,
+      "muted": true,
+      "voice": {
+        "script": "Turn on Email alerts, then select Save to keep the change.",
+        "audio": null,
+        "timings": []
+      },
+      "autoAdvance": true
+    },
+    {
+      "type": "image",
+      "src": "assets/03-notifications.png",
+      "alt": "Notifications tab with the Email alerts switch",
+      "hotspot": {
+        "x": 0.585,
+        "y": 0.2778,
+        "size": 40,
+        "style": "pulsating",
+        "label": "Email alerts switch"
+      },
+      "autoAdvance": false
+    },
+    {
+      "type": "end",
+      "title": "You found email alerts",
+      "subtitle": "Now make your own: [read the quick start](https://github.com/vinal-2/demo-anything#quick-start).",
+      "buttons": [
+        {
+          "text": "Replay",
+          "action": "restart"
+        },
+        {
+          "text": "Get Demo Anything",
+          "action": "url",
+          "href": "https://github.com/vinal-2/demo-anything"
+        }
+      ]
+    }
+  ]
+}

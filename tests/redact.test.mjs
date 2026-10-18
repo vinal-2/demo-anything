@@ -8,7 +8,7 @@ import { previewBoxes } from '../tools/preview-boxes.mjs';
 import { redact } from '../tools/redact.mjs';
 import { saveShot } from '../tools/save-shot.mjs';
 
-const EXAMPLE_SHOTS = join(import.meta.dirname, '..', 'flows', 'example', 'shots');
+const EXAMPLE_SHOTS = join(import.meta.dirname, '..', 'tools', 'fixtures', 'capture-sample', 'shots');
 const STEPS = [{ step: 1, screen: 'Home', element: 'Settings', box: { x: 16, y: 250, width: 228, height: 44 }, say: 'Open Settings.' }];
 // The "Welcome back" heading on the example home screen.
 const HEADING = { x: 296, y: 96, width: 260, height: 48 };
