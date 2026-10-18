@@ -106,6 +106,47 @@ test('the validator checks narrators and their voice files', () => {
   expect(errors).toContain('emma audio "../../outside.mp3" must be inside the flow folder');
 });
 
+test('the validator catches identifying text anywhere in flow.json and masks it', () => {
+  const dir = copyExample();
+  const termsFile = path.join(dir, 'terms.txt');
+  fs.writeFileSync(termsFile, '# my lab\nFabrikam-Lab\n');
+  editFlow(dir, (flow) => {
+    flow.steps[1].voice.script = 'Email jo.bloggs@contoso.com about tenant 3f2504e0-4f89-11d3-9a0c-0305e82c3301.';
+    flow.steps[2].hotspot.label = 'Open fabrikam-lab.onmicrosoft.com';
+    flow.steps[3].voice.script = 'The server at 81.2.69.160 talks to 10.0.1.4 and 192.168.1.20.';
+    flow.steps[7].buttons[1].href = 'https://example.com/?t=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.c2lnbmF0dXJlLWhlcmUx';
+    flow.steps[0].subtitle = 'Key 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08';
+  });
+  const errors = validateFlow(dir, { termsFile }).errors.join('\n');
+  expect(errors).toContain('Step 1 (image) voice.script: looks like an email address');
+  expect(errors).toContain('Step 1 (image) voice.script: looks like a GUID');
+  expect(errors).toContain('Step 2 (image) hotspot.label: looks like a Microsoft tenant name');
+  expect(errors).toContain('Step 2 (image) hotspot.label: looks like one of your sensitive terms');
+  expect(errors).toContain('Step 3 (image) voice.script: looks like a public IP address (81…0)');
+  expect(errors).toContain('Step 7 (end) buttons[1].href: looks like a JSON web token');
+  expect(errors).toContain('Step 0 (cover) subtitle: looks like a long hex key');
+  expect(errors).not.toContain('10.0');
+  expect(errors).not.toContain('192.168');
+  expect(errors).not.toContain('jo.bloggs');
+});
+
+test('every published flow passes the sensitive-text check', () => {
+  for (const id of ['example', 'mde-isolate-device']) expect(validateFlow(`flows/${id}`, { termsFile: null }).errors).toEqual([]);
+});
+
+test('the inside-the-flow-folder rule covers logo, background and music', () => {
+  const dir = copyExample();
+  editFlow(dir, (flow) => {
+    flow.steps[0].logo = '../../../capture/raw/shots/01-home.png';
+    flow.steps[0].bg = '../../secret.png';
+    flow.backgroundMusic.src = '../music.mp3';
+  });
+  const errors = validateFlow(dir).errors.join('\n');
+  expect(errors).toContain('logo "../../../capture/raw/shots/01-home.png" must be inside the flow folder');
+  expect(errors).toContain('bg "../../secret.png" must be inside the flow folder');
+  expect(errors).toContain('backgroundMusic "../music.mp3" must be inside the flow folder');
+});
+
 test('import-steps turns a capture into a valid flow with hotspots on the boxes', () => {
   const dir = path.join(tmp(), 'flows', 'imported');
   const flow = importSteps(FIXTURE, dir, { name: 'Turning on email alerts in Acme Admin' });

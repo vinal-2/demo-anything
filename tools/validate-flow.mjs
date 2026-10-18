@@ -9,8 +9,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { imageSize } from './lib/image-size.mjs';
+import { findSensitive, loadTerms, strings } from './lib/sensitive.mjs';
 
 const RATIO_TOLERANCE = 0.002;
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// Your own sensitive words (tenant name, lab device names), one per line. capture/ is
+// git-ignored, so the list itself is never published.
+export const DEFAULT_TERMS_FILE = path.join(ROOT, 'capture', 'sensitive-terms.txt');
 
 const TYPES = new Set(['cover', 'image', 'video', 'end']);
 const VOICE_PROVIDERS = new Set(['browser', 'kokoro', 'elevenlabs', 'google', 'recorded']);
@@ -45,7 +50,7 @@ function scriptsOf(flow) {
     .filter((x) => x.text.trim());
 }
 
-export function validateFlow(flowDir) {
+export function validateFlow(flowDir, { termsFile = DEFAULT_TERMS_FILE } = {}) {
   const errors = [];
   const warnings = [];
   const file = path.join(flowDir, 'flow.json');
@@ -113,7 +118,10 @@ export function validateFlow(flowDir) {
       else if (alt && alt.audio && missing(alt.audio)) errors.push(`${where(i)}: ${id} audio "${alt.audio}" is missing from ${flowDir}.`);
     });
     if (s.voice && s.voice.timings != null && !Array.isArray(s.voice.timings)) errors.push(`${where(i)}: voice.timings must be a list.`);
-    ['logo', 'bg'].forEach((k) => { if (s[k] && missing(s[k])) errors.push(`${where(i)}: ${k} file "${s[k]}" is missing from ${flowDir}.`); });
+    ['logo', 'bg'].forEach((k) => {
+      if (s[k] && !isRemote(s[k]) && outside(s[k])) errors.push(`${where(i)}: ${k} "${s[k]}" must be inside the flow folder.`);
+      else if (s[k] && missing(s[k])) errors.push(`${where(i)}: ${k} file "${s[k]}" is missing from ${flowDir}.`);
+    });
 
     if (s.hotspot) {
       const { x, y } = s.hotspot;
@@ -145,9 +153,18 @@ export function validateFlow(flowDir) {
     }
   }
 
-  if (flow.backgroundMusic && flow.backgroundMusic.src && missing(flow.backgroundMusic.src)) {
-    errors.push(`backgroundMusic file "${flow.backgroundMusic.src}" is missing from ${flowDir}.`);
-  }
+  const music = flow.backgroundMusic && flow.backgroundMusic.src;
+  if (music && !isRemote(music) && outside(music)) errors.push(`backgroundMusic "${music}" must be inside the flow folder.`);
+  else if (music && missing(music)) errors.push(`backgroundMusic file "${music}" is missing from ${flowDir}.`);
+
+  // ---- Text that must never be published ----
+  const terms = loadTerms(termsFile);
+  const { steps: _steps, ...top } = flow;
+  const report = (label, field, value) => {
+    for (const hit of findSensitive(value, terms)) errors.push(`${label} ${field}: looks like ${hit.kind} (${hit.hint}). Remove it or redact it.`);
+  };
+  for (const [field, value] of strings(top)) report('Flow', field, value);
+  steps.forEach((s, i) => { for (const [field, value] of strings(s)) report(where(i), field, value); });
 
   // ---- Copy-paste checks (warnings) ----
   const own = scriptsOf(flow);
