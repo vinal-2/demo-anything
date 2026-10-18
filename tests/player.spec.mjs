@@ -1,5 +1,7 @@
 import { test as base, expect } from '@playwright/test';
 import fs from 'node:fs';
+import path from 'node:path';
+import { findFlows } from '../tools/validate-flow.mjs';
 
 const SHOTS = 'test-results/steps';
 fs.mkdirSync(SHOTS, { recursive: true });
@@ -275,6 +277,32 @@ test('an embedded player posts step and completion events to its host page', asy
   const margin = await frame.locator('.page').evaluate((el) => getComputedStyle(el).paddingLeft);
   expect(margin).toBe('0px');
 });
+
+// Every flow in flows/ is played end to end, so a new flow is tested as soon as it is added.
+for (const id of findFlows('flows').map((dir) => path.basename(dir))) {
+  test(`flow "${id}" plays from cover to end card with every hotspot on the screenshot`, async ({ page }) => {
+    await page.goto(`/?flow=${id}`);
+    await expect(dp(page)).toHaveAttribute('data-mode', 'cover');
+    await page.locator('[data-act="start"]').click();
+    const total = Number(await dp(page).getAttribute('data-total'));
+    for (let k = 1; k < total - 1; k += 1) {
+      await expect(dp(page)).toHaveAttribute('data-step', String(k));
+      const hotspot = page.locator('.dp-hs');
+      if (await hotspot.isVisible()) {
+        const stage = await page.locator('.dp-stage').boundingBox();
+        const hs = await hotspot.boundingBox();
+        const cx = hs.x + hs.width / 2;
+        const cy = hs.y + hs.height / 2;
+        expect(cx, `step ${k} hotspot centre x`).toBeGreaterThanOrEqual(stage.x);
+        expect(cx, `step ${k} hotspot centre x`).toBeLessThanOrEqual(stage.x + stage.width);
+        expect(cy, `step ${k} hotspot centre y`).toBeGreaterThanOrEqual(stage.y);
+        expect(cy, `step ${k} hotspot centre y`).toBeLessThanOrEqual(stage.y + stage.height);
+      }
+      await page.getByRole('button', { name: 'Next step' }).click();
+    }
+    await expect(dp(page)).toHaveAttribute('data-type', 'end');
+  });
+}
 
 test('the local server never serves capture/ or project files', async ({ request }) => {
   expect((await request.get('/capture/raw/steps.json')).status()).toBe(404);
