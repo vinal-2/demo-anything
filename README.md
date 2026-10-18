@@ -112,15 +112,36 @@ already; see [docs/publishing.md](docs/publishing.md).
 
 ## Disclaimer
 
-Independent project, not affiliated with any vendor shown in a demo. Only capture
-systems you are allowed to use, and redact before you publish. See
-[DISCLAIMER.md](DISCLAIMER.md).
+See [DISCLAIMER.md](DISCLAIMER.md) for responsible-use guidance.
+
+Demo Anything is for training, documentation, onboarding and showing software you
+own or are authorised to use. Capture only systems you have permission to access,
+prefer a sandbox or test tenant, and redact everything that identifies a person or
+organisation before you publish.
+
+This position covers every version and copy of the project, whoever runs it and
+wherever it is hosted; each copy keeps its licences.
 
 ## Contributing
 
-Demos, fixes and ideas are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md); for
-security problems or leaked data, use [SECURITY.md](SECURITY.md).
+We'd love your help. Open an issue to report a bug or suggest a demo, or send a
+pull request to improve the code, docs or flows.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and checks,
+[docs/flow-format.md](docs/flow-format.md) for the data the tools expect, and
+[SECURITY.md](SECURITY.md) to report a security problem or leaked data privately.
 
 ## Licence
 
 [MIT](LICENSE)
+
+Code written for Demo Anything is licensed under MIT. Third-party material keeps
+its own licences and copyright notices; see
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+Screenshots in a demo show other companies' products. Their names, logos and
+interfaces belong to their owners, and a demo grants no right to use those
+products. You need your own valid licence or subscription for any product you
+capture, and you must follow its terms, including any limits on screenshots,
+automation or sharing. Demo Anything is not affiliated with or endorsed by those
+vendors. This guidance does not change the MIT licence or any third-party licence.
