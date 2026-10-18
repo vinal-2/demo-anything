@@ -39,10 +39,10 @@ const CURSOR_TIP = { x: 4 / 24, y: 2.5 / 24 };
 export const esc = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-// Escape, then turn [text](https://...) into links. Only http(s) and in-page "#" links are allowed.
+// Escape, then turn [text](https://...) into links. Only https and in-page "#" links are allowed.
 function inlineMarkdown(text) {
-  return esc(text).replace(/\[([^\]]+)\]\(((?:https?:\/\/|#)[^\s)]*)\)/g, (_m, label, href) => {
-    const external = /^https?:/i.test(href);
+  return esc(text).replace(/\[([^\]]+)\]\(((?:https:\/\/|#)[^\s)]*)\)/g, (_m, label, href) => {
+    const external = /^https:/i.test(href);
     return `<a href="${href}"${external ? ' target="_blank" rel="noopener"' : ''}>${label}</a>`;
   });
 }
@@ -594,8 +594,9 @@ export function mountPlayer(root, flow, base) {
         const cls = n === 0 ? 'dp-cta' : 'dp-cta secondary';
         if (b.action === 'url' && b.href) {
           const href = String(b.href);
-          const safe = /^(https?:\/\/|#|\/|\.\/)/i.test(href) ? href : '#';
-          const external = /^https?:/i.test(safe);
+          // https, in-page and same-site links only; anything else becomes a dead link.
+          const safe = /^(https:\/\/|#|\/(?!\/)|\.\/)/i.test(href) ? href : '#';
+          const external = /^https:/i.test(safe);
           return `<a class="${cls}" href="${esc(safe)}"${external ? ' target="_blank" rel="noopener"' : ''}>${esc(b.text || 'Open')}</a>`;
         }
         return `<button type="button" class="${cls}" data-act="replay">${esc(b.text || 'Replay')}</button>`;

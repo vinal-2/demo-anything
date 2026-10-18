@@ -349,6 +349,31 @@ test('the voice menu works from the keyboard', async ({ page }) => {
   await expect(voice).toBeFocused();
 });
 
+test('end card links allow only https and in-page addresses', async ({ page }) => {
+  await page.route('**/flows/example/flow.json', async (route) => {
+    const flow = await (await route.fetch()).json();
+    const end = flow.steps.at(-1);
+    end.subtitle = 'Read [the safe guide](https://example.com/guide) or [the old one](http://example.com/old).';
+    end.buttons = [
+      { text: 'Replay', action: 'restart' },
+      { text: 'Plain web', action: 'url', href: 'http://example.com' },
+      { text: 'Sneaky', action: 'url', href: '//evil.example.com' },
+      { text: 'Script', action: 'url', href: 'javascript:alert(1)' },
+    ];
+    await route.fulfill({ json: flow });
+  });
+  await start(page);
+  const total = Number(await dp(page).getAttribute('data-total'));
+  for (let k = 1; k < total - 1; k += 1) await page.getByRole('button', { name: 'Next step' }).click();
+  await expect(dp(page)).toHaveAttribute('data-type', 'end');
+
+  await expect(page.getByRole('link', { name: 'the safe guide' })).toHaveAttribute('target', '_blank');
+  await expect(page.getByRole('link', { name: 'the old one' })).toHaveCount(0);
+  for (const name of ['Plain web', 'Sneaky', 'Script']) {
+    await expect(page.getByRole('link', { name })).toHaveAttribute('href', '#');
+  }
+});
+
 test('a flow with one narrator shows no voice menu', async ({ page }) => {
   await page.route('**/flows/example/flow.json', async (route) => {
     const flow = await (await route.fetch()).json();

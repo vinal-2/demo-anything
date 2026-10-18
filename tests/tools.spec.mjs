@@ -6,6 +6,7 @@ import { validateFlow } from '../tools/validate-flow.mjs';
 import { importSteps, imageSize } from '../tools/import-steps.mjs';
 import { wordsFromCharacters } from '../tools/make-voice.mjs';
 import { redact } from '../tools/redact.mjs';
+import { buildSite } from '../tools/build-site.mjs';
 
 const FIXTURE = 'tools/fixtures/capture-sample';
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'demo-anything-'));
@@ -203,6 +204,25 @@ test('import-steps refuses a screenshot that changed or appeared after redaction
   const added = await redactedCopy();
   fs.copyFileSync(path.join(FIXTURE, 'shots', '01-home.png'), path.join(added, 'shots', '04-extra.png'));
   expect(() => importSteps(added, path.join(tmp(), 'flows', 'added'), {})).toThrow(/04-extra\.png isn't in redaction\.json/);
+});
+
+test('the site build publishes only the player and files each flow uses', () => {
+  const root = tmp();
+  fs.cpSync('index.html', path.join(root, 'index.html'));
+  fs.cpSync('player', path.join(root, 'player'), { recursive: true });
+  fs.cpSync('flows/example', path.join(root, 'flows', 'example'), { recursive: true });
+  fs.writeFileSync(path.join(root, 'flows', 'example', 'assets', 'draft-notes.txt'), 'private');
+  fs.writeFileSync(path.join(root, 'flows', 'example', 'raw-capture.png'), 'private');
+  const out = path.join(root, '_site');
+  const published = buildSite({ root, out });
+
+  expect(published).toContain('flows/example/flow.json');
+  expect(published).toContain('flows/example/assets/01-home.png');
+  expect(published).toContain('flows/example/assets/t01-open-notifications.webm');
+  expect(published).toContain('flows/example/assets/emma/v01.mp3');
+  expect(fs.existsSync(path.join(out, 'player', 'player.js'))).toBe(true);
+  expect(fs.existsSync(path.join(out, 'flows', 'example', 'assets', 'draft-notes.txt'))).toBe(false);
+  expect(fs.existsSync(path.join(out, 'flows', 'example', 'raw-capture.png'))).toBe(false);
 });
 
 test('image sizes are read from PNG headers', () => {
