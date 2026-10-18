@@ -14,7 +14,7 @@
 
 **[Live demos](https://vinal-2.github.io/demo-anything/) · [Guides](docs/getting-started.md) · [Agent skill](skills/demo-anything/SKILL.md)**
 
-[Quick start](#quick-start) · [How it works](#how-it-works) · [Showcases](#showcases) · [FAQ](#faq) · [Documentation](#documentation)
+[Quick start](#quick-start) · [How it works](#how-it-works) · [Showcases](#showcases) · [FAQ](#faq) · [Documentation](#documentation) · [Star history](#star-history)
 
 <br />
 
@@ -83,24 +83,83 @@ flowchart LR
 | Demo | What it shows |
 | --- | --- |
 | [Example: turn on email alerts](https://vinal-2.github.io/demo-anything/?flow=example) | A three-step tour of a fictional admin app. Start here. |
-| Setting up and onboarding a device in Defender for Endpoint | Coming soon: built by the agent from a sandbox tenant. |
 
 Made a demo? Open a pull request; see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## FAQ
 
-**Why screenshots instead of a video?** People go at their own pace, click the real
-control, and can find a step again. Screenshots are also easy to redact and update.
+<details>
+<summary><strong>Which agents can use Demo Anything?</strong></summary>
 
-**Does the agent change anything in my app?** No. It is told to stay read-only:
-it screenshots buttons like Save or Delete so the demo can point at them, but never
-clicks them. Use a sandbox anyway.
+The skill is written for [Claude Code](https://code.claude.com/docs/en/overview)
+with [Claude in Chrome](https://code.claude.com/docs/en/chrome), which gives the
+agent your real browser. The skill itself is a plain Markdown file and the tools
+are ordinary Node.js scripts, so any agent that can drive a browser and run
+commands can follow it.
+</details>
 
-**Can I use it without an agent?** Yes. Capture screenshots yourself and follow
-[docs/getting-started.md](docs/getting-started.md).
+<details>
+<summary><strong>Do I need an agent or Claude in Chrome?</strong></summary>
 
-**Where can I host it?** Anywhere that serves static files. GitHub Pages is set up
-already; see [docs/publishing.md](docs/publishing.md).
+No. They save time, but you can take the screenshots yourself and run the same
+tools. See [docs/getting-started.md](docs/getting-started.md#make-a-flow-by-hand).
+</details>
+
+<details>
+<summary><strong>What does installing the skill do?</strong></summary>
+
+It copies one instruction file, `SKILL.md`, into your agent's skills folder. No
+code runs when you install it. When you ask for a demo, the agent reads the file
+and follows its steps: size the window, capture, redact, import, validate and test.
+</details>
+
+<details>
+<summary><strong>Does the agent change anything in my app?</strong></summary>
+
+It is told not to. It never clicks Save, Submit, Apply, Delete, toggles or anything
+that changes data; it screenshots those controls so the demo can point at them.
+It stops at sign-in and MFA pages. Use a sandbox or test tenant anyway.
+</details>
+
+<details>
+<summary><strong>Does Demo Anything upload my screenshots?</strong></summary>
+
+The tools run on your computer and send nothing anywhere. Raw screenshots stay in
+`capture/`, which is git-ignored and never served. Only what you commit to
+`flows/` is published, and only if you push it. If an agent builds the demo, it
+sees the screenshots as part of its normal work, so capture a sandbox, not
+production.
+</details>
+
+<details>
+<summary><strong>How do I keep sensitive data out?</strong></summary>
+
+Redact before you import: `redact.json` must list every screenshot, so none is
+skipped. Then look at every cleaned image yourself. CI blocks anything under
+`capture/` and scans for secrets. See [docs/redaction.md](docs/redaction.md).
+</details>
+
+<details>
+<summary><strong>Why screenshots instead of a video?</strong></summary>
+
+People go at their own pace, click the real control, and can find a step again.
+Screenshots are also easy to redact, check and update when the product changes.
+</details>
+
+<details>
+<summary><strong>Where can I host it?</strong></summary>
+
+Anywhere that serves static files. GitHub Pages is set up already; see
+[docs/publishing.md](docs/publishing.md).
+</details>
+
+<details>
+<summary><strong>What should I do if I hit a bug?</strong></summary>
+
+Open an [issue](https://github.com/vinal-2/demo-anything/issues/new/choose) with
+the flow or command and what you saw. For a security problem or leaked data, report
+it privately; see [SECURITY.md](SECURITY.md).
+</details>
 
 ## Documentation
 
@@ -109,6 +168,17 @@ already; see [docs/publishing.md](docs/publishing.md).
 - [Redaction](docs/redaction.md): what to hide and how
 - [Flow format](docs/flow-format.md): `steps.json`, `flow.json` and validation rules
 - [Publishing](docs/publishing.md): GitHub Pages and other hosts
+
+## Star history
+
+<a href="https://www.star-history.com/#vinal-2/demo-anything&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=vinal-2/demo-anything&type=Date&theme=dark" />
+    <img alt="Demo Anything GitHub star history" src="https://api.star-history.com/svg?repos=vinal-2/demo-anything&type=Date" width="600" />
+  </picture>
+</a>
+
+If Demo Anything helps you, a star helps other people find it.
 
 ## Disclaimer
 
