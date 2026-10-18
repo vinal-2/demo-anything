@@ -1,0 +1,22 @@
+# Raw and working captures can contain tenant names, emails and IPs.
+# Only redacted images copied into flows/ are ever published.
+capture/
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Tooling
+node_modules/
+test-results/
+playwright-report/
+blob-report/
+.cache/
+
+# OS and editor
+.DS_Store
+Thumbs.db
+.vscode/
