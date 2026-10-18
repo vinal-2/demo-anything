@@ -59,6 +59,17 @@ npm test
 
 Every command is listed in [docs/getting-started.md](docs/getting-started.md#commands).
 
+### Change the voice
+
+Viewers can pick a narrator from the **microphone menu** in the player's top bar.
+To change the voices a demo offers:
+
+1. Listen to the options: `npm run voice:sample`, then open `voice-samples/index.html`.
+2. Edit the `narrators` list in `flows/<id>/flow.json` (the first is the default).
+3. Make the audio: `npm run voice -- flows/<id> --align`.
+
+Details, costs and recording your own voice: [docs/player.md](docs/player.md#voice).
+
 ## How it works
 
 ```mermaid
@@ -84,6 +95,7 @@ flowchart LR
 | Feature | What it does |
 | --- | --- |
 | Natural narration and captions | Steps are narrated by a natural voice (free local Kokoro, ElevenLabs, Google, or your own recordings) with word-by-word captions; the browser's voice is the no-setup fallback |
+| Voice switcher | Offer several narrators and viewers pick one from the microphone menu, even mid-demo; the choice is remembered |
 | Guided cursor and hotspots | A cursor glides to a pulsing hotspot; the flow waits until the viewer clicks the right place |
 | Video steps | Short clips (WebM or MP4) for transitions, played with narration |
 | Controls | Play and pause, progress segments to jump between steps, 1× to 2× speed, sound, captions and full screen |

@@ -18,8 +18,9 @@ plain HTML, CSS and JavaScript with no build step.
 - **Get Started** starts the flow. That click also lets the browser play sound.
 - **Pulsing dot**: click it to continue. Clicking elsewhere makes it bounce.
 - **← / →** move one step, **Space** pauses and resumes.
-- The top bar has the language menu, sound, captions (CC) and full screen. Sound and
-  caption settings are remembered in the browser.
+- The top bar has the narrator voice menu (when a demo has more than one voice), the
+  language menu, sound, captions (CC) and full screen. The voice, sound and caption
+  settings are remembered in the browser. In menus, ↑ and ↓ move and Escape closes.
 - Hover or tap the screen for the control bar: play/pause, elapsed and total time,
   one progress segment per step (click one to jump there) and speed (1× to 2×).
 - Links on the end card that go to other sites open in a new tab.
@@ -77,6 +78,28 @@ provider you can use, in a few voices each, and writes `voice-samples/index.html
 Every file is a mono MP3 at 44.1 kHz and about 96 kbps, normalised to -16 LUFS,
 with 150 ms of silence at each end, so steps sound even. Each step keeps a hash of
 its provider, voice, speed and spoken text, so only changed steps are made again.
+
+### Let viewers switch voice
+
+List several narrators instead of one, and the player shows a **Narrator voice** menu
+(the microphone in the top bar). Viewers can switch at any time, even mid-step: the
+current line restarts in the new voice, captions stay in sync, and the browser
+remembers the choice for that demo.
+
+```json
+"narrators": [
+  { "id": "george", "label": "George (British, male)", "provider": "kokoro", "voice": "bm_george" },
+  { "id": "emma", "label": "Emma (British, female)", "provider": "kokoro", "voice": "bf_emma" },
+  { "id": "browser", "label": "Browser voice", "provider": "browser" }
+]
+```
+
+- The first narrator is the default. Its files are `assets/vNN.mp3`; the others go in
+  `assets/<id>/vNN.mp3`.
+- `npm run voice -- flows/<id> --align` makes every narrator. Add `--narrator emma`
+  to make just one.
+- A `browser` narrator needs no files; it uses the viewer's browser voice.
+- Each extra voice adds about 1 MB to a typical demo.
 
 ### Your own voice
 

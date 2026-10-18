@@ -106,7 +106,19 @@ flow's narrator:
 "narrator": { "provider": "kokoro", "voice": "bm_george", "speed": 1.0 }
 ```
 
-See [player.md](player.md#voice) for the providers.
+Or list several `narrators` (each with an `id` and `label`) so viewers can switch
+voice. The first narrator's audio is in `voice.audio` and `voice.timings`; each other
+narrator's is in `voice.variants.<id>`:
+
+```json
+"voice": {
+  "script": "Open Settings in the left-hand menu.",
+  "audio": "assets/v01.mp3", "timings": [ … ],
+  "variants": { "emma": { "audio": "assets/emma/v01.mp3", "timings": [ … ] } }
+}
+```
+
+See [player.md](player.md#voice) for the providers and the voice menu.
 
 ## What `validate` checks
 

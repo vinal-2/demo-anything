@@ -31,6 +31,9 @@ All notable changes are listed here. The format follows
   `--align` (Whisper), or estimated from the audio length; `voice-lexicon.json` for
   pronunciation; `--only`, `--list-voices` and `--check-scripts`.
 - `npm run voice:sample` renders one sentence in several voices to compare.
+- Voice switcher: list several `narrators` in a flow and viewers choose one from the
+  player's microphone menu, even mid-step; the choice is remembered. Menus now work
+  with the arrow keys. The demos offer George, Emma and the browser voice.
 - Both demos are narrated by Kokoro's `bm_george`.
 - The example flow has a video step; the local server streams video.
 - [docs/player.md](docs/player.md).
