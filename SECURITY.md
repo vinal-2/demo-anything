@@ -21,6 +21,14 @@ rewrite the repository history so the image is no longer reachable.
 
 - `capture/` (raw and working screenshots) is git-ignored and the local server
   never serves it.
-- `redact.json` must list every screenshot, so none is skipped by accident.
-- CI fails if anything under `capture/` is committed and scans for secrets.
-- The player only adds flow text as text, never as HTML.
+- `redact.json` must list every screenshot; areas are padded by 8 px and every image
+  is re-encoded to strip metadata.
+- `redaction.json` records each cleaned file's hash, and import refuses screenshots
+  that weren't redacted or changed afterwards.
+- `validate` fails on emails, tenant names and IDs, public IPs, token-like strings and
+  your own sensitive terms anywhere in `flow.json`, and on any file outside the flow.
+- CI blocks anything under `capture/` and scans for secrets. GitHub Pages deploys only
+  after CI passes, and only the files each flow references.
+- Third-party GitHub Actions are pinned to a commit, with Dependabot proposing updates.
+- The player adds flow text as text, never as HTML, and only follows `https://`,
+  in-page and same-site links.

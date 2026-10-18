@@ -6,6 +6,22 @@ All notable changes are listed here. The format follows
 
 ## [Unreleased]
 
+### Security
+
+- `redact` pads every area by 8 px (`pad`), offers `"style": "solid"`, empties the
+  clean folder first, re-encodes every image to strip metadata, and writes
+  `redaction.json` with SHA-256 hashes.
+- `import` refuses a capture folder without `redaction.json`, or with a screenshot
+  added or changed after redaction.
+- `validate` fails on emails, `*.onmicrosoft.com` names, GUIDs, public IPv4 addresses,
+  JWTs and long keys anywhere in `flow.json`, and on terms listed in the git-ignored
+  `capture/sensitive-terms.txt`; values are masked in the output. The inside-the-folder
+  rule covers logo, background, voice and music files.
+- GitHub Pages deploys only after CI passes on `main`, and publishes only the files
+  each flow references (`tools/build-site.mjs`).
+- Third-party actions are pinned to commit SHAs; Dependabot watches actions and npm.
+- The player follows only `https://`, in-page and same-site links.
+
 ### Changed
 
 - The player is now the fuller demo-player engine: narration with word-by-word

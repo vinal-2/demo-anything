@@ -29,8 +29,12 @@ to run if a screenshot is missing from the list, so none is skipped by accident.
 }
 ```
 
-Values are screenshot pixels. Make each area generous: the whole text plus a few
-pixels around it. `reason` is for you and reviewers; the tool ignores it.
+Values are screenshot pixels. `reason` is for you and reviewers; the tool ignores it.
+
+- Every area grows by **8 px** on each side, so the edges of text are covered even if
+  your box is a little short. Set `"pad": 12` (or `0`) on an area to change it.
+- `"style": "solid"` paints an opaque block instead of blurring. Use it for IDs, keys
+  and anything where even a blurred shape is too much.
 
 ## Run it
 
@@ -39,8 +43,22 @@ npm run preview -- capture/raw          # red dashed boxes show what will be hid
 npm run redact -- capture/raw capture/clean
 ```
 
-Each area is pixelated and then blurred, so text inside it cannot be read. The rest
-of the image is unchanged. `steps.json` is copied to the clean folder.
+Each area is pixelated and then blurred (or filled), so text inside it cannot be read.
+The tool empties `capture/clean/shots/` first, so a renamed screenshot can't linger,
+and re-encodes every image, so no hidden metadata survives. It copies `steps.json` and
+writes `redaction.json`, a record of each cleaned file's SHA-256.
+
+`npm run import` refuses a folder without `redaction.json`, or with a screenshot that
+was added or changed after redaction, so unredacted images can't become a flow.
+
+## Your own sensitive words
+
+List words that must never appear in a published flow, one per line, in
+`capture/sensitive-terms.txt` (git-ignored, so the list stays private): your tenant
+or company name, lab device names, people's names. `npm run validate` fails if any of
+them appears anywhere in `flow.json`. It also always fails on email addresses,
+`*.onmicrosoft.com` names, GUIDs, public IP addresses and token-like strings. The
+error names the step and field and only shows a masked hint of what it found.
 
 ## Check it
 

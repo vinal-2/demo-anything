@@ -2,8 +2,11 @@
 
 ## GitHub Pages
 
-The `pages` workflow publishes the player and `flows/` to GitHub Pages every time
-`main` changes. Nothing else in the repository is published.
+The `pages` workflow publishes to GitHub Pages **after CI passes** on a push to
+`main`, so a flow that fails validation or tests never goes live. It runs
+`node tools/build-site.mjs`, which publishes `index.html`, `player/` and, for each
+flow, only `flow.json` and the files it references. Nothing else in the repository is
+published, not even stray files inside a flow folder.
 
 To turn it on in your own copy:
 

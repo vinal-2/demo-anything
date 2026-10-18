@@ -18,7 +18,11 @@ build step and no runtime dependencies. The tools are small Node.js scripts.
   git-ignored, `tools/serve.mjs` refuses to serve it, and CI fails if anything
   under it is committed. Do not weaken any of these.
 - **Redact before import.** Only import from `capture/clean`. `redact.json` must
-  list every screenshot; do not add a way to skip that check.
+  list every screenshot, and import checks `redaction.json` hashes. Do not add a way
+  to skip either check, and never hand-write a `redaction.json`.
+- **The validator's sensitive-text scan is a safety net, not a licence.** Keep it
+  failing on emails, tenant names and IDs, public IPs and tokens, and never print a
+  matched value in full.
 - **Published flows contain no real data.** No tenant or organisation names or IDs,
   people's names, emails, UPNs, public IPs, device names, keys or tokens in
   `flows/`, tests, fixtures or docs. Test fixtures use the fictional Acme Admin.
