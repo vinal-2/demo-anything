@@ -12,9 +12,9 @@ npx playwright install chromium   # for the tests
 npm start
 ```
 
-Open <http://localhost:4173/> to see every flow, or
-<http://localhost:4173/?flow=example> to play the example. To make your own copy on
-GitHub, use **Use this template** or fork the repository.
+Open <http://localhost:4173/> to play the example, or
+<http://localhost:4173/?flow=my-flow> to play another flow. To make your own copy on
+GitHub, fork the repository.
 
 ## Make a flow by hand
 
