@@ -33,3 +33,6 @@ _site/
 
 # Launch drafts (posted by hand, never committed)
 launch/
+
+# Private local experiments (demos, recordings, scratch work), never committed
+local/
