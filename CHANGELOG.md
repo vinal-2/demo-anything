@@ -20,6 +20,9 @@ All notable changes are listed here. The format follows
   switched-off `FUNDING.yml` and a Show and tell discussion form.
 - OpenSSF Scorecard runs weekly and on every push to `main`; the score is a README
   badge.
+- The README opens with an animated GIF of the example playing
+  (`docs/assets/demo.gif`), and `docs/assets/social-preview.png` (1280 × 640) is
+  ready for the repository's social preview.
 
 ### Fixed
 

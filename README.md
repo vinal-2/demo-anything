@@ -19,7 +19,7 @@
 
 <br />
 
-<a href="https://vinal-2.github.io/demo-anything/demos/example/"><img src="docs/assets/player.png" alt="The Demo Anything player: an admin Settings page in a browser frame, with a pulsing hotspot and the tooltip 'Open the Notifications tab' beside the cursor" width="1000" /></a>
+<a href="https://vinal-2.github.io/demo-anything/demos/example/"><img src="docs/assets/demo.gif" alt="The Demo Anything player running the example: a cover card, then an admin app where a guided cursor moves to each pulsing hotspot with a tooltip and captions, through to the end card" width="800" /></a>
 
 </div>
 
