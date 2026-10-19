@@ -18,6 +18,8 @@ All notable changes are listed here. The format follows
   for canonical links, link previews, the sitemap and structured data, instead of
   the original project's. A `SITE_URL` repository variable sets a custom domain.
 - A player test no longer depends on the Defender demo being in the repository.
+- Card buttons ("Get Started", "Replay") now use the same text size as card links;
+  a general button style was shrinking them, most visibly in a wide player.
 
 ## [0.1.0] - 2026-10-19
 

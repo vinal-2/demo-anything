@@ -376,6 +376,19 @@ test('end card links allow only https and in-page addresses', async ({ page }) =
   }
 });
 
+test('card buttons and card links use the same text size', async ({ page }) => {
+  await open(page);
+  const size = (locator) => locator.evaluate((el) => getComputedStyle(el).fontSize);
+  const start = page.getByRole('button', { name: 'Get Started' });
+  await start.click();
+  const total = Number(await dp(page).getAttribute('data-total'));
+  for (let k = 1; k < total - 1; k += 1) await page.getByRole('button', { name: 'Next step' }).click();
+  await expect(dp(page)).toHaveAttribute('data-type', 'end');
+  const replay = page.locator('.dp-card .dp-cta', { hasText: 'Replay' });
+  const link = page.locator('.dp-card a.dp-cta').first();
+  expect(await size(replay)).toBe(await size(link));
+});
+
 test('the "Made with" badge is off by default and a keyboard-reachable link when on', async ({ page }) => {
   const toEnd = async () => {
     await start(page);

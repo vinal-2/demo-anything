@@ -217,7 +217,8 @@ html.embed .page { max-width: none; padding: 0; }
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
-.dp .dp-cta { color: var(--brand-text); }
+/* Repeated with ".dp" so it beats ".dp button { font: inherit }" on <button> cards. */
+.dp .dp-cta { color: var(--brand-text); font-size: max(13px, calc(16px * var(--u))); font-weight: 600; line-height: 1.2; }
 .dp-cta:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18); }
 .dp-cta:focus-visible { outline: 3px solid rgba(var(--brand-rgb), 0.35); outline-offset: 2px; }
 .dp .dp-cta.secondary { background: #FFFFFF; color: var(--brand); box-shadow: none; }
