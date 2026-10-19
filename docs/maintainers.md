@@ -86,7 +86,10 @@ Re-check these from time to time. Values as set on 2026-10-19.
 - [x] Push protection: on
 - [x] Dependabot version updates: on (`.github/dependabot.yml`)
 - [ ] Dependabot security updates: **turn on**
-- [ ] Private vulnerability reporting: **turn on**
+- [x] Private vulnerability reporting: on
+- [x] Code scanning: CodeQL **default setup** (JavaScript-TypeScript and GitHub
+  Actions, default queries, on pushes and pull requests to `main` and weekly).
+  Alerts appear under **Security → Code scanning**, next to Scorecard's notes.
 
 ### General (Settings → General → Pull Requests)
 
