@@ -38,7 +38,9 @@ GitHub Pages or anywhere else, with no account and no build step.
 
 1. Install [Claude Code](https://code.claude.com/docs/en/overview) and connect the
    [Claude in Chrome](https://code.claude.com/docs/en/chrome) extension.
-2. Clone this repository, then add the skill to Claude Code as a plugin:
+2. Click **Use this template** to make your own copy (or fork it to contribute; see
+   [which to pick](docs/getting-started.md#make-your-own-copy)), clone your copy,
+   then add the skill to Claude Code as a plugin:
 
    ```text
    /plugin install demo-anything --marketplace vinal-2/demo-anything

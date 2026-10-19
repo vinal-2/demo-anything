@@ -6,6 +6,19 @@ All notable changes are listed here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- The repository is a template: **Use this template** makes a separate copy (which
+  can be private). The getting-started guide explains template vs fork and what to
+  change after copying.
+
+### Fixed
+
+- A copy (template or fork) built on GitHub now uses its own GitHub Pages address
+  for canonical links, link previews, the sitemap and structured data, instead of
+  the original project's. A `SITE_URL` repository variable sets a custom domain.
+- A player test no longer depends on the Defender demo being in the repository.
+
 ## [0.1.0] - 2026-10-19
 
 The first release.
