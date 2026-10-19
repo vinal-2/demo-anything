@@ -59,3 +59,11 @@ test('Pages starts with no permissions and only the deploy job can deploy', () =
   assert.match(deploy, /id-token: write/);
   assert.doesNotMatch(deploy, /run:/, 'the deploy job must not run project code');
 });
+
+test('no workflow checks out a commit named by the triggering event', () => {
+  for (const { name, text } of workflows) {
+    assert.doesNotMatch(text, /ref:\s*\$\{\{[^}]*github\.event\./, `${name} checks out a ref from github.event`);
+  }
+  // Pages deploys only when main is still the commit CI tested.
+  assert.match(read('pages.yml'), /needs\.build\.outputs\.tested == 'true'/);
+});

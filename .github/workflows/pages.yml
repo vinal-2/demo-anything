@@ -30,35 +30,56 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
+    outputs:
+      tested: ${{ steps.tested.outputs.tested }}
     steps:
+      # Check out main itself, never a commit named by the triggering event.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
           persist-credentials: false
 
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      # Deploy only the commit CI tested. If main has moved on since, this run stops
+      # here and the run after that commit's CI deploys it instead.
+      - name: Check main is the commit CI tested
+        id: tested
+        env:
+          TESTED_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          if [ -z "$TESTED_SHA" ] || [ "$(git rev-parse HEAD)" = "$TESTED_SHA" ]; then
+            echo "tested=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::main has moved on since CI tested $TESTED_SHA, so the next Pages run deploys the newer commit."
+            echo "tested=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.tested.outputs.tested == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
 
       # sharp makes the share pictures. The test tools aren't needed, and no
       # dependency gets to run an install script.
       - name: Install
+        if: steps.tested.outputs.tested == 'true'
         run: npm ci --omit=dev --ignore-scripts
 
       # GOOGLE_SITE_VERIFICATION is an optional repository variable (Settings → Secrets and
       # variables → Actions → Variables) holding the Search Console HTML-tag code.
       - name: Build the site
+        if: steps.tested.outputs.tested == 'true'
         run: node tools/build-site.mjs _site
         env:
           GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
 
-      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+      - if: steps.tested.outputs.tested == 'true'
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: _site
 
   # Only deploys the artifact the build job uploaded. It runs no project code.
   deploy:
     needs: build
+    if: needs.build.outputs.tested == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

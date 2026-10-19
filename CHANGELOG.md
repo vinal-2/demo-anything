@@ -59,6 +59,8 @@ All notable changes are listed here. The format follows
   installs with `--ignore-scripts`, validates with `--strict`, and reviews new
   dependencies on pull requests (fails on moderate or worse).
 - Pages: no permissions by default; a read-only build job and a deploy-only job.
+  The build checks out `main` itself (never a commit named by the triggering event)
+  and deploys only if it is the commit CI tested.
 - Actions updated (checkout 7.0.1, setup-node 7.1.0, gitleaks 3.0.0, deploy-pages
   5.0.1, upload-pages-artifact 5.0.0). A test checks every action is pinned to a
   full commit SHA.
