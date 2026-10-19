@@ -58,11 +58,12 @@ export function softwareJsonLd({ name, description, url, repo }) {
 }
 
 // Sets the title and description of an HTML page and adds tags before </head>.
+// Replacer functions, so "$&" or "$'" in a title is inserted as text, not a pattern.
 export function withHead(html, { title, description, extra = '' }) {
   return html
-    .replace(/<title>[\s\S]*?<\/title>/, `<title>${escHtml(title)}</title>`)
-    .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${escHtml(description)}">`)
-    .replace('</head>', `  ${extra}\n</head>`);
+    .replace(/<title>[\s\S]*?<\/title>/, () => `<title>${escHtml(title)}</title>`)
+    .replace(/<meta name="description" content="[^"]*">/, () => `<meta name="description" content="${escHtml(description)}">`)
+    .replace('</head>', () => `  ${extra}\n</head>`);
 }
 
 // demos/index.html: one card per demo, linking to demos/<id>/.

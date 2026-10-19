@@ -7,6 +7,7 @@ import { importSteps, imageSize } from '../tools/import-steps.mjs';
 import { wordsFromCharacters } from '../tools/make-voice.mjs';
 import { redact } from '../tools/redact.mjs';
 import { buildSite } from '../tools/build-site.mjs';
+import { withHead } from '../tools/lib/site-meta.mjs';
 
 const FIXTURE = 'tools/fixtures/capture-sample';
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'demo-anything-'));
@@ -262,6 +263,14 @@ test('the site build adds a page, share picture and sitemap entry for each demo'
   expect(read('index.html')).toContain('<meta name="google-site-verification" content="abcDEF123_-xyz">');
   expect(read('demos/example/index.html')).not.toContain('google-site-verification');
   await expect(buildSite({ root, out, siteUrl: site, googleVerification: '"><script>' })).rejects.toThrow('content=');
+});
+
+test('page titles and descriptions are inserted literally, even with $ patterns', () => {
+  const html = '<head><title>x</title><meta name="description" content="y"></head>';
+  const out = withHead(html, { title: "Costs $& and $' less", description: 'Save $` and $1 today', extra: '<meta name="e" content="$&">' });
+  expect(out).toContain("<title>Costs $&amp; and $' less</title>");
+  expect(out).toContain('<meta name="description" content="Save $` and $1 today">');
+  expect(out).toContain('<meta name="e" content="$&">');
 });
 
 test('image sizes are read from PNG headers', () => {

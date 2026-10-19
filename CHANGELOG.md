@@ -14,6 +14,11 @@ All notable changes are listed here. The format follows
 - A page can name its flow with `<meta name="demo-flow">`; the player finds `flows/`
   from its own folder, so pages in sub-folders work.
 
+### Fixed
+
+- A flow title or description containing `$&`, `$'` or `` $` `` is now written into
+  the published page as text instead of being read as a replacement pattern.
+
 ### Security
 
 - `redact` pads every area by 8 px (`pad`), offers `"style": "solid"`, empties the
