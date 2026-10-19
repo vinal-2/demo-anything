@@ -44,6 +44,14 @@ All notable changes are listed here. The format follows
 - Every page (the player, each demo page and the demos list) carries a
   Content-Security-Policy: scripts, images, audio and video only from the site itself,
   styles and fonts from the site and Google Fonts, no `<base>` changes or form posts.
+- CI: checkout keeps no credentials, 20-minute limit, one run per pull request,
+  blocks `capture/`, `.claude/`, `.mcp.json`, `.vscode/` and `.devcontainer/`,
+  installs with `--ignore-scripts`, validates with `--strict`, and reviews new
+  dependencies on pull requests (fails on moderate or worse).
+- Pages: no permissions by default; a read-only build job and a deploy-only job.
+- Actions updated (checkout 7.0.1, setup-node 7.1.0, gitleaks 3.0.0, deploy-pages
+  5.0.1, upload-pages-artifact 5.0.0). A test checks every action is pinned to a
+  full commit SHA.
 
 ### Changed
 

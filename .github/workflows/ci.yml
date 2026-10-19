@@ -9,34 +9,59 @@ permissions:
   contents: read
   pull-requests: read
 
+# One run per pull request: a new push cancels the old run. Runs on main are never
+# cancelled, because the Pages deploy waits for each of them.
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
+  # "test" is a required check on main. Keep this job name.
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       # Third-party actions are pinned to a commit; Dependabot proposes updates.
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - name: Block raw captures
+      # Raw captures hold unredacted screenshots. Agent and editor settings folders
+      # could change how an agent or editor behaves for whoever opens the repo.
+      - name: Block files that must never be committed
         run: |
-          if [ -n "$(git ls-files capture)" ]; then
-            echo "::error::Files under capture/ hold unredacted screenshots and must never be committed:"
-            git ls-files capture
+          blocked="$(git ls-files | grep -E '^(capture/|\.claude/|\.mcp\.json$|\.vscode/|\.devcontainer/)' || true)"
+          if [ -n "$blocked" ]; then
+            echo "::error::These paths must never be committed (capture/, .claude/, .mcp.json, .vscode/, .devcontainer/):"
+            echo "$blocked"
             exit 1
           fi
 
       - name: Scan for secrets
-        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: .nvmrc
           cache: npm
 
-      - run: npm ci
+      # --ignore-scripts: no dependency gets to run code at install time. sharp and
+      # Playwright ship ready-made binaries and don't need install scripts.
+      - run: npm ci --ignore-scripts
       - run: npm run validate:all
       - run: npx playwright install --with-deps chromium
       - run: npm test
+
+  # Fails a pull request that adds a dependency with a known moderate (or worse)
+  # vulnerability.
+  dependency-review:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: moderate
