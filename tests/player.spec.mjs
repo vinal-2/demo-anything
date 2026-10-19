@@ -458,13 +458,20 @@ test('the CSP blocks an image from another site', async ({ page }) => {
 });
 
 test('a per-demo page two folders down plays the flow named in its meta tag', async ({ page }) => {
-  const id = 'mde-isolate-device';
-  const flow = JSON.parse(fs.readFileSync(`flows/${id}/flow.json`, 'utf8'));
-  const html = demoPage(fs.readFileSync('index.html', 'utf8'), flowInfo(id, flow), '');
+  // A made-up second flow served from the example's files, so the test doesn't depend
+  // on any other demo being in the repository.
+  const id = 'second-demo';
+  const flow = JSON.parse(fs.readFileSync('flows/example/flow.json', 'utf8'));
+  const second = { ...flow, id, name: 'A second demo', steps: [{ ...flow.steps[0], title: 'A second demo' }, ...flow.steps.slice(1)] };
+  const html = demoPage(fs.readFileSync('index.html', 'utf8'), flowInfo(id, second), '');
   await page.route(`**/demos/${id}/`, (route) => route.fulfill({ contentType: 'text/html', body: html }));
+  await page.route(`**/flows/${id}/flow.json`, (route) => route.fulfill({ json: second }));
+  await page.route(`**/flows/${id}/assets/**`, async (route) => route.fulfill({
+    response: await route.fetch({ url: route.request().url().replace(`/flows/${id}/`, '/flows/example/') }),
+  }));
   await open(page, `/demos/${id}/`);
-  await expect(page).toHaveTitle(flow.name);
-  await expect(page.locator('.dp-card-title')).toHaveText(flow.steps[0].title);
+  await expect(page).toHaveTitle('A second demo');
+  await expect(page.locator('.dp-card-title')).toHaveText('A second demo');
 });
 
 test('a missing flow shows a clear error', async ({ page }) => {

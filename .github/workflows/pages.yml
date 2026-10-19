@@ -63,13 +63,16 @@ jobs:
         if: steps.tested.outputs.tested == 'true'
         run: npm ci --omit=dev --ignore-scripts
 
-      # GOOGLE_SITE_VERIFICATION is an optional repository variable (Settings → Secrets and
-      # variables → Actions → Variables) holding the Search Console HTML-tag code.
+      # Optional repository variables (Settings → Secrets and variables → Actions →
+      # Variables): GOOGLE_SITE_VERIFICATION holds the Search Console HTML-tag code;
+      # SITE_URL is only needed for a custom domain. Without it the site uses this
+      # repository's own GitHub Pages address.
       - name: Build the site
         if: steps.tested.outputs.tested == 'true'
         run: node tools/build-site.mjs _site
         env:
           GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
+          SITE_URL: ${{ vars.SITE_URL }}
 
       - if: steps.tested.outputs.tested == 'true'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0

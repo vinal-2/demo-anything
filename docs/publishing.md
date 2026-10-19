@@ -30,8 +30,11 @@ The build also writes:
 
 The title comes from `name` in flow.json and the description from `description`
 (or the cover's subtitle). Links in previews and the sitemap need the site's full
-address. The build reads it from `homepage` in `package.json`; set `SITE_URL` to
-override it. Without either, those tags and the sitemap are left out.
+address. On GitHub, the build uses the GitHub Pages address of the repository it runs
+in, so your copy always points at your own site. For a custom domain, add a
+repository variable named `SITE_URL` (for example `https://demos.example.com`).
+A build on your own computer uses `homepage` in `package.json`. Without any of
+these, those tags and the sitemap are left out.
 
 To verify the site in Google Search Console, add a **URL prefix** property for the
 site address, pick the **HTML tag** method, and copy just the `content="…"` code into

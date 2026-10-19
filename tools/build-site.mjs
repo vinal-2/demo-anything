@@ -4,7 +4,8 @@
 // It also writes a page per demo (demos/<id>/), a share picture per demo (og/<id>.png),
 // a list of demos (demos/) and sitemap.xml.
 //   node tools/build-site.mjs [outDir]      (default _site)
-// The site address comes from SITE_URL, else "homepage" in package.json.
+// The site address comes from SITE_URL, else the GitHub Pages address of the repository
+// being built (on GitHub Actions), else "homepage" in package.json.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -49,6 +50,25 @@ const repoUrl = (pkg) => {
   const url = typeof pkg.repository === 'string' ? pkg.repository : pkg.repository?.url;
   return url ? url.replace(/^git\+/, '').replace(/\.git$/, '') : '';
 };
+
+// The GitHub Pages address of a repository given as "owner/name".
+export function pagesUrlFor(repository) {
+  const [owner, name] = String(repository || '').split('/');
+  if (!owner || !name) return '';
+  const host = `${owner.toLowerCase()}.github.io`;
+  return name.toLowerCase() === host ? `https://${host}/` : `https://${host}/${name}/`;
+}
+
+// Which address and repository the site belongs to. On GitHub Actions the repository
+// being built wins over package.json, so a fork or template copy never claims the
+// original project's address. SITE_URL (a repository variable) covers custom domains.
+function siteIdentity(pkg, env, siteUrl) {
+  const repository = env.GITHUB_REPOSITORY || '';
+  return {
+    site: normaliseSiteUrl(siteUrl ?? (env.SITE_URL || pagesUrlFor(repository) || pkg.homepage)),
+    repo: repository ? `https://github.com/${repository}` : repoUrl(pkg),
+  };
+}
 
 // The demo page is index.html with its own title and tags, pointing two folders up.
 export function demoPage(template, info, siteUrl) {
@@ -115,10 +135,12 @@ export function verificationTag(code) {
   return `<meta name="google-site-verification" content="${code}">`;
 }
 
-export async function buildSite({ root = ROOT, out = path.join(ROOT, '_site'), siteUrl, googleVerification } = {}) {
+export async function buildSite({
+  root = ROOT, out = path.join(ROOT, '_site'), siteUrl, googleVerification, env = process.env,
+} = {}) {
   const pkg = readPackage(root);
-  const site = normaliseSiteUrl(siteUrl ?? process.env.SITE_URL ?? pkg.homepage);
-  const verification = verificationTag(googleVerification ?? process.env.GOOGLE_SITE_VERIFICATION);
+  const { site, repo } = siteIdentity(pkg, env, siteUrl);
+  const verification = verificationTag(googleVerification ?? env.GOOGLE_SITE_VERIFICATION);
   const dirs = findFlows(path.join(root, 'flows'));
   assertPublishable(dirs);
   fs.rmSync(out, { recursive: true, force: true });
@@ -136,7 +158,7 @@ export async function buildSite({ root = ROOT, out = path.join(ROOT, '_site'), s
     description,
     extra: [
       shareTags({ title: homeTitle, description, url: site, image: site && home?.image && `${site}${home.image}` }),
-      softwareJsonLd({ name: SITE_NAME, description, url: site, repo: repoUrl(pkg) }),
+      softwareJsonLd({ name: SITE_NAME, description, url: site, repo }),
       verification,
     ].filter(Boolean).join('\n  '),
   }), written);

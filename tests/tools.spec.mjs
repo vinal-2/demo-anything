@@ -4,11 +4,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import sharp from 'sharp';
-import { validateFlow } from '../tools/validate-flow.mjs';
+import { findFlows, validateFlow } from '../tools/validate-flow.mjs';
 import { importSteps, imageSize } from '../tools/import-steps.mjs';
 import { wordsFromCharacters } from '../tools/make-voice.mjs';
 import { redact } from '../tools/redact.mjs';
-import { buildSite } from '../tools/build-site.mjs';
+import { buildSite, pagesUrlFor } from '../tools/build-site.mjs';
 import { CSP, withHead } from '../tools/lib/site-meta.mjs';
 
 const FIXTURE = 'tools/fixtures/capture-sample';
@@ -137,7 +137,7 @@ test('the validator catches identifying text anywhere in flow.json and masks it'
 });
 
 test('every published flow passes the sensitive-text check', () => {
-  for (const id of ['example', 'mde-isolate-device']) expect(validateFlow(`flows/${id}`, { termsFile: null }).errors).toEqual([]);
+  for (const dir of findFlows('flows')) expect(validateFlow(dir, { termsFile: null }).errors, dir).toEqual([]);
 });
 
 test('the inside-the-flow-folder rule covers logo, background and music', () => {
@@ -271,6 +271,35 @@ test('the site build adds a page, share picture and sitemap entry for each demo'
   expect(read('index.html')).toContain('<meta name="google-site-verification" content="abcDEF123_-xyz">');
   expect(read('demos/example/index.html')).not.toContain('google-site-verification');
   await expect(buildSite({ root, out, siteUrl: site, googleVerification: '"><script>' })).rejects.toThrow('content=');
+});
+
+test('a copy built on GitHub uses its own Pages address, not the original project\'s', async () => {
+  expect(pagesUrlFor('someone/demo-anything')).toBe('https://someone.github.io/demo-anything/');
+  expect(pagesUrlFor('Some-One/some-one.github.io')).toBe('https://some-one.github.io/');
+  expect(pagesUrlFor('')).toBe('');
+
+  const root = tmp();
+  fs.cpSync('index.html', path.join(root, 'index.html'));
+  fs.cpSync('player', path.join(root, 'player'), { recursive: true });
+  fs.cpSync('flows/example', path.join(root, 'flows', 'example'), { recursive: true });
+  fs.cpSync('package.json', path.join(root, 'package.json')); // still names the original project
+  const out = path.join(root, '_site');
+  const read = (rel) => fs.readFileSync(path.join(out, rel), 'utf8');
+
+  await buildSite({ root, out, env: { GITHUB_REPOSITORY: 'someone/my-demos', SITE_URL: '' } });
+  const home = read('index.html');
+  expect(home).toContain('<link rel="canonical" href="https://someone.github.io/my-demos/">');
+  expect(home).toContain('"sameAs":["https://github.com/someone/my-demos"]');
+  expect(home).not.toContain('vinal-2');
+  expect(read('sitemap.xml')).toContain('<loc>https://someone.github.io/my-demos/demos/example/</loc>');
+
+  // A custom domain set in the SITE_URL repository variable wins.
+  await buildSite({ root, out, env: { GITHUB_REPOSITORY: 'someone/my-demos', SITE_URL: 'https://demos.example.com' } });
+  expect(read('index.html')).toContain('<link rel="canonical" href="https://demos.example.com/">');
+
+  // Built locally (not on GitHub), package.json's homepage is used.
+  await buildSite({ root, out, env: {} });
+  expect(read('index.html')).toContain('<link rel="canonical" href="https://vinal-2.github.io/demo-anything/">');
 });
 
 // The attack flow from the security audit: each trick must fail validation and the
