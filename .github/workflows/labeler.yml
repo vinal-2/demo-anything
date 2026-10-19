@@ -1,0 +1,26 @@
+name: Label pull requests
+
+# Labels risky pull requests by the paths they touch (see .github/labeler.yml), so
+# changes to agent instructions, workflows, dependencies or code stand out in review.
+#
+# pull_request_target runs with this repository's token and can write labels even on
+# pull requests from forks. That is only safe because this workflow NEVER checks out,
+# installs or runs anything from the pull request: the labeler reads the list of
+# changed files and its own config through the GitHub API. Never add actions/checkout,
+# npm, or any step that touches the pull request's code here. An attacker's code
+# running with this token could change labels, comments and more.
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions: {}
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/labeler@bf12e9b00b37c5c0ca2b87b79b2daf7891dbda13 # v7.0.0

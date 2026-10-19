@@ -1,0 +1,17 @@
+# Every change is reviewed by the maintainer. The explicit lines below keep the
+# sensitive paths with @vinal-2 even if other owners are added for "*" later.
+*                    @vinal-2
+
+# Instructions an agent follows
+/AGENTS.md           @vinal-2
+/CLAUDE.md           @vinal-2
+/skills/             @vinal-2
+/.claude-plugin/     @vinal-2
+
+# Workflows, dependencies and code
+/.github/            @vinal-2
+/package.json        @vinal-2
+/package-lock.json   @vinal-2
+/tools/              @vinal-2
+/player/             @vinal-2
+/index.html          @vinal-2

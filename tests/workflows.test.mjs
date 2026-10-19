@@ -37,6 +37,19 @@ test('CI keeps the required "test" job and has time limits', () => {
   assert.match(ci, /\.claude\/\|\\\.mcp\\\.json/);
 });
 
+test('the labeler never checks out or runs pull request code', () => {
+  const labeler = read('labeler.yml');
+  const code = labeler.split('\n').filter((l) => !l.trim().startsWith('#')).join('\n');
+  assert.match(labeler, /pull_request_target:/);
+  assert.doesNotMatch(code, /actions\/checkout|run:|npm |npx /);
+  assert.match(labeler, /^permissions: \{\}$/m);
+  assert.match(labeler, /contents: read\s+pull-requests: write/);
+  const config = fs.readFileSync('.github/labeler.yml', 'utf8');
+  for (const label of ['touches: agent instructions', 'touches: workflows', 'touches: dependencies', 'touches: player/tools', 'flow']) {
+    assert.match(config, new RegExp(`^"?${label.replace('/', '\\/')}"?:$`, 'm'), label);
+  }
+});
+
 test('Pages starts with no permissions and only the deploy job can deploy', () => {
   const pages = read('pages.yml');
   assert.match(pages, /^permissions: \{\}$/m);

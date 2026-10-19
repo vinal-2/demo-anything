@@ -52,6 +52,10 @@ All notable changes are listed here. The format follows
 - Actions updated (checkout 7.0.1, setup-node 7.1.0, gitleaks 3.0.0, deploy-pages
   5.0.1, upload-pages-artifact 5.0.0). A test checks every action is pinned to a
   full commit SHA.
+- Pull requests are labelled by what they touch (agent instructions, workflows,
+  dependencies, player/tools, flow). The labeler never checks out pull request code.
+- `CODEOWNERS` routes every change, and the sensitive paths by name, to the
+  maintainer.
 
 ### Changed
 

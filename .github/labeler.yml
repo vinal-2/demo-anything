@@ -1,0 +1,32 @@
+# Labels for pull requests, applied by .github/workflows/labeler.yml.
+# Review anything labelled "touches: agent instructions" or "touches: workflows" first:
+# those files change what an agent or GitHub Actions will do.
+
+"touches: agent instructions":
+  - changed-files:
+      - any-glob-to-any-file:
+          - AGENTS.md
+          - CLAUDE.md
+          - skills/**
+          - .claude/**
+          - .claude-plugin/**
+          - .mcp.json
+
+"touches: workflows":
+  - changed-files:
+      - any-glob-to-any-file: .github/**
+
+"touches: dependencies":
+  - changed-files:
+      - any-glob-to-any-file: package*.json
+
+"touches: player/tools":
+  - changed-files:
+      - any-glob-to-any-file:
+          - player/**
+          - tools/**
+          - index.html
+
+flow:
+  - changed-files:
+      - any-glob-to-any-file: flows/**
