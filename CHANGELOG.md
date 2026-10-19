@@ -41,6 +41,9 @@ All notable changes are listed here. The format follows
   doesn't use. The site build runs the same checks and refuses to publish on errors.
 - `validate --strict` fails on warnings too; `npm run validate:all` uses it.
 - The Defender demo's logo is now a PNG (it was an SVG).
+- Every page (the player, each demo page and the demos list) carries a
+  Content-Security-Policy: scripts, images, audio and video only from the site itself,
+  styles and fonts from the site and Google Fonts, no `<base>` changes or form posts.
 
 ### Changed
 

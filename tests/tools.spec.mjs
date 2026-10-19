@@ -9,7 +9,7 @@ import { importSteps, imageSize } from '../tools/import-steps.mjs';
 import { wordsFromCharacters } from '../tools/make-voice.mjs';
 import { redact } from '../tools/redact.mjs';
 import { buildSite } from '../tools/build-site.mjs';
-import { withHead } from '../tools/lib/site-meta.mjs';
+import { CSP, withHead } from '../tools/lib/site-meta.mjs';
 
 const FIXTURE = 'tools/fixtures/capture-sample';
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), 'demo-anything-'));
@@ -260,6 +260,10 @@ test('the site build adds a page, share picture and sitemap entry for each demo'
   expect(home).toContain(`<link rel="canonical" href="${site}/">`);
   expect(read('demos/index.html')).toContain('href="example/"');
   expect(read('sitemap.xml')).toContain(`<loc>${site}/demos/example/</loc>`);
+  // Every published page carries the same Content-Security-Policy.
+  for (const rel of ['index.html', 'demos/index.html', 'demos/example/index.html']) {
+    expect(read(rel), rel).toContain(`<meta http-equiv="Content-Security-Policy" content="${CSP}">`);
+  }
   await expect(buildSite({ root, out, siteUrl: 'http://example.com' })).rejects.toThrow('https://');
 
   // The Search Console code goes on the home page only, and must be just the code.

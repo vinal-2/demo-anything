@@ -422,6 +422,41 @@ test('the server answers video range requests so clips can seek', async ({ reque
   expect((await res.body()).length).toBe(100);
 });
 
+// Records Content-Security-Policy violations so a test can check there are none.
+async function watchCsp(page) {
+  await page.addInitScript(() => {
+    window.__csp = [];
+    document.addEventListener('securitypolicyviolation', (e) => window.__csp.push(`${e.violatedDirective} ${e.blockedURI}`));
+  });
+  return () => page.evaluate(() => window.__csp);
+}
+
+test('the player runs a whole flow and the editor under the CSP with no violations', async ({ page }) => {
+  const violations = await watchCsp(page);
+  await start(page);
+  await expect(page.locator('meta[http-equiv="Content-Security-Policy"]')).toHaveCount(1);
+  const total = Number(await dp(page).getAttribute('data-total'));
+  for (let k = 1; k < total - 1; k += 1) {
+    await page.getByRole('button', { name: 'Next step' }).click();
+    await settled(page);
+  }
+  await expect(dp(page)).toHaveAttribute('data-type', 'end');
+  await page.goto('/?edit');
+  await expect(page.locator('.ed')).toBeVisible();
+  expect(await violations()).toEqual([]);
+});
+
+test('the CSP blocks an image from another site', async ({ page }) => {
+  const violations = await watchCsp(page);
+  await page.route('**/flows/example/flow.json', async (route) => {
+    const flow = await (await route.fetch()).json();
+    flow.steps.find((s) => s.type === 'image').src = 'https://tracker.example/pixel.png';
+    await route.fulfill({ json: flow });
+  });
+  await start(page);
+  await expect.poll(violations).toContainEqual(expect.stringContaining('tracker.example'));
+});
+
 test('a per-demo page two folders down plays the flow named in its meta tag', async ({ page }) => {
   const id = 'mde-isolate-device';
   const flow = JSON.parse(fs.readFileSync(`flows/${id}/flow.json`, 'utf8'));

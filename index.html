@@ -3,6 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- Only this site's scripts, files and Google Fonts can load. blob: lets the editor
+       preview dropped files. Keep in step with CSP in tools/lib/site-meta.mjs. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; base-uri 'none'; form-action 'none'">
   <title>Interactive demo</title>
   <meta name="description" content="Interactive, click-through walkthroughs made from screenshots, with narration, captions and a guided cursor.">
   <link rel="icon" href="data:,">

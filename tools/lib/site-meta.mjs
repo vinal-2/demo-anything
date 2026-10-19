@@ -2,6 +2,12 @@
 
 const OG_SIZE = { width: 1200, height: 630 };
 
+// The Content-Security-Policy every published page carries. index.html has the same
+// string (a test checks they match); demo pages inherit it from index.html.
+export const CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+  + "font-src https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; "
+  + "base-uri 'none'; form-action 'none'";
+
 export const escHtml = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -81,6 +87,7 @@ export function galleryPage({ title, description, demos, head = '' }) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="${CSP}">
   <title>${escHtml(title)}</title>
   <meta name="description" content="${escHtml(description)}">
   <link rel="icon" href="data:,">

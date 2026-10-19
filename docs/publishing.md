@@ -39,6 +39,12 @@ a repository variable named `GOOGLE_SITE_VERIFICATION` (**Settings → Secrets a
 variables → Actions → Variables**). The next deploy puts the tag on the home page.
 Then press **Verify** and submit `sitemap.xml` under **Sitemaps**.
 
+Every published page carries a Content-Security-Policy: it only loads scripts and
+files from your own site, plus the Inter font from Google Fonts. A flow that points
+at an image on another site shows a broken image instead of loading it. If you
+change the policy, change it in both `index.html` and `CSP` in
+`tools/lib/site-meta.mjs` (a test checks they match).
+
 There is no `robots.txt`: on a `<user>.github.io/<repo>/` site it isn't at the
 domain root, so search engines never read it.
 
