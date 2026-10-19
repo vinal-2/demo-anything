@@ -1,0 +1,93 @@
+# Maintainers
+
+How to review and merge pull requests safely, and which repository settings to keep.
+
+## Reviewing a pull request
+
+Everything in `flows/` is published on the project's website, and some files change
+what an agent or GitHub Actions does. So review in this order, **on GitHub first**.
+
+1. **Read the labels.** The labeler marks what the pull request touches:
+   - `touches: agent instructions`: `AGENTS.md`, `CLAUDE.md`, `skills/`, `.claude/`,
+     `.claude-plugin/`, `.mcp.json`. Read every line. Look for instructions that tell
+     an agent to run commands, fetch URLs, read secrets, or skip checks.
+   - `touches: workflows`: anything in `.github/`. Look for new triggers (especially
+     `pull_request_target`), wider `permissions`, actions not pinned to a full commit
+     SHA, `actions/checkout` of pull request code, or new secrets.
+   - `touches: dependencies`: `package.json` or `package-lock.json`. Check each new
+     package is needed, well known, and that the dependency review passed. Watch for
+     look-alike names.
+   - `touches: player/tools`: code that runs in viewers' browsers or on your computer.
+   - `flow`: a new or changed demo.
+2. **Check CI.** `test` and `dependency-review` must pass. A first-time contributor's
+   run waits for your approval: read the diff before you approve it.
+3. **Look at every image** in the pull request's **Files changed** tab, at full size.
+   Check for real names, emails, tenant or company names, IP addresses, tokens, faces,
+   and anything the contributor might not be allowed to share. Redaction boxes must
+   fully cover what they hide.
+4. **Read `flow.json`** for text that names a real person or organisation, and links
+   you wouldn't want on the site.
+5. **Check the contributor declaration** boxes are ticked.
+6. **Merge with "Squash and merge"** only when all of the above is fine.
+
+### Don't run untrusted pull requests locally
+
+Don't check out a pull request from someone you don't know and run `npm install`,
+`npm test`, `npm start` or an agent in it. Install scripts, tests and agent
+instructions can all run code on your computer. CI already runs the tests in a
+throwaway machine. If you must try it locally, use a disposable environment (a
+virtual machine or a GitHub Codespace) with no access to your files or accounts.
+
+### If something private was published
+
+Follow [SECURITY.md](../SECURITY.md): remove the file in a new commit, redeploy, and
+remember that it stays in git history and may have been copied.
+
+## Repository settings checklist
+
+Re-check these from time to time. Values as set on 2026-10-19.
+
+### Branch protection (Settings → Branches)
+
+- [x] `main` is protected
+- [x] Required status check: `test` (from GitHub Actions)
+- [x] Force pushes blocked
+- [x] Deletion blocked
+- [x] Rules apply to everyone except admins (the maintainer can push directly)
+
+### Actions (Settings → Actions → General)
+
+- [x] Workflow permissions: **Read repository contents** (read-only token)
+- [x] "Allow GitHub Actions to create and approve pull requests": **off**
+- [x] Fork pull request workflows: approval required for **first-time contributors**
+  (stricter option: all outside contributors)
+- [ ] Optional: require actions to be pinned to a full-length commit SHA (every
+  workflow already does this; `tests/workflows.test.mjs` checks it)
+
+### Environments (Settings → Environments → github-pages)
+
+- [x] Deployment branches: `main` only
+
+### Pages (Settings → Pages)
+
+- [x] Source: **GitHub Actions**
+- [x] Repository variable `GOOGLE_SITE_VERIFICATION` (Settings → Secrets and
+  variables → Actions → Variables) holds the Search Console code. Don't delete it.
+
+### Code security (Settings → Advanced Security)
+
+- [x] Secret scanning: on
+- [x] Push protection: on
+- [x] Dependabot version updates: on (`.github/dependabot.yml`)
+- [ ] Dependabot security updates: **turn on**
+- [ ] Private vulnerability reporting: **turn on**
+
+### General (Settings → General → Pull Requests)
+
+- [ ] Allow squash merging only (optional, matches the merge rule in
+  [CONTRIBUTING.md](../CONTRIBUTING.md#how-pull-requests-are-merged))
+
+### Labels
+
+The labeler needs these labels to exist: `touches: agent instructions`,
+`touches: workflows`, `touches: dependencies`, `touches: player/tools`, `flow`.

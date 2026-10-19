@@ -1,0 +1,8 @@
+# Sponsor button. Off: every line is commented out. To turn it on, uncomment one
+# line and fill in your username. See
+# https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/displaying-a-sponsor-button-in-your-repository
+
+# github: [your-github-username]
+# ko_fi: your-ko-fi-name
+# buy_me_a_coffee: your-name
+# custom: ["https://example.com/donate"]

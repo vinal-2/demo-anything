@@ -247,6 +247,7 @@ it privately; see [SECURITY.md](SECURITY.md).
 - [Redaction](docs/redaction.md): what to hide and how
 - [Flow format](docs/flow-format.md): `steps.json`, `flow.json` and validation rules
 - [Publishing](docs/publishing.md): GitHub Pages and other hosts
+- [Maintainers](docs/maintainers.md): reviewing pull requests safely, repository settings
 
 ## Star history
 

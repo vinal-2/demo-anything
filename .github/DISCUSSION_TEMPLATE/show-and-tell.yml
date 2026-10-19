@@ -1,0 +1,47 @@
+title: "[Show and tell] "
+labels: ["showcase"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Made a walkthrough with Demo Anything? Share it here. Please only share demos
+        of apps you're allowed to show, with anything private redacted.
+  - type: input
+    id: link
+    attributes:
+      label: Link to the demo
+      description: Where people can play it (for example a GitHub Pages address).
+      placeholder: https://you.github.io/your-repo/demos/my-flow/
+    validations:
+      required: true
+  - type: textarea
+    id: about
+    attributes:
+      label: What does it show?
+      description: One or two sentences about the app and the task.
+    validations:
+      required: true
+  - type: dropdown
+    id: made-with
+    attributes:
+      label: How did you make it?
+      options:
+        - With an agent (Claude Code + Claude in Chrome)
+        - By hand with the tools
+        - A mix
+    validations:
+      required: false
+  - type: textarea
+    id: tips
+    attributes:
+      label: Anything you learned?
+      description: Tips, problems or ideas for the project. Optional.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you post
+      options:
+        - label: The screenshots don't show personal data, secrets or anything I'm not allowed to share.
+          required: true

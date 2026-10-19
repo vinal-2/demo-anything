@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use Demo Anything in your work, please cite it as below."
+title: "Demo Anything"
+abstract: >-
+  Interactive, click-through walkthroughs made from screenshots, with hotspots,
+  narration, captions and a guided cursor. Built by a coding agent, redacted, and
+  hosted as a static site.
+type: software
+authors:
+  - alias: vinal-2
+    website: "https://github.com/vinal-2"
+version: 0.1.0
+date-released: 2026-10-19
+license: MIT
+repository-code: "https://github.com/vinal-2/demo-anything"
+url: "https://vinal-2.github.io/demo-anything/"
+keywords:
+  - interactive demo
+  - product tour
+  - walkthrough
+  - screenshots
+  - narration
+  - accessibility

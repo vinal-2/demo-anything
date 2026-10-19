@@ -53,7 +53,7 @@ docs/                 guides linked from the README
 npm install
 npx playwright install chromium   # once
 npm start                          # http://localhost:4173/?flow=example (&edit to author)
-npm run validate:all               # every flow must PASS with 0 warnings
+npm run validate:all               # every flow, --strict: must PASS with 0 warnings
 npm test                           # node:test, then Playwright
 ```
 
@@ -79,6 +79,10 @@ On Windows PowerShell, if `npm` is blocked by script signing, use `npm.cmd` and
 - Keep each tool small and focused; share helpers through `tools/lib/`.
 - Hotspots are stored as fractions (0 to 1) of the screenshot. Every screenshot in a
   flow is the same size, and `aspectRatio` matches it; `validate` enforces both.
+- A flow folder holds only `flow.json` and the PNG, JPEG, WebP, MP4, WebM, MP3, M4A,
+  OGG or WAV files it uses, all local (no web addresses). Never add SVG, HTML or
+  scripts to `flows/`: they are published on the Pages site.
+- Never commit `.claude/`, `.mcp.json`, `.vscode/` or `.devcontainer/`; CI blocks them.
 - Write user-facing messages and docs in plain British English.
 
 ## Tests and done

@@ -13,6 +13,11 @@ All notable changes are listed here. The format follows
   and `sitemap.xml`. The home page carries share tags and SoftwareApplication data.
 - A page can name its flow with `<meta name="demo-flow">`; the player finds `flows/`
   from its own folder, so pages in sub-folders work.
+- `"showBadge": true` adds a small "Made with Demo Anything" link to the end card.
+- The skill installs as a Claude Code plugin:
+  `/plugin install demo-anything --marketplace vinal-2/demo-anything`.
+- Community files: a code of conduct (Contributor Covenant 2.0), `CITATION.cff`, a
+  switched-off `FUNDING.yml` and a Show and tell discussion form.
 
 ### Fixed
 
@@ -56,6 +61,10 @@ All notable changes are listed here. The format follows
   dependencies, player/tools, flow). The labeler never checks out pull request code.
 - `CODEOWNERS` routes every change, and the sensitive paths by name, to the
   maintainer.
+- `CONTRIBUTING.md` says how pull requests are merged and adds a contributor
+  declaration, with matching checkboxes in the pull request template.
+  `docs/maintainers.md` explains how to review pull requests safely and lists the
+  repository settings to keep.
 
 ### Changed
 
