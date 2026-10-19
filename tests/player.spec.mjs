@@ -376,6 +376,29 @@ test('end card links allow only https and in-page addresses', async ({ page }) =
   }
 });
 
+test('the "Made with" badge is off by default and a keyboard-reachable link when on', async ({ page }) => {
+  const toEnd = async () => {
+    await start(page);
+    const total = Number(await dp(page).getAttribute('data-total'));
+    for (let k = 1; k < total - 1; k += 1) await page.getByRole('button', { name: 'Next step' }).click();
+    await expect(dp(page)).toHaveAttribute('data-type', 'end');
+  };
+  await toEnd();
+  await expect(page.getByRole('link', { name: /Made with Demo Anything/ })).toHaveCount(0);
+
+  await page.route('**/flows/example/flow.json', async (route) => {
+    const flow = await (await route.fetch()).json();
+    await route.fulfill({ json: { ...flow, showBadge: true } });
+  });
+  await toEnd();
+  const badge = page.getByRole('link', { name: 'Made with Demo Anything (opens in a new tab)' });
+  await expect(badge).toHaveAttribute('href', 'https://github.com/vinal-2/demo-anything');
+  await expect(badge).toHaveAttribute('target', '_blank');
+  await expect(badge).toHaveAttribute('rel', 'noopener');
+  await badge.focus();
+  await expect(badge).toBeFocused();
+});
+
 test('a flow with one narrator shows no voice menu', async ({ page }) => {
   await page.route('**/flows/example/flow.json', async (route) => {
     const flow = await (await route.fetch()).json();

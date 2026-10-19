@@ -11,6 +11,7 @@ import { createHotspot } from './hotspot.js';
 import { createCaptions } from './captions.js';
 
 const DEFAULT_FLOW = 'example';
+const BADGE_URL = 'https://github.com/vinal-2/demo-anything';
 const SPEEDS = [1, 1.25, 1.5, 2];
 const SECONDS_PER_WORD = 0.35;
 const MIN_NARRATION = 2.5;
@@ -619,7 +620,8 @@ export function mountPlayer(root, flow, base) {
         <h2 class="dp-card-title">${esc(title)}</h2>
         ${step.subtitle ? `<p class="dp-card-sub">${inlineMarkdown(step.subtitle)}</p>` : ''}
         <div class="dp-card-actions">${actions}</div>
-      </div>`;
+      </div>
+      ${isEnd && flow.showBadge === true ? `<a class="dp-made" href="${BADGE_URL}" target="_blank" rel="noopener">Made with Demo Anything<span class="dp-sr"> (opens in a new tab)</span></a>` : ''}`;
     // Set through the DOM so an unusual file name can't break out of the style value.
     if (bg) layer.querySelector('.dp-card-bg').style.backgroundImage = `url(${JSON.stringify(bg)})`;
     return layer;

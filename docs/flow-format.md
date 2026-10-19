@@ -64,6 +64,9 @@ measures it for you.
 published demo page and its link preview; without it, the cover's subtitle is used.
 See [publishing](publishing.md#pages-for-sharing-and-search).
 
+`"showBadge": true` adds a small "Made with Demo Anything" link to the end card. It is
+off unless you turn it on.
+
 ### Step types
 
 | Type | Fields | What it does |

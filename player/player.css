@@ -221,6 +221,15 @@ html.embed .page { max-width: none; padding: 0; }
 .dp-cta:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18); }
 .dp-cta:focus-visible { outline: 3px solid rgba(var(--brand-rgb), 0.35); outline-offset: 2px; }
 .dp .dp-cta.secondary { background: #FFFFFF; color: var(--brand); box-shadow: none; }
+/* Optional "Made with Demo Anything" link on the end card (flow.showBadge). */
+.dp .dp-made {
+  position: absolute; right: max(10px, calc(16px * var(--u))); bottom: max(8px, calc(14px * var(--u)));
+  padding: 4px 8px; border-radius: 6px;
+  font-size: max(11px, calc(12px * var(--u))); font-weight: 500;
+  color: #4B5563; text-decoration: none; background: rgba(255, 255, 255, 0.8);
+}
+.dp .dp-made:hover { color: #111827; text-decoration: underline; }
+.dp .dp-made:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 
 /* Hotspot */
 .dp-hs {

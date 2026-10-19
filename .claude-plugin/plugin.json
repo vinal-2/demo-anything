@@ -1,0 +1,20 @@
+{
+  "name": "demo-anything",
+  "version": "0.1.0",
+  "description": "Build click-through walkthroughs of any web app with Claude in Chrome: capture, redact, import, validate and test a flow, then publish it on GitHub Pages.",
+  "author": {
+    "name": "vinal-2",
+    "url": "https://github.com/vinal-2"
+  },
+  "homepage": "https://vinal-2.github.io/demo-anything/",
+  "repository": "https://github.com/vinal-2/demo-anything",
+  "license": "MIT",
+  "keywords": [
+    "demo",
+    "walkthrough",
+    "product-tour",
+    "screenshots",
+    "redaction",
+    "claude-in-chrome"
+  ]
+}

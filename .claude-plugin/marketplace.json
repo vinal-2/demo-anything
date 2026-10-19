@@ -1,0 +1,21 @@
+{
+  "name": "demo-anything",
+  "owner": {
+    "name": "vinal-2",
+    "url": "https://github.com/vinal-2"
+  },
+  "metadata": {
+    "description": "The Demo Anything skill for Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "demo-anything",
+      "source": "./",
+      "description": "Build click-through walkthroughs of any web app with Claude in Chrome: capture, redact, import, validate and test a flow, then publish it on GitHub Pages.",
+      "version": "0.1.0",
+      "category": "productivity",
+      "homepage": "https://vinal-2.github.io/demo-anything/",
+      "license": "MIT"
+    }
+  ]
+}

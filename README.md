@@ -37,8 +37,13 @@ GitHub Pages or anywhere else, with no account and no build step.
 
 1. Install [Claude Code](https://code.claude.com/docs/en/overview) and connect the
    [Claude in Chrome](https://code.claude.com/docs/en/chrome) extension.
-2. Clone this repository and copy `skills/demo-anything/` into
-   `~/.claude/skills/`.
+2. Clone this repository, then add the skill to Claude Code as a plugin:
+
+   ```text
+   /plugin install demo-anything --marketplace vinal-2/demo-anything
+   ```
+
+   Or copy `skills/demo-anything/` into `~/.claude/skills/` by hand.
 3. Sign in to the app you want to demo in a Chrome profile with nothing else signed
    in. A sandbox or test tenant is best.
 
@@ -181,8 +186,8 @@ tools. See [docs/getting-started.md](docs/getting-started.md#make-a-flow-by-hand
 <details>
 <summary><strong>What does installing the skill do?</strong></summary>
 
-It copies one instruction file, `SKILL.md`, into your agent's skills folder. No
-code runs when you install it. When you ask for a demo, the agent reads the file
+Either way (plugin or copy), your agent gets one instruction file, `SKILL.md`. The
+plugin has no hooks, commands or servers, so no code runs when you install it. When you ask for a demo, the agent reads the file
 and follows its steps: size the window, capture, redact, import, validate and test.
 </details>
 
