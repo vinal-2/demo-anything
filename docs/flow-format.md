@@ -132,7 +132,15 @@ See [player.md](player.md#voice) for the providers and the voice menu.
 Errors (the flow fails):
 
 - the first step is a cover and the last is an end card
-- every `src`, `logo`, `bg`, voice and music file exists **inside the flow folder**
+- every `src`, `logo`, `bg`, voice and music file exists **inside the flow folder**;
+  web addresses are not allowed
+- every file is an allowed type, and its content matches its name (checked by its
+  first bytes): images `.png .jpg .jpeg .webp`, video `.mp4 .webm`, audio
+  `.mp3 .m4a .ogg .wav`. No SVG, HTML or anything else, because files in a flow are
+  published on your Pages site and those could run scripts there
+- `logo` and `bg` are images; image steps use images and video steps use videos
+- size limits: 5 MB per image, 20 MB per video, 3 MB per audio file, 50 MB per flow
+- **every file in the flow folder is used** by `flow.json` (delete leftovers)
 - every screenshot is the **same size**, and `aspectRatio` matches it
 - hotspot `x` and `y` are between 0 and 1
 - every checkpoint has a hotspot (or `autoAdvanceAfterMs`)
@@ -146,5 +154,6 @@ Warnings (fix before you publish):
 - a cover or end card in the middle of the flow
 - no `name`
 
-`npm run validate -- flows/<id>` checks one flow; `npm run validate:all` checks
-every flow in `flows/`.
+`npm run validate -- flows/<id>` checks one flow; add `--strict` to fail on warnings
+too. `npm run validate:all` checks every flow in `flows/` with `--strict`, as CI does.
+The site build runs the same checks and refuses to publish a flow with errors.

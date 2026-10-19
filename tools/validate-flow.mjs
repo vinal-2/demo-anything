@@ -4,11 +4,14 @@
 //
 // Usage: node tools/validate-flow.mjs flows/<flow-id> [flows/<other-id> ...]
 //        node tools/validate-flow.mjs --all      every folder in flows/ with a flow.json
+//        add --strict to fail on warnings as well
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { fileRefs, isRemote, listFiles, referencedFiles } from './lib/flow-files.mjs';
 import { imageSize } from './lib/image-size.mjs';
+import { LIMITS, checkMedia, megabytes } from './lib/media.mjs';
 import { findSensitive, loadTerms, strings } from './lib/sensitive.mjs';
 
 const RATIO_TOLERANCE = 0.002;
@@ -24,7 +27,6 @@ const STOP = new Set(('the and for you your this that with from into then its th
   + 'show shows open click select choose next back about after before over under same each more most other some such').split(' '));
 
 const srcList = (src) => (Array.isArray(src) ? src : [src]).filter(Boolean);
-const isRemote = (p) => /^(?:[a-z][a-z0-9+.-]*:)/i.test(p);
 
 // Lower-case words of 3+ letters, minus stop words, cut to a 5-letter stem so
 // "isolate" and "isolating" count as the same word.
@@ -74,7 +76,6 @@ export function validateFlow(flowDir, { termsFile = DEFAULT_TERMS_FILE } = {}) {
     const rel = path.relative(root, path.resolve(root, p));
     return rel.startsWith('..') || path.isAbsolute(rel);
   };
-  const missing = (p) => !isRemote(p) && !outside(p) && !fs.existsSync(path.join(flowDir, p));
   const where = (i) => `Step ${i} (${steps[i].type || 'no type'})`;
   const imageSizes = new Map();
 
@@ -99,29 +100,11 @@ export function validateFlow(flowDir, { termsFile = DEFAULT_TERMS_FILE } = {}) {
     if (i > 0 && s.type === 'cover') warnings.push(`${where(i)}: a cover card in the middle of the flow can only be left with Next.`);
     if (i < steps.length - 1 && s.type === 'end') warnings.push(`${where(i)}: an end card before the last step.`);
 
-    if (s.type === 'image' || s.type === 'video') {
-      const list = srcList(s.src);
-      if (!list.length) errors.push(`${where(i)}: needs a "src".`);
-      list.forEach((f) => {
-        if (!isRemote(f) && outside(f)) errors.push(`${where(i)}: src "${f}" must be inside the flow folder.`);
-        else if (missing(f)) errors.push(`${where(i)}: src file "${f}" is missing from ${flowDir}.`);
-        else if (s.type === 'image' && !isRemote(f)) {
-          try { imageSizes.set(f, imageSize(path.join(flowDir, f))); } catch (err) { errors.push(`${where(i)}: ${err.message}`); }
-        }
-      });
-    }
-    if (s.voice && s.voice.audio && outside(s.voice.audio)) errors.push(`${where(i)}: voice audio "${s.voice.audio}" must be inside the flow folder.`);
-    else if (s.voice && s.voice.audio && missing(s.voice.audio)) errors.push(`${where(i)}: voice audio "${s.voice.audio}" is missing from ${flowDir}.`);
-    Object.entries((s.voice && s.voice.variants) || {}).forEach(([id, alt]) => {
+    if ((s.type === 'image' || s.type === 'video') && !srcList(s.src).length) errors.push(`${where(i)}: needs a "src".`);
+    Object.keys((s.voice && s.voice.variants) || {}).forEach((id) => {
       if (!narratorIds.has(id)) errors.push(`${where(i)}: voice variant "${id}" isn't one of the flow's narrators.`);
-      if (alt && alt.audio && outside(alt.audio)) errors.push(`${where(i)}: ${id} audio "${alt.audio}" must be inside the flow folder.`);
-      else if (alt && alt.audio && missing(alt.audio)) errors.push(`${where(i)}: ${id} audio "${alt.audio}" is missing from ${flowDir}.`);
     });
     if (s.voice && s.voice.timings != null && !Array.isArray(s.voice.timings)) errors.push(`${where(i)}: voice.timings must be a list.`);
-    ['logo', 'bg'].forEach((k) => {
-      if (s[k] && !isRemote(s[k]) && outside(s[k])) errors.push(`${where(i)}: ${k} "${s[k]}" must be inside the flow folder.`);
-      else if (s[k] && missing(s[k])) errors.push(`${where(i)}: ${k} file "${s[k]}" is missing from ${flowDir}.`);
-    });
 
     if (s.hotspot) {
       const { x, y } = s.hotspot;
@@ -138,6 +121,30 @@ export function validateFlow(flowDir, { termsFile = DEFAULT_TERMS_FILE } = {}) {
     }
   });
 
+  // ---- Files: everything in the folder is published, so it must be a safe, used file ----
+  let total = fs.statSync(file).size;
+  const counted = new Set();
+  for (const ref of fileRefs(flow)) {
+    const label = ref.step == null ? ref.field : `${where(ref.step)}: ${ref.field}`;
+    const p = ref.file;
+    if (isRemote(p)) { errors.push(`${label} "${p}" is a web address. Put the file in the flow folder instead.`); continue; }
+    if (outside(p)) { errors.push(`${label} "${p}" must be inside the flow folder.`); continue; }
+    const abs = path.join(flowDir, p);
+    if (!fs.existsSync(abs)) { errors.push(`${label} file "${p}" is missing from ${flowDir}.`); continue; }
+    const { size, problems } = checkMedia(abs, ref.kind);
+    problems.forEach((problem) => errors.push(`${label} "${p}" ${problem}`));
+    if (problems.length) continue;
+    if (!counted.has(abs)) { counted.add(abs); total += size; }
+    if (ref.field === 'src' && ref.kind === 'image') {
+      try { imageSizes.set(p, imageSize(abs)); } catch (err) { errors.push(`${label}: ${err.message}`); }
+    }
+  }
+  if (total > LIMITS.flow) errors.push(`The flow's files add up to ${megabytes(total)}; the limit is ${megabytes(LIMITS.flow)}.`);
+  const used = new Set(referencedFiles(flow));
+  for (const f of listFiles(root)) {
+    if (!used.has(f)) errors.push(`"${f}" is in the flow folder but flow.json doesn't use it. Delete it: every file in a flow folder must be used.`);
+  }
+
   // Hotspots are placed as fractions of the frame, so every screenshot must share one shape.
   const sizes = [...imageSizes.entries()];
   if (sizes.length) {
@@ -152,10 +159,6 @@ export function validateFlow(flowDir, { termsFile = DEFAULT_TERMS_FILE } = {}) {
       errors.push(`"aspectRatio" is ${flow.aspectRatio} but the screenshots are ${Math.round(actual * 10000) / 10000} (height ÷ width).`);
     }
   }
-
-  const music = flow.backgroundMusic && flow.backgroundMusic.src;
-  if (music && !isRemote(music) && outside(music)) errors.push(`backgroundMusic "${music}" must be inside the flow folder.`);
-  else if (music && missing(music)) errors.push(`backgroundMusic file "${music}" is missing from ${flowDir}.`);
 
   // ---- Text that must never be published ----
   const terms = loadTerms(termsFile);
@@ -226,10 +229,12 @@ const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 function main() {
   const args = process.argv.slice(2);
-  const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-  const dirs = args.includes('--all') ? findFlows(path.join(ROOT, 'flows')) : args.map((d) => path.resolve(d));
+  // --strict: warnings fail the run too (CI uses it, so only clean flows go live).
+  const strict = args.includes('--strict');
+  const paths = args.filter((a) => !a.startsWith('--'));
+  const dirs = args.includes('--all') ? findFlows(path.join(ROOT, 'flows')) : paths.map((d) => path.resolve(d));
   if (!dirs.length) {
-    console.error('Usage: node tools/validate-flow.mjs flows/<flow-id> [...] | --all');
+    console.error('Usage: node tools/validate-flow.mjs [--strict] flows/<flow-id> [...] | --all');
     process.exit(2);
   }
   let failed = 0;
@@ -238,8 +243,10 @@ function main() {
     const label = flow && flow.id ? flow.id : dir;
     warnings.forEach((w) => console.log(`  warning: ${w}`));
     errors.forEach((e) => console.log(`  error:   ${e}`));
-    if (errors.length) failed += 1;
-    console.log(`${errors.length ? 'FAIL' : 'PASS'} ${label}: ${plural(flow?.steps?.length ?? 0, 'step')}, ${plural(errors.length, 'error')}, ${plural(warnings.length, 'warning')}.`);
+    const fails = errors.length > 0 || (strict && warnings.length > 0);
+    if (fails) failed += 1;
+    const note = !errors.length && fails ? ' (--strict: warnings count as errors)' : '';
+    console.log(`${fails ? 'FAIL' : 'PASS'} ${label}: ${plural(flow?.steps?.length ?? 0, 'step')}, ${plural(errors.length, 'error')}, ${plural(warnings.length, 'warning')}.${note}`);
   }
   process.exit(failed ? 1 : 0);
 }

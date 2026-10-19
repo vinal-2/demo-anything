@@ -1,7 +1,9 @@
 import { test, expect } from '@playwright/test';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import sharp from 'sharp';
 import { validateFlow } from '../tools/validate-flow.mjs';
 import { importSteps, imageSize } from '../tools/import-steps.mjs';
 import { wordsFromCharacters } from '../tools/make-voice.mjs';
@@ -104,7 +106,7 @@ test('the validator checks narrators and their voice files', () => {
   expect(errors).toContain('the id "george" is used twice');
   expect(errors).toContain('unknown provider "speakomatic"');
   expect(errors).toContain('voice variant "nobody" isn\'t one of the flow\'s narrators');
-  expect(errors).toContain('emma audio "assets/emma/missing.mp3" is missing');
+  expect(errors).toContain('emma audio file "assets/emma/missing.mp3" is missing');
   expect(errors).toContain('emma audio "../../outside.mp3" must be inside the flow folder');
 });
 
@@ -214,18 +216,20 @@ test('the site build publishes only the player and files each flow uses', async 
   fs.cpSync('index.html', path.join(root, 'index.html'));
   fs.cpSync('player', path.join(root, 'player'), { recursive: true });
   fs.cpSync('flows/example', path.join(root, 'flows', 'example'), { recursive: true });
-  fs.writeFileSync(path.join(root, 'flows', 'example', 'assets', 'draft-notes.txt'), 'private');
-  fs.writeFileSync(path.join(root, 'flows', 'example', 'raw-capture.png'), 'private');
   const out = path.join(root, '_site');
-  const published = await buildSite({ root, out, siteUrl: '' });
 
+  // Stray files stop the build rather than being skipped quietly.
+  const stray = path.join(root, 'flows', 'example', 'raw-capture.png');
+  fs.writeFileSync(stray, 'private');
+  await expect(buildSite({ root, out, siteUrl: '' })).rejects.toThrow(/raw-capture\.png" is in the flow folder/);
+  fs.rmSync(stray);
+
+  const published = await buildSite({ root, out, siteUrl: '' });
   expect(published).toContain('flows/example/flow.json');
   expect(published).toContain('flows/example/assets/01-home.png');
   expect(published).toContain('flows/example/assets/t01-open-notifications.webm');
   expect(published).toContain('flows/example/assets/emma/v01.mp3');
   expect(fs.existsSync(path.join(out, 'player', 'player.js'))).toBe(true);
-  expect(fs.existsSync(path.join(out, 'flows', 'example', 'assets', 'draft-notes.txt'))).toBe(false);
-  expect(fs.existsSync(path.join(out, 'flows', 'example', 'raw-capture.png'))).toBe(false);
   // No site address: no sitemap, and no tags that need a full address.
   expect(published).not.toContain('sitemap.xml');
   expect(fs.readFileSync(path.join(out, 'index.html'), 'utf8')).not.toContain('og:image');
@@ -263,6 +267,73 @@ test('the site build adds a page, share picture and sitemap entry for each demo'
   expect(read('index.html')).toContain('<meta name="google-site-verification" content="abcDEF123_-xyz">');
   expect(read('demos/example/index.html')).not.toContain('google-site-verification');
   await expect(buildSite({ root, out, siteUrl: site, googleVerification: '"><script>' })).rejects.toThrow('content=');
+});
+
+// The attack flow from the security audit: each trick must fail validation and the
+// site build must refuse to publish any of it.
+test('unsafe files, disguised files and web addresses are refused', async () => {
+  const dir = copyExample();
+  const root = path.resolve(dir, '..', '..');
+  fs.cpSync('index.html', path.join(root, 'index.html'));
+  fs.cpSync('player', path.join(root, 'player'), { recursive: true });
+  const html = '<!doctype html><script>alert(document.domain)</script>';
+  fs.writeFileSync(path.join(dir, 'assets', 'logo.svg'), '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(document.domain)</script></svg>');
+  fs.writeFileSync(path.join(dir, 'assets', 'page.html'), html);
+  fs.writeFileSync(path.join(dir, 'assets', 'clip.webm'), html);
+  editFlow(dir, (flow) => {
+    flow.steps[0].logo = 'assets/logo.svg';
+    flow.steps.at(-1).bg = 'assets/page.html';
+    flow.steps.find((s) => s.type === 'video').src = ['assets/clip.webm', 'assets/t01-open-notifications.mp4', 'assets/t01-open-notifications.webm'];
+    flow.steps.find((s) => s.type === 'image').src = 'https://tracker.example/pixel.png';
+  });
+
+  const { errors } = validateFlow(dir);
+  const text = errors.join('\n');
+  expect(text).toMatch(/logo "assets\/logo\.svg" is a \.svg file/);
+  expect(text).toMatch(/bg "assets\/page\.html" is a \.html file/);
+  expect(text).toMatch(/src "assets\/clip\.webm" doesn't look like a real \.webm file/);
+  expect(text).toMatch(/src "https:\/\/tracker\.example\/pixel\.png" is a web address/);
+
+  const out = path.join(root, '_site');
+  await expect(buildSite({ root, out, siteUrl: '' })).rejects.toThrow(/Not publishing/);
+  expect(fs.existsSync(out)).toBe(false);
+});
+
+test('every file in a flow folder must be used, allowed and within the size limits', () => {
+  const dir = copyExample();
+  fs.writeFileSync(path.join(dir, 'assets', 'notes.txt'), 'draft');
+  // A real PNG header followed by padding, just over the 5 MB image limit.
+  const big = Buffer.alloc(5 * 1024 * 1024 + 1);
+  fs.readFileSync(path.join(dir, 'assets', '01-home.png')).copy(big);
+  fs.writeFileSync(path.join(dir, 'assets', 'big.png'), big);
+  editFlow(dir, (flow) => { flow.steps[0].bg = 'assets/big.png'; flow.steps.at(-1).logo = 'assets/v01.mp3'; });
+
+  const text = validateFlow(dir).errors.join('\n');
+  expect(text).toMatch(/"assets\/notes\.txt" is in the flow folder but flow\.json doesn't use it/);
+  expect(text).toMatch(/bg "assets\/big\.png" is 5\.1 MB; the limit for an image is 5 MB/);
+  expect(text).toMatch(/logo "assets\/v01\.mp3" must be an image, not \.mp3/);
+});
+
+test('validate --strict fails on warnings, and plain validate does not', () => {
+  const dir = copyExample();
+  editFlow(dir, (flow) => { delete flow.narrators[0].label; });
+  const run = (...args) => spawnSync(process.execPath, ['tools/validate-flow.mjs', ...args, dir], { encoding: 'utf8' });
+  expect(run().status).toBe(0);
+  const strict = run('--strict');
+  expect(strict.status).toBe(1);
+  expect(strict.stdout).toContain('--strict: warnings count as errors');
+});
+
+test('WebP sizes are read from all three WebP header kinds', async () => {
+  const dir = tmp();
+  const base = sharp({ create: { width: 40, height: 30, channels: 3, background: '#0e676c' } });
+  await base.clone().webp().toFile(path.join(dir, 'lossy.webp'));
+  await base.clone().webp({ lossless: true }).toFile(path.join(dir, 'lossless.webp'));
+  await sharp({ create: { width: 40, height: 30, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0.5 } } })
+    .webp().toFile(path.join(dir, 'alpha.webp'));
+  for (const name of ['lossy', 'lossless', 'alpha']) {
+    expect(imageSize(path.join(dir, `${name}.webp`)), name).toEqual({ width: 40, height: 30 });
+  }
 });
 
 test('page titles and descriptions are inserted literally, even with $ patterns', () => {

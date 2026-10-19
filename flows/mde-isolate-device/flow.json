@@ -41,7 +41,7 @@
       "title": "Isolating a device in Microsoft Defender for Endpoint",
       "subtitle": "Contain a compromised endpoint while keeping the Defender connection alive",
       "buttonText": "Get Started",
-      "logo": "assets/logo.svg",
+      "logo": "assets/logo.png",
       "logoText": "SOC lab",
       "bg": null,
       "align": "left"

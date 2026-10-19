@@ -34,6 +34,13 @@ All notable changes are listed here. The format follows
   each flow references (`tools/build-site.mjs`).
 - Third-party actions are pinned to commit SHAs; Dependabot watches actions and npm.
 - The player follows only `https://`, in-page and same-site links.
+- Flows can only publish PNG, JPEG, WebP, MP4, WebM, MP3, M4A, OGG and WAV files.
+  `validate` checks each file's first bytes match its name, enforces size limits
+  (5 MB image, 20 MB video, 3 MB audio, 50 MB per flow), requires `logo` and `bg` to
+  be images, refuses web addresses for any flow file, and fails on files the flow
+  doesn't use. The site build runs the same checks and refuses to publish on errors.
+- `validate --strict` fails on warnings too; `npm run validate:all` uses it.
+- The Defender demo's logo is now a PNG (it was an SVG).
 
 ### Changed
 

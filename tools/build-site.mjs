@@ -1,5 +1,6 @@
 // Builds the folder GitHub Pages publishes: index.html, player/ and, for each flow, only
-// flow.json and the files it actually uses. Anything else in a flow folder stays private.
+// flow.json and the files it actually uses. It refuses to build if any flow fails
+// validation (unsafe file types, web addresses, unused files and so on).
 // It also writes a page per demo (demos/<id>/), a share picture per demo (og/<id>.png),
 // a list of demos (demos/) and sitemap.xml.
 //   node tools/build-site.mjs [outDir]      (default _site)
@@ -8,7 +9,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
-import { findFlows } from './validate-flow.mjs';
+import { findFlows, validateFlow } from './validate-flow.mjs';
+import { referencedFiles } from './lib/flow-files.mjs';
 import {
   OG_SIZE, escHtml, flowInfo, galleryPage, shareTags, sitemap, softwareJsonLd, withHead,
 } from './lib/site-meta.mjs';
@@ -17,21 +19,13 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const DEFAULT_FLOW = 'example';
 const SITE_NAME = 'Demo Anything';
 const GALLERY_DESCRIPTION = 'Interactive walkthroughs made with Demo Anything.';
-const isRemote = (p) => /^(?:[a-z][a-z0-9+.-]*:)/i.test(p);
 
-// Every local file a flow refers to, relative to its folder.
-export function referencedFiles(flow) {
-  const files = new Set(['flow.json']);
-  const add = (p) => { if (typeof p === 'string' && p && !isRemote(p)) files.add(path.posix.normalize(p)); };
-  for (const step of flow.steps || []) {
-    (Array.isArray(step.src) ? step.src : [step.src]).forEach(add);
-    add(step.logo);
-    add(step.bg);
-    add(step.voice?.audio);
-    Object.values(step.voice?.variants || {}).forEach((v) => add(v?.audio));
-  }
-  add(flow.backgroundMusic?.src);
-  return [...files].filter((f) => !f.startsWith('..') && !path.isAbsolute(f)).sort();
+export { referencedFiles };
+
+// Stops the build before anything is written if a flow has validation errors.
+function assertPublishable(dirs) {
+  const problems = dirs.flatMap((dir) => validateFlow(dir).errors.map((e) => `${path.basename(dir)}: ${e}`));
+  if (problems.length) throw new Error(`Not publishing: fix these flow errors first.\n- ${problems.join('\n- ')}`);
 }
 
 function readPackage(root) {
@@ -88,9 +82,9 @@ function writeFile(out, rel, content, written) {
   written.push(rel);
 }
 
-async function publishFlows(root, out, written) {
+async function publishFlows(dirs, out, written) {
   const infos = [];
-  for (const dir of findFlows(path.join(root, 'flows'))) {
+  for (const dir of dirs) {
     const id = path.basename(dir);
     const flow = JSON.parse(fs.readFileSync(path.join(dir, 'flow.json'), 'utf8'));
     for (const rel of referencedFiles(flow)) {
@@ -125,11 +119,13 @@ export async function buildSite({ root = ROOT, out = path.join(ROOT, '_site'), s
   const pkg = readPackage(root);
   const site = normaliseSiteUrl(siteUrl ?? process.env.SITE_URL ?? pkg.homepage);
   const verification = verificationTag(googleVerification ?? process.env.GOOGLE_SITE_VERIFICATION);
+  const dirs = findFlows(path.join(root, 'flows'));
+  assertPublishable(dirs);
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
   fs.cpSync(path.join(root, 'player'), path.join(out, 'player'), { recursive: true });
   const written = [];
-  const infos = await publishFlows(root, out, written);
+  const infos = await publishFlows(dirs, out, written);
 
   const template = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   const home = infos.find((d) => d.id === DEFAULT_FLOW) || infos[0];
