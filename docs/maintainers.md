@@ -55,6 +55,12 @@ Re-check these from time to time. Values as set on 2026-10-19.
 - [x] Deletion blocked
 - [x] Rules apply to everyone except admins (the maintainer can push directly)
 
+### Release tags (Settings → Rules → Rulesets)
+
+- [x] Ruleset "Protect release tags" on `refs/tags/v*`: tags can't be deleted, moved
+  or force-pushed, by anyone. A wrong release gets a new version (for example
+  `v0.1.1`); the old tag stays.
+
 ### Actions (Settings → Actions → General)
 
 - [x] Workflow permissions: **Read repository contents** (read-only token)
