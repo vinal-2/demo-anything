@@ -44,8 +44,12 @@ jobs:
       - name: Install
         run: npm ci --omit=dev
 
+      # GOOGLE_SITE_VERIFICATION is an optional repository variable (Settings → Secrets and
+      # variables → Actions → Variables) holding the Search Console HTML-tag code.
       - name: Build the site
         run: node tools/build-site.mjs _site
+        env:
+          GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
 
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:

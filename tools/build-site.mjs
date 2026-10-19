@@ -113,9 +113,18 @@ async function publishFlows(root, out, written) {
   return infos;
 }
 
-export async function buildSite({ root = ROOT, out = path.join(ROOT, '_site'), siteUrl } = {}) {
+// The Google Search Console "HTML tag" code. It is public (it sits in the page), so it is
+// a repository variable rather than a secret, and copies of this repo don't inherit it.
+export function verificationTag(code) {
+  if (!code) return '';
+  if (!/^[A-Za-z0-9_-]{10,100}$/.test(code)) throw new Error('GOOGLE_SITE_VERIFICATION should be just the content="..." code from Search Console.');
+  return `<meta name="google-site-verification" content="${code}">`;
+}
+
+export async function buildSite({ root = ROOT, out = path.join(ROOT, '_site'), siteUrl, googleVerification } = {}) {
   const pkg = readPackage(root);
   const site = normaliseSiteUrl(siteUrl ?? process.env.SITE_URL ?? pkg.homepage);
+  const verification = verificationTag(googleVerification ?? process.env.GOOGLE_SITE_VERIFICATION);
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
   fs.cpSync(path.join(root, 'player'), path.join(out, 'player'), { recursive: true });
@@ -132,7 +141,8 @@ export async function buildSite({ root = ROOT, out = path.join(ROOT, '_site'), s
     extra: [
       shareTags({ title: homeTitle, description, url: site, image: site && home?.image && `${site}${home.image}` }),
       softwareJsonLd({ name: SITE_NAME, description, url: site, repo: repoUrl(pkg) }),
-    ].join('\n  '),
+      verification,
+    ].filter(Boolean).join('\n  '),
   }), written);
 
   for (const info of infos) writeFile(out, `demos/${info.id}/index.html`, demoPage(template, info, site), written);

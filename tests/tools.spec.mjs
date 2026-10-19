@@ -256,6 +256,12 @@ test('the site build adds a page, share picture and sitemap entry for each demo'
   expect(read('demos/index.html')).toContain('href="example/"');
   expect(read('sitemap.xml')).toContain(`<loc>${site}/demos/example/</loc>`);
   await expect(buildSite({ root, out, siteUrl: 'http://example.com' })).rejects.toThrow('https://');
+
+  // The Search Console code goes on the home page only, and must be just the code.
+  await buildSite({ root, out, siteUrl: site, googleVerification: 'abcDEF123_-xyz' });
+  expect(read('index.html')).toContain('<meta name="google-site-verification" content="abcDEF123_-xyz">');
+  expect(read('demos/example/index.html')).not.toContain('google-site-verification');
+  await expect(buildSite({ root, out, siteUrl: site, googleVerification: '"><script>' })).rejects.toThrow('content=');
 });
 
 test('image sizes are read from PNG headers', () => {

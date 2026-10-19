@@ -33,6 +33,12 @@ The title comes from `name` in flow.json and the description from `description`
 address. The build reads it from `homepage` in `package.json`; set `SITE_URL` to
 override it. Without either, those tags and the sitemap are left out.
 
+To verify the site in Google Search Console, add a **URL prefix** property for the
+site address, pick the **HTML tag** method, and copy just the `content="…"` code into
+a repository variable named `GOOGLE_SITE_VERIFICATION` (**Settings → Secrets and
+variables → Actions → Variables**). The next deploy puts the tag on the home page.
+Then press **Verify** and submit `sitemap.xml` under **Sitemaps**.
+
 There is no `robots.txt`: on a `<user>.github.io/<repo>/` site it isn't at the
 domain root, so search engines never read it.
 
