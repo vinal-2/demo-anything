@@ -208,7 +208,7 @@ test('import-steps refuses a screenshot that changed or appeared after redaction
   expect(() => importSteps(added, path.join(tmp(), 'flows', 'added'), {})).toThrow(/04-extra\.png isn't in redaction\.json/);
 });
 
-test('the site build publishes only the player and files each flow uses', () => {
+test('the site build publishes only the player and files each flow uses', async () => {
   const root = tmp();
   fs.cpSync('index.html', path.join(root, 'index.html'));
   fs.cpSync('player', path.join(root, 'player'), { recursive: true });
@@ -216,7 +216,7 @@ test('the site build publishes only the player and files each flow uses', () => 
   fs.writeFileSync(path.join(root, 'flows', 'example', 'assets', 'draft-notes.txt'), 'private');
   fs.writeFileSync(path.join(root, 'flows', 'example', 'raw-capture.png'), 'private');
   const out = path.join(root, '_site');
-  const published = buildSite({ root, out });
+  const published = await buildSite({ root, out, siteUrl: '' });
 
   expect(published).toContain('flows/example/flow.json');
   expect(published).toContain('flows/example/assets/01-home.png');
@@ -225,6 +225,37 @@ test('the site build publishes only the player and files each flow uses', () => 
   expect(fs.existsSync(path.join(out, 'player', 'player.js'))).toBe(true);
   expect(fs.existsSync(path.join(out, 'flows', 'example', 'assets', 'draft-notes.txt'))).toBe(false);
   expect(fs.existsSync(path.join(out, 'flows', 'example', 'raw-capture.png'))).toBe(false);
+  // No site address: no sitemap, and no tags that need a full address.
+  expect(published).not.toContain('sitemap.xml');
+  expect(fs.readFileSync(path.join(out, 'index.html'), 'utf8')).not.toContain('og:image');
+});
+
+test('the site build adds a page, share picture and sitemap entry for each demo', async () => {
+  const root = tmp();
+  fs.cpSync('index.html', path.join(root, 'index.html'));
+  fs.cpSync('player', path.join(root, 'player'), { recursive: true });
+  fs.cpSync('flows/example', path.join(root, 'flows', 'example'), { recursive: true });
+  const out = path.join(root, '_site');
+  const site = 'https://example.github.io/demo';
+  const published = await buildSite({ root, out, siteUrl: site });
+  const read = (rel) => fs.readFileSync(path.join(out, rel), 'utf8');
+
+  expect(published).toEqual(expect.arrayContaining(['demos/example/index.html', 'demos/index.html', 'og/example.png', 'sitemap.xml']));
+  expect(imageSize(path.join(out, 'og', 'example.png'))).toEqual({ width: 1200, height: 630 });
+
+  const page = read('demos/example/index.html');
+  expect(page).toContain('<meta name="demo-flow" content="example">');
+  expect(page).toContain('<title>Example: turn on email alerts</title>');
+  expect(page).toContain(`<link rel="canonical" href="${site}/demos/example/">`);
+  expect(page).toContain(`<meta property="og:image" content="${site}/og/example.png">`);
+  expect(page).toContain('src="../../player/player.js"');
+
+  const home = read('index.html');
+  expect(home).toContain('"@type":"SoftwareApplication"');
+  expect(home).toContain(`<link rel="canonical" href="${site}/">`);
+  expect(read('demos/index.html')).toContain('href="example/"');
+  expect(read('sitemap.xml')).toContain(`<loc>${site}/demos/example/</loc>`);
+  await expect(buildSite({ root, out, siteUrl: 'http://example.com' })).rejects.toThrow('https://');
 });
 
 test('image sizes are read from PNG headers', () => {

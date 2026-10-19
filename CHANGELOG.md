@@ -6,6 +6,14 @@ All notable changes are listed here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- The published site has a page per demo (`demos/<id>/`) with its own title,
+  description and link-preview picture (`og/<id>.png`), a list of demos (`demos/`),
+  and `sitemap.xml`. The home page carries share tags and SoftwareApplication data.
+- A page can name its flow with `<meta name="demo-flow">`; the player finds `flows/`
+  from its own folder, so pages in sub-folders work.
+
 ### Security
 
 - `redact` pads every area by 8 px (`pad`), offers `"style": "solid"`, empties the

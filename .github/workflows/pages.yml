@@ -40,6 +40,10 @@ jobs:
         with:
           node-version-file: .nvmrc
 
+      # sharp makes the share pictures; the test tools are not needed here.
+      - name: Install
+        run: npm ci --omit=dev
+
       - name: Build the site
         run: node tools/build-site.mjs _site
 

@@ -2,6 +2,8 @@ import { test as base, expect } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { findFlows } from '../tools/validate-flow.mjs';
+import { demoPage } from '../tools/build-site.mjs';
+import { flowInfo } from '../tools/lib/site-meta.mjs';
 
 const SHOTS = 'test-results/steps';
 fs.mkdirSync(SHOTS, { recursive: true });
@@ -395,6 +397,16 @@ test('the server answers video range requests so clips can seek', async ({ reque
   expect(res.status()).toBe(206);
   expect(res.headers()['content-range']).toMatch(/^bytes 0-99\/\d+$/);
   expect((await res.body()).length).toBe(100);
+});
+
+test('a per-demo page two folders down plays the flow named in its meta tag', async ({ page }) => {
+  const id = 'mde-isolate-device';
+  const flow = JSON.parse(fs.readFileSync(`flows/${id}/flow.json`, 'utf8'));
+  const html = demoPage(fs.readFileSync('index.html', 'utf8'), flowInfo(id, flow), '');
+  await page.route(`**/demos/${id}/`, (route) => route.fulfill({ contentType: 'text/html', body: html }));
+  await open(page, `/demos/${id}/`);
+  await expect(page).toHaveTitle(flow.name);
+  await expect(page.locator('.dp-card-title')).toHaveText(flow.steps[0].title);
 });
 
 test('a missing flow shows a clear error', async ({ page }) => {

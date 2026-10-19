@@ -14,7 +14,27 @@ To turn it on in your own copy:
 2. Under **Build and deployment**, set **Source** to **GitHub Actions**.
 3. Push to `main`, or run the **Pages** workflow from the **Actions** tab.
 
-Your flows are then at `https://<your-user>.github.io/<repo>/?flow=<flow-id>`.
+Your flows are then at `https://<your-user>.github.io/<repo>/demos/<flow-id>/`
+(the older `?flow=<flow-id>` address still works).
+
+## Pages for sharing and search
+
+The build also writes:
+
+| File | What it is for |
+| --- | --- |
+| `demos/<flow-id>/index.html` | A page per demo with its own title, description and link preview. Share this address. |
+| `og/<flow-id>.png` | The link-preview picture (1200 × 630), cut from the flow's first screenshot. |
+| `demos/index.html` | A list of every demo. |
+| `sitemap.xml` | Every page, for search engines. Submit it in Google Search Console. |
+
+The title comes from `name` in flow.json and the description from `description`
+(or the cover's subtitle). Links in previews and the sitemap need the site's full
+address. The build reads it from `homepage` in `package.json`; set `SITE_URL` to
+override it. Without either, those tags and the sitemap are left out.
+
+There is no `robots.txt`: on a `<user>.github.io/<repo>/` site it isn't at the
+domain root, so search engines never read it.
 
 ## Before you publish
 
@@ -28,7 +48,7 @@ is committed, and scans for secrets.
 
 ## Other hosts
 
-The site is static files with no build step. Copy `index.html`, `player/` and
-`flows/` to any static host (Netlify, Cloudflare Pages, an internal web server) and
-it works as it is. Links inside the player are relative, so it can live in a
-sub-folder.
+The site is static files. Run `node tools/build-site.mjs` and copy `_site/` to any
+static host (Netlify, Cloudflare Pages, an internal web server), or copy
+`index.html`, `player/` and `flows/` as they are. Links inside the player are
+relative, so it can live in a sub-folder.

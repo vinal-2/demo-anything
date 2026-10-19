@@ -12,13 +12,13 @@
 [![Node.js 20.11+](https://img.shields.io/badge/Node.js-20.11%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)](docs/getting-started.md)
 [![MIT licence](https://img.shields.io/badge/licence-MIT-f4c430?style=flat-square)](LICENSE)
 
-**[Live demos](https://vinal-2.github.io/demo-anything/) · [Guides](docs/getting-started.md) · [Agent skill](skills/demo-anything/SKILL.md)**
+**[Live demos](https://vinal-2.github.io/demo-anything/demos/) · [Guides](docs/getting-started.md) · [Agent skill](skills/demo-anything/SKILL.md)**
 
 [Quick start](#quick-start) · [How it works](#how-it-works) · [Player](#whats-in-the-player) · [Showcases](#showcases) · [Use cases](#use-cases) · [How it compares](#how-it-compares) · [FAQ](#faq) · [Documentation](#documentation) · [Star history](#star-history)
 
 <br />
 
-<a href="https://vinal-2.github.io/demo-anything/?flow=example"><img src="docs/assets/player.png" alt="The Demo Anything player: an admin Settings page in a browser frame, with a pulsing hotspot and the tooltip 'Open the Notifications tab' beside the cursor" width="1000" /></a>
+<a href="https://vinal-2.github.io/demo-anything/demos/example/"><img src="docs/assets/player.png" alt="The Demo Anything player: an admin Settings page in a browser frame, with a pulsing hotspot and the tooltip 'Open the Notifications tab' beside the cursor" width="1000" /></a>
 
 </div>
 
@@ -116,8 +116,8 @@ See [docs/player.md](docs/player.md) for the controls, the editor, voice and emb
 
 | Demo | What it shows |
 | --- | --- |
-| [Example: turn on email alerts](https://vinal-2.github.io/demo-anything/?flow=example) | A three-step tour of a fictional admin app. Start here. |
-| [Isolating a device in Microsoft Defender for Endpoint](https://vinal-2.github.io/demo-anything/?flow=mde-isolate-device) | A SOC lab walkthrough: contain a compromised endpoint while keeping the Defender connection alive. Built on placeholder screens of a fictional lab, with narration, a video step and a confirmation dialog. |
+| [Example: turn on email alerts](https://vinal-2.github.io/demo-anything/demos/example/) | A three-step tour of a fictional admin app. Start here. |
+| [Isolating a device in Microsoft Defender for Endpoint](https://vinal-2.github.io/demo-anything/demos/mde-isolate-device/) | A SOC lab walkthrough: contain a compromised endpoint while keeping the Defender connection alive. Built on placeholder screens of a fictional lab, with narration, a video step and a confirmation dialog. |
 
 Made a demo? Open a pull request; see [CONTRIBUTING.md](CONTRIBUTING.md).
 

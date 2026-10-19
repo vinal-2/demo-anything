@@ -80,7 +80,9 @@ function writePref(key, on) {
 
 const params = new URLSearchParams(location.search);
 const hashTokens = location.hash.replace(/^#/, '').split(/[&,]/).filter(Boolean);
-const flowId = (params.get('flow') || DEFAULT_FLOW).replace(/[^a-z0-9_-]/gi, '') || DEFAULT_FLOW;
+// A page can also name its flow in <meta name="demo-flow"> (the per-demo pages do).
+const metaFlow = document.querySelector('meta[name="demo-flow"]')?.getAttribute('content');
+const flowId = (params.get('flow') || metaFlow || DEFAULT_FLOW).replace(/[^a-z0-9_-]/gi, '') || DEFAULT_FLOW;
 const isEdit = params.has('edit') || hashTokens.includes('edit');
 const isEmbed = params.has('embed') || hashTokens.includes('embed');
 if (isEmbed) document.documentElement.classList.add('embed');
@@ -89,19 +91,21 @@ const app = document.getElementById('app');
 if (app) boot(app);
 
 async function boot(root) {
-  const base = `flows/${flowId}/`;
+  // flows/ sits next to player/, so a page in any folder (like demos/<id>/) finds it.
+  const base = new URL(`../flows/${flowId}/`, import.meta.url).href;
+  const name = `flows/${flowId}/flow.json`;
   let flow;
   try {
     const res = await fetch(`${base}flow.json`, { cache: 'no-cache' });
     if (!res.ok) throw new Error(`the server answered ${res.status}`);
     flow = await res.json();
   } catch (err) {
-    root.innerHTML = `<div class="dp-error" role="alert">Couldn't load <code>${esc(base)}flow.json</code>: ${esc(err.message)}.
+    root.innerHTML = `<div class="dp-error" role="alert">Couldn't load <code>${esc(name)}</code>: ${esc(err.message)}.
       Check the flow name, and serve this folder over HTTP (for example <code>npx serve .</code>) rather than opening index.html as a file.</div>`;
     return;
   }
   if (!Array.isArray(flow.steps) || !flow.steps.length) {
-    root.innerHTML = `<div class="dp-error" role="alert"><code>${esc(base)}flow.json</code> has no steps.</div>`;
+    root.innerHTML = `<div class="dp-error" role="alert"><code>${esc(name)}</code> has no steps.</div>`;
     return;
   }
   if (isEdit) {

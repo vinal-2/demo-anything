@@ -60,6 +60,10 @@ cover and an end card.
 `aspectRatio` is the screenshots' height ÷ width (0.5625 for 16:9). The importer
 measures it for you.
 
+`name` is the page title. An optional `description` (one sentence) is used for the
+published demo page and its link preview; without it, the cover's subtitle is used.
+See [publishing](publishing.md#pages-for-sharing-and-search).
+
 ### Step types
 
 | Type | Fields | What it does |
