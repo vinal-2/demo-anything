@@ -8,6 +8,7 @@
 
 [![CI](https://github.com/vinal-2/demo-anything/actions/workflows/ci.yml/badge.svg)](https://github.com/vinal-2/demo-anything/actions/workflows/ci.yml)
 [![Pages](https://github.com/vinal-2/demo-anything/actions/workflows/pages.yml/badge.svg)](https://vinal-2.github.io/demo-anything/)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/vinal-2/demo-anything/badge)](https://scorecard.dev/viewer/?uri=github.com/vinal-2/demo-anything)
 [![Agent skill](https://img.shields.io/badge/agent-skill-5c4ee5?style=flat-square)](skills/demo-anything/SKILL.md)
 [![Node.js 20.11+](https://img.shields.io/badge/Node.js-20.11%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)](docs/getting-started.md)
 [![MIT licence](https://img.shields.io/badge/licence-MIT-f4c430?style=flat-square)](LICENSE)

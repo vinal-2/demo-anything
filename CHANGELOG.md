@@ -18,6 +18,8 @@ All notable changes are listed here. The format follows
   `/plugin install demo-anything --marketplace vinal-2/demo-anything`.
 - Community files: a code of conduct (Contributor Covenant 2.0), `CITATION.cff`, a
   switched-off `FUNDING.yml` and a Show and tell discussion form.
+- OpenSSF Scorecard runs weekly and on every push to `main`; the score is a README
+  badge.
 
 ### Fixed
 
