@@ -5,8 +5,23 @@
 # Instructions an agent follows
 /AGENTS.md           @vinal-2
 /CLAUDE.md           @vinal-2
+/plugin/             @vinal-2
 /skills/             @vinal-2
 /.claude-plugin/     @vinal-2
+
+# Plugin parts that can run code (CI refuses them)
+/hooks/              @vinal-2
+/.mcp.json           @vinal-2
+/.lsp.json           @vinal-2
+/bin/                @vinal-2
+/monitors/           @vinal-2
+/settings.json       @vinal-2
+/commands/           @vinal-2
+/agents/             @vinal-2
+/workflows/          @vinal-2
+/output-styles/      @vinal-2
+/themes/             @vinal-2
+/scripts/            @vinal-2
 
 # Workflows, dependencies and code
 /.github/            @vinal-2

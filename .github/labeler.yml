@@ -7,10 +7,23 @@
       - any-glob-to-any-file:
           - AGENTS.md
           - CLAUDE.md
+          - plugin/**
           - skills/**
           - .claude/**
           - .claude-plugin/**
+          # Plugin parts that can run code; CI refuses them, so this flags any attempt.
+          - hooks/**
           - .mcp.json
+          - .lsp.json
+          - bin/**
+          - monitors/**
+          - settings.json
+          - commands/**
+          - agents/**
+          - workflows/**
+          - output-styles/**
+          - themes/**
+          - scripts/**
 
 "touches: workflows":
   - changed-files:

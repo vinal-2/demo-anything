@@ -8,9 +8,12 @@ Everything in `flows/` is published on the project's website, and some files cha
 what an agent or GitHub Actions does. So review in this order, **on GitHub first**.
 
 1. **Read the labels.** The labeler marks what the pull request touches:
-   - `touches: agent instructions`: `AGENTS.md`, `CLAUDE.md`, `skills/`, `.claude/`,
-     `.claude-plugin/`, `.mcp.json`. Read every line. Look for instructions that tell
-     an agent to run commands, fetch URLs, read secrets, or skip checks.
+   - `touches: agent instructions`: `AGENTS.md`, `CLAUDE.md`, `plugin/`, `.claude/`,
+     `.claude-plugin/`, and plugin parts that can run code (`hooks/`, `.mcp.json`,
+     `.lsp.json`, `bin/`, `monitors/`, `settings.json`, `commands/`, `agents/`,
+     `workflows/`, `output-styles/`, `themes/`, `scripts/`). Read every line. Look for
+     instructions that tell an agent to run commands, fetch URLs, read secrets, or skip
+     checks. CI already refuses those plugin parts and any symbolic link.
    - `touches: workflows`: anything in `.github/`. Look for new triggers (especially
      `pull_request_target`), wider `permissions`, actions not pinned to a full commit
      SHA, `actions/checkout` of pull request code, or new secrets.

@@ -27,16 +27,10 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      # Raw captures hold unredacted screenshots. Agent and editor settings folders
-      # could change how an agent or editor behaves for whoever opens the repo.
+      # Raw captures, agent and editor settings, plugin parts other than the skill,
+      # and symbolic links (git mode 120000). Plain Node, before anything is installed.
       - name: Block files that must never be committed
-        run: |
-          blocked="$(git ls-files | grep -E '^(capture/|\.claude/|\.mcp\.json$|\.vscode/|\.devcontainer/)' || true)"
-          if [ -n "$blocked" ]; then
-            echo "::error::These paths must never be committed (capture/, .claude/, .mcp.json, .vscode/, .devcontainer/):"
-            echo "$blocked"
-            exit 1
-          fi
+        run: node tools/check-files.mjs
 
       - name: Scan for secrets
         uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0

@@ -45,9 +45,11 @@ Coding agents and people follow the same rules: see [AGENTS.md](AGENTS.md).
 - Pull requests are squash-merged into one commit on `main`.
 - CI must pass first: tests, the strict flow check, the secret scan and the
   dependency review.
-- Pull requests that change agent instructions (`AGENTS.md`, `CLAUDE.md`,
-  `skills/`, `.claude-plugin/`), workflows (`.github/`) or dependencies are labelled
+- Pull requests that change agent instructions (`AGENTS.md`, `CLAUDE.md`, `plugin/`,
+  `.claude-plugin/`), workflows (`.github/`) or dependencies are labelled
   automatically and get a closer review. Please explain why such a change is needed.
+- The plugin ships only its skill. CI refuses hooks, commands, agents, servers,
+  settings or scripts at the root or in `plugin/`, and refuses symbolic links anywhere.
 
 ## Contributor declaration
 

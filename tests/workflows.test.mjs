@@ -4,8 +4,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { test } from 'node:test';
+import { PLUGIN_PARTS } from '../tools/check-files.mjs';
 
 const DIR = '.github/workflows';
+const escape = (s) => s.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 const workflows = fs.readdirSync(DIR).filter((f) => f.endsWith('.yml')).map((f) => ({
   name: f,
   text: fs.readFileSync(path.join(DIR, f), 'utf8'),
@@ -34,7 +36,24 @@ test('CI keeps the required "test" job and has time limits', () => {
   assert.match(ci, /^ {2}dependency-review:$/m);
   assert.equal((ci.match(/timeout-minutes:/g) || []).length, 2);
   assert.match(ci, /npm ci --ignore-scripts/);
-  assert.match(ci, /\.claude\/\|\\\.mcp\\\.json/);
+});
+
+test('CI checks for blocked files and symbolic links before installing anything', () => {
+  const ci = read('ci.yml');
+  const check = ci.indexOf('run: node tools/check-files.mjs');
+  assert.ok(check > 0, 'ci.yml runs tools/check-files.mjs');
+  assert.ok(check < ci.indexOf('npm ci'), 'the check runs before npm ci');
+});
+
+test('plugin parts are labelled as agent instructions and owned by the maintainer', () => {
+  const labels = fs.readFileSync('.github/labeler.yml', 'utf8');
+  const agentLabel = labels.split(/^"touches: workflows":$/m)[0];
+  const owners = fs.readFileSync('.github/CODEOWNERS', 'utf8');
+  for (const part of [...PLUGIN_PARTS, 'plugin/']) {
+    const glob = part.endsWith('/') ? `${part}**` : part;
+    assert.match(agentLabel, new RegExp(`^ +- ${escape(glob)}$`, 'm'), `label covers ${glob}`);
+    assert.match(owners, new RegExp(`^/${escape(part)} +@vinal-2$`, 'm'), `CODEOWNERS covers /${part}`);
+  }
 });
 
 test('the labeler never checks out or runs pull request code', () => {

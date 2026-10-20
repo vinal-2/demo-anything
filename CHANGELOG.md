@@ -30,6 +30,12 @@ All notable changes are listed here. The format follows
   links. Buttons allow `https://`, `#` and same-site paths; links in text allow
   `https://` and `#`. The player and the validator share one rule
   (`player/links.js`).
+- CI's first step (`tools/check-files.mjs`) now also fails if git tracks a symbolic
+  link (mode 120000), or a Claude Code plugin part that can run code (`hooks/`,
+  `.mcp.json`, `.lsp.json`, `bin/`, `monitors/`, `settings.json`, `commands/`,
+  `agents/`, `workflows/`, `output-styles/`, `themes/`, `scripts/`) at the root or
+  in `plugin/`. Changes to those paths are labelled "touches: agent instructions"
+  and owned by the maintainer in CODEOWNERS.
 
 ### Fixed
 

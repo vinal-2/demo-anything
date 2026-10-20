@@ -40,10 +40,10 @@ build step and no runtime dependencies. The tools are small Node.js scripts.
 ```
 index.html, player/   the player (player.js, hotspot.js, captions.js, editor.js, player.css)
 flows/<id>/           published flows: flow.json and assets/
-tools/                import, validate, redact, preview, save-shot, voice, serve
+tools/                import, validate, redact, preview, save-shot, voice, serve, check-files
 tools/fixtures/       a fictional capture folder used by the tests
 tests/                Playwright specs (*.spec.mjs) and node:test files (*.test.mjs)
-skills/demo-anything/ the agent skill for building flows with Claude in Chrome
+plugin/skills/demo-anything/ the agent skill for building flows with Claude in Chrome
 docs/                 guides linked from the README
 ```
 
@@ -83,6 +83,9 @@ On Windows PowerShell, if `npm` is blocked by script signing, use `npm.cmd` and
   OGG or WAV files it uses, all local (no web addresses). Never add SVG, HTML or
   scripts to `flows/`: they are published on the Pages site.
 - Never commit `.claude/`, `.mcp.json`, `.vscode/` or `.devcontainer/`; CI blocks them.
+- The plugin in `plugin/` holds only `plugin.json` and the skill. Never add hooks,
+  commands, agents, servers, settings or scripts there or at the root, and never commit
+  a symbolic link; `tools/check-files.mjs` fails CI on any of them.
 - Write user-facing messages and docs in plain British English.
 
 ## Tests and done
