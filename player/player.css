@@ -232,7 +232,8 @@ html.embed .page { max-width: none; padding: 0; }
 .dp .dp-made:hover { color: #111827; text-decoration: underline; }
 .dp .dp-made:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 
-/* Hotspot */
+/* Hotspot. It and its label sit above the control bar (z-index 7), so a target in the
+   bottom strip, such as a wizard's Next button, stays clickable while the bar shows. */
 .dp-hs {
   --hs-scale: 1;
   position: absolute; left: 0; top: 0;
@@ -241,7 +242,7 @@ html.embed .page { max-width: none; padding: 0; }
   margin: 0; padding: 0; border: 0; border-radius: 50%;
   background: transparent; cursor: pointer; pointer-events: auto;
   transform: translate(-50%, -50%);
-  display: grid; place-items: center; z-index: 4;
+  display: grid; place-items: center; z-index: 8;
 }
 .dp-hs .ring-o, .dp-hs .ring-i { position: absolute; border-radius: 50%; border-style: solid; border-color: var(--hot); background: transparent; }
 .dp-hs .ring-o {
@@ -267,7 +268,7 @@ html.embed .page { max-width: none; padding: 0; }
 }
 .dp-tip {
   --arrow: 50%;
-  position: absolute; left: 0; top: 0; z-index: 5;
+  position: absolute; left: 0; top: 0; z-index: 9;
   max-width: min(260px, 70%);
   padding: 8px 12px; border-radius: 8px;
   background: #FFFFFF; color: #111827;

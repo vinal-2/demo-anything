@@ -66,6 +66,24 @@ test('a checkpoint waits for the hotspot and ignores clicks elsewhere', async ({
   await expect(dp(page)).toHaveAttribute('data-step', '3');
 });
 
+test('a hotspot at the bottom edge stays clickable while the control bar shows', async ({ page }) => {
+  // Wizard buttons (Next, Create) often sit in the bottom strip, where the control bar
+  // appears whenever the mouse moves.
+  await page.route('**/flows/example/flow.json', async (route) => {
+    const flow = await (await route.fetch()).json();
+    flow.steps[2].hotspot = { ...flow.steps[2].hotspot, x: 0.3, y: 0.97 };
+    await route.fulfill({ json: flow });
+  });
+  await start(page);
+  await page.getByRole('button', { name: 'Next step' }).click();
+  await expect(dp(page)).toHaveAttribute('data-mode', 'waiting');
+  const hs = page.locator('.dp-hs');
+  await hs.hover({ timeout: 3000 });
+  await expect(dp(page)).toHaveClass(/controls-on/);
+  await hs.click({ timeout: 3000 });
+  await expect(dp(page)).toHaveAttribute('data-step', '3');
+});
+
 test('the hotspot sits on its target in the screenshot', async ({ page }) => {
   await start(page);
   await page.getByRole('button', { name: 'Next step' }).click();

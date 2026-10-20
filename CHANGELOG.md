@@ -45,6 +45,10 @@ All notable changes are listed here. The format follows
   for canonical links, link previews, the sitemap and structured data, instead of
   the original project's. A `SITE_URL` repository variable sets a custom domain.
 - A player test no longer depends on the Defender demo being in the repository.
+- A hotspot in the bottom strip of a screenshot (for example a wizard's Next or
+  Create button) can be clicked again. The control bar, which appears when the mouse
+  moves, used to sit on top of it, so the click went to the bar and could jump to
+  another step. The hotspot and its label now sit above the bar.
 - Card buttons ("Get Started", "Replay") now use the same text size as card links;
   a general button style was shrinking them, most visibly in a wide player.
 
