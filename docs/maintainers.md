@@ -48,15 +48,23 @@ remember that it stays in git history and may have been copied.
 
 ## Repository settings checklist
 
-Re-check these from time to time. Values as set on 2026-10-19.
+Re-check these from time to time. Values as set on 2026-10-20.
 
 ### Branch protection (Settings → Branches)
 
 - [x] `main` is protected
 - [x] Required status check: `test` (from GitHub Actions)
+- [ ] Required status check: `dependency-review` (from GitHub Actions): **add it**.
+  It runs only on pull requests, so pushes to `main` don't wait for it.
 - [x] Force pushes blocked
 - [x] Deletion blocked
-- [x] Rules apply to everyone except admins (the maintainer can push directly)
+- [x] Admins can bypass: "Do not allow bypassing the above settings" is **off**
+
+**Bypass decision (2026-10-20): keep admin bypass.** The maintainer may push to
+`main` directly and merge without waiting for checks. Why: there is one maintainer,
+CI still runs on every push to `main`, and Pages deploys automatically only after
+CI passes on that commit (the site build also refuses flows that fail validation). Everyone else has no write access, so their changes come through pull requests
+that must pass the required checks. Revisit this when a second maintainer joins.
 
 ### Release tags (Settings → Rules → Rulesets)
 

@@ -14,6 +14,8 @@ All notable changes are listed here. The format follows
 
 ### Changed
 
+- The maintainers guide lists `dependency-review` as a required check on `main`
+  and records the decision to keep admin bypass, with the reason.
 - The Claude Code plugin now lives in its own folder, `plugin/`, which holds only
   `plugin.json` and the skill (`plugin/skills/demo-anything/SKILL.md`). Installing
   the plugin no longer copies the rest of the repository. The install command is
