@@ -15,8 +15,14 @@ capture each step, redact it and build the flow, while staying read-only.
 
 ## Install the skill
 
-Copy `skills/demo-anything/` into your agent's skills folder. For Claude Code that
-is `~/.claude/skills/demo-anything/` (all projects) or
+The easiest way is the plugin, which installs only the skill:
+
+```text
+/plugin install demo-anything --marketplace vinal-2/demo-anything
+```
+
+Or copy `plugin/skills/demo-anything/` into your agent's skills folder by hand. For
+Claude Code that is `~/.claude/skills/demo-anything/` (all projects) or
 `.claude/skills/demo-anything/` (this project only).
 
 ## Ask your agent

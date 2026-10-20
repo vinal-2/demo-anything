@@ -12,6 +12,13 @@ All notable changes are listed here. The format follows
   can be private). The getting-started guide explains template vs fork and what to
   change after copying.
 
+### Changed
+
+- The Claude Code plugin now lives in its own folder, `plugin/`, which holds only
+  `plugin.json` and the skill (`plugin/skills/demo-anything/SKILL.md`). Installing
+  the plugin no longer copies the rest of the repository. The install command is
+  unchanged; to copy the skill by hand, copy `plugin/skills/demo-anything/`.
+
 ### Security
 
 - Symbolic links are refused. `validate` and the site build fail on any symbolic

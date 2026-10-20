@@ -23,8 +23,9 @@ plan.
 3. **Make it yours:**
    - `.github/CODEOWNERS`: change `@vinal-2` to your username, or delete the file.
    - `package.json`: change `homepage`, `repository` and `bugs`.
-   - `.claude-plugin/`: change the owner, or delete the folder if you won't share the
-     skill as a plugin.
+   - `.claude-plugin/marketplace.json` and `plugin/.claude-plugin/plugin.json`: change
+     the owner, author and addresses. If you won't share the skill as a plugin, delete
+     `.claude-plugin/` and `plugin/.claude-plugin/` (keep `plugin/skills/`).
 4. **Labels:** create the five labels listed in
    [docs/maintainers.md](maintainers.md#labels) under **Issues → Labels**, or delete
    `.github/workflows/labeler.yml`.

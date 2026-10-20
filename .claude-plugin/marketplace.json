@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "demo-anything",
-      "source": "./",
+      "source": "./plugin",
       "description": "Build click-through walkthroughs of any web app with Claude in Chrome: capture, redact, import, validate and test a flow, then publish it on GitHub Pages.",
       "version": "0.1.0",
       "category": "productivity",
