@@ -54,8 +54,8 @@ Re-check these from time to time. Values as set on 2026-10-20.
 
 - [x] `main` is protected
 - [x] Required status check: `test` (from GitHub Actions)
-- [ ] Required status check: `dependency-review` (from GitHub Actions): **add it**.
-  It runs only on pull requests, so pushes to `main` don't wait for it.
+- [x] Required status check: `dependency-review` (from GitHub Actions). It runs only
+  on pull requests, so pushes to `main` don't wait for it.
 - [x] Force pushes blocked
 - [x] Deletion blocked
 - [x] Admins can bypass: "Do not allow bypassing the above settings" is **off**
