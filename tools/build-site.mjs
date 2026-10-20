@@ -10,7 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
-import { findFlows, validateFlow } from './validate-flow.mjs';
+import { findFlows, linkedFlowFolders, validateFlow } from './validate-flow.mjs';
 import { referencedFiles } from './lib/flow-files.mjs';
 import {
   OG_SIZE, escHtml, flowInfo, galleryPage, shareTags, sitemap, softwareJsonLd, withHead,
@@ -23,9 +23,13 @@ const GALLERY_DESCRIPTION = 'Interactive walkthroughs made with Demo Anything.';
 
 export { referencedFiles };
 
-// Stops the build before anything is written if a flow has validation errors.
-function assertPublishable(dirs) {
-  const problems = dirs.flatMap((dir) => validateFlow(dir).errors.map((e) => `${path.basename(dir)}: ${e}`));
+// Stops the build before anything is written if a flow has validation errors, or a flow
+// folder is itself a symbolic link.
+function assertPublishable(flowsRoot, dirs) {
+  const problems = [
+    ...linkedFlowFolders(flowsRoot).map((link) => `flows/${link} is a symbolic link`),
+    ...dirs.flatMap((dir) => validateFlow(dir).errors.map((e) => `${path.basename(dir)}: ${e}`)),
+  ];
   if (problems.length) throw new Error(`Not publishing: fix these flow errors first.\n- ${problems.join('\n- ')}`);
 }
 
@@ -142,7 +146,7 @@ export async function buildSite({
   const { site, repo } = siteIdentity(pkg, env, siteUrl);
   const verification = verificationTag(googleVerification ?? env.GOOGLE_SITE_VERIFICATION);
   const dirs = findFlows(path.join(root, 'flows'));
-  assertPublishable(dirs);
+  assertPublishable(path.join(root, 'flows'), dirs);
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
   fs.cpSync(path.join(root, 'player'), path.join(out, 'player'), { recursive: true });

@@ -9,6 +9,7 @@
 
 import { createHotspot } from './hotspot.js';
 import { createCaptions } from './captions.js';
+import { SAFE_BUTTON_HREF, SAFE_TEXT_HREF } from './links.js';
 
 const DEFAULT_FLOW = 'example';
 const BADGE_URL = 'https://github.com/vinal-2/demo-anything';
@@ -40,9 +41,11 @@ const CURSOR_TIP = { x: 4 / 24, y: 2.5 / 24 };
 export const esc = (s) => String(s ?? '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-// Escape, then turn [text](https://...) into links. Only https and in-page "#" links are allowed.
+// Escape, then turn [text](https://...) into links. Only https and in-page "#" links are
+// allowed (SAFE_TEXT_HREF); anything else stays as plain text.
 function inlineMarkdown(text) {
-  return esc(text).replace(/\[([^\]]+)\]\(((?:https:\/\/|#)[^\s)]*)\)/g, (_m, label, href) => {
+  return esc(text).replace(/\[([^\]]+)\]\(([^\s)]*)\)/g, (match, label, href) => {
+    if (!SAFE_TEXT_HREF.test(href)) return match;
     const external = /^https:/i.test(href);
     return `<a href="${href}"${external ? ' target="_blank" rel="noopener"' : ''}>${label}</a>`;
   });
@@ -600,7 +603,7 @@ export function mountPlayer(root, flow, base) {
         if (b.action === 'url' && b.href) {
           const href = String(b.href);
           // https, in-page and same-site links only; anything else becomes a dead link.
-          const safe = /^(https:\/\/|#|\/(?!\/)|\.\/)/i.test(href) ? href : '#';
+          const safe = SAFE_BUTTON_HREF.test(href) ? href : '#';
           const external = /^https:/i.test(safe);
           return `<a class="${cls}" href="${esc(safe)}"${external ? ' target="_blank" rel="noopener"' : ''}>${esc(b.text || 'Open')}</a>`;
         }

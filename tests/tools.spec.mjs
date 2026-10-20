@@ -369,6 +369,25 @@ test('WebP sizes are read from all three WebP header kinds', async () => {
   }
 });
 
+test('end-card links the player would not follow are refused', () => {
+  const dir = copyExample();
+  editFlow(dir, (flow) => {
+    const end = flow.steps.at(-1);
+    end.buttons = [
+      { text: 'Replay', action: 'restart' },
+      { text: 'Script', action: 'url', href: 'javascript:alert(1)' },
+      { text: 'Plain web', action: 'url', href: 'http://example.com' },
+      { text: 'Guide', action: 'url', href: 'https://example.com/guide' },
+    ];
+    end.subtitle = 'See [the bad one](javascript:alert(1)) or [the guide](https://example.com/guide).';
+  });
+  const text = validateFlow(dir).errors.join('\n');
+  expect(text).toMatch(/button "Script" links to "javascript:alert\(1\)"/);
+  expect(text).toMatch(/button "Plain web" links to "http:\/\/example\.com"/);
+  expect(text).toMatch(/subtitle link "javascript:alert/);
+  expect(text).not.toMatch(/"Guide"|the guide/);
+});
+
 test('page titles and descriptions are inserted literally, even with $ patterns', () => {
   const html = '<head><title>x</title><meta name="description" content="y"></head>';
   const out = withHead(html, { title: "Costs $& and $' less", description: 'Save $` and $1 today', extra: '<meta name="e" content="$&">' });

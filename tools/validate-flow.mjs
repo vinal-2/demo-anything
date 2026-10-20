@@ -9,10 +9,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fileRefs, isRemote, listFiles, referencedFiles } from './lib/flow-files.mjs';
+import { fileRefs, isRemote, listFiles, referencedFiles, symlinksIn } from './lib/flow-files.mjs';
 import { imageSize } from './lib/image-size.mjs';
 import { LIMITS, checkMedia, megabytes } from './lib/media.mjs';
 import { findSensitive, loadTerms, strings } from './lib/sensitive.mjs';
+import { SAFE_BUTTON_HREF, SAFE_TEXT_HREF, textLinks } from '../player/links.js';
 
 const RATIO_TOLERANCE = 0.002;
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -72,6 +73,11 @@ export function validateFlow(flowDir, { termsFile = DEFAULT_TERMS_FILE } = {}) {
   if (flow.aspectRatio != null && !(Number(flow.aspectRatio) > 0)) errors.push('"aspectRatio" must be a positive number (height ÷ width, for example 0.5625).');
 
   const root = path.resolve(flowDir);
+  for (const link of symlinksIn(root)) {
+    errors.push(link === '.'
+      ? 'The flow folder itself is a symbolic link. Copy the flow into flows/ instead.'
+      : `"${link}" is a symbolic link. A flow can't link to files or folders elsewhere; copy the file into the flow instead.`);
+  }
   const outside = (p) => {
     const rel = path.relative(root, path.resolve(root, p));
     return rel.startsWith('..') || path.isAbsolute(rel);
@@ -119,6 +125,15 @@ export function validateFlow(flowDir, { termsFile = DEFAULT_TERMS_FILE } = {}) {
       const start = Number(s.start) || 0;
       if (s.end != null && !(Number(s.end) > start)) errors.push(`${where(i)}: "end" must be later than "start".`);
     }
+    // Links the player would drop (player/links.js holds the rule for both).
+    (Array.isArray(s.buttons) ? s.buttons : []).filter((b) => b && b.action === 'url').forEach((b) => {
+      if (!SAFE_BUTTON_HREF.test(String(b.href ?? ''))) {
+        errors.push(`${where(i)}: button "${b.text || 'Open'}" links to "${b.href ?? ''}". The player only follows https://, # and same-site links, so it would show a dead link.`);
+      }
+    });
+    textLinks(s.subtitle).filter((l) => !SAFE_TEXT_HREF.test(l.href)).forEach((l) => {
+      errors.push(`${where(i)}: subtitle link "${l.href}" won't work. Links in text must start with https:// or #.`);
+    });
   });
 
   // ---- Files: everything in the folder is published, so it must be a safe, used file ----
@@ -225,6 +240,11 @@ export function findFlows(flowsRoot) {
     .sort();
 }
 
+// Links directly inside flows/ (a whole flow folder that points somewhere else).
+export function linkedFlowFolders(flowsRoot) {
+  return symlinksIn(flowsRoot).filter((link) => link !== '.' && !link.includes('/'));
+}
+
 const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 
 function main() {
@@ -238,6 +258,13 @@ function main() {
     process.exit(2);
   }
   let failed = 0;
+  if (args.includes('--all')) {
+    // findFlows skips linked folders, but the local server would still serve them.
+    for (const link of linkedFlowFolders(path.join(ROOT, 'flows'))) {
+      console.log(`  error:   flows/${link} is a symbolic link. Copy the flow into flows/ instead.`);
+      failed += 1;
+    }
+  }
   for (const dir of dirs) {
     const { errors, warnings, flow } = validateFlow(dir);
     const label = flow && flow.id ? flow.id : dir;

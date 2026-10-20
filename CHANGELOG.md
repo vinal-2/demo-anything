@@ -12,6 +12,18 @@ All notable changes are listed here. The format follows
   can be private). The getting-started guide explains template vs fork and what to
   change after copying.
 
+### Security
+
+- Symbolic links are refused. `validate` and the site build fail on any symbolic
+  link inside a flow, or on a flow folder that is itself a link, and the local server
+  won't serve a linked file or a file whose real location is outside the allowed
+  folders. A link could otherwise publish a file from elsewhere on your computer.
+- `validate` fails on end-card buttons and subtitle links the player wouldn't follow
+  (for example `javascript:` or `http://`), instead of letting them become dead
+  links. Buttons allow `https://`, `#` and same-site paths; links in text allow
+  `https://` and `#`. The player and the validator share one rule
+  (`player/links.js`).
+
 ### Fixed
 
 - A copy (template or fork) built on GitHub now uses its own GitHub Pages address

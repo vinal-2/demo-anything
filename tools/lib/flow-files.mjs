@@ -31,6 +31,23 @@ export function referencedFiles(flow) {
   return [...files].filter((f) => !f.startsWith('..') && !path.isAbsolute(f)).sort();
 }
 
+// Every symbolic link (or Windows junction) inside a folder, relative to it, or ["."] when
+// the folder itself is one. Nothing behind a link is walked. A link in a flow could publish
+// or serve a file from anywhere, such as an unredacted screenshot of the same size.
+export function symlinksIn(dir) {
+  if (fs.lstatSync(dir).isSymbolicLink()) return ['.'];
+  const found = [];
+  const walk = (rel) => {
+    for (const d of fs.readdirSync(path.join(dir, rel), { withFileTypes: true })) {
+      const r = rel ? `${rel}/${d.name}` : d.name;
+      if (d.isSymbolicLink()) found.push(r);
+      else if (d.isDirectory()) walk(r);
+    }
+  };
+  walk('');
+  return found.sort();
+}
+
 // Every file in a folder, relative to it, with forward slashes.
 export function listFiles(dir) {
   return fs.readdirSync(dir, { recursive: true, withFileTypes: true })
