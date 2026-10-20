@@ -46,7 +46,7 @@ and differs between browsers.
 
 | Provider | Sounds like | Cost | Needs | Word timings |
 | --- | --- | --- | --- | --- |
-| `kokoro` | Natural; 8 British voices (default `bm_george`) | Free, runs on your computer ([Apache-2.0](https://github.com/hexgrad/kokoro)) | `npm install kokoro-js` (about 210 MB) and ffmpeg; downloads a ~90 MB model once | Estimated, or measured with `--align` |
+| `kokoro` | Natural; 8 British voices (default `bm_george`) | Free, runs on your computer ([Apache-2.0](https://github.com/hexgrad/kokoro)) | `npm install --no-save kokoro-js` (about 210 MB) and ffmpeg; downloads a ~90 MB model once | Estimated, or measured with `--align` |
 | `elevenlabs` | Very natural, many voices | Paid; plans from $6 a month, API Multilingual v2 listed at $0.08 per 1,000 characters ([pricing](https://elevenlabs.io/pricing/api)). Check the plan's terms for commercial use | `ELEVENLABS_API_KEY`, a voice ID | From the API |
 | `google` | Natural; Chirp 3 HD British voices (default `en-GB-Chirp3-HD-Charon`) | Paid per character after a monthly free allowance ([pricing](https://cloud.google.com/text-to-speech/pricing)) | `GOOGLE_API_KEY` restricted to the Text-to-Speech API | Estimated, or measured with `--align` |
 | `recorded` | You | Free | Your own `assets/vNN.mp3`, `.wav` or `.m4a` files | Estimated, or measured with `--align` |

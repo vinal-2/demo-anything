@@ -1,17 +1,25 @@
 # Build flows with an agent
 
 The `demo-anything` skill teaches a coding agent to walk a web app in your browser,
-capture each step, redact it and build the flow, while staying read-only.
+capture each step, redact it, build and narrate the flow, and check it end to end,
+while staying read-only.
 
 ## What you need
 
-- [Claude Code](https://code.claude.com/docs/en/overview) with the
-  [Claude in Chrome](https://code.claude.com/docs/en/chrome) extension connected.
-  In VS Code, type `/chrome` in the Claude prompt box and turn on
-  **Enabled by default**, then restart Chrome.
-- A Chrome profile with nothing else signed in, signed in to the app you want to
+- A coding agent that can run commands and control a browser:
+  - **Claude Code** with the [Claude in Chrome](https://code.claude.com/docs/en/chrome)
+    extension connected. In VS Code, type `/chrome` in the Claude prompt box and turn
+    on **Enabled by default**, then restart Chrome.
+  - **Any other agent** with [Playwright MCP](https://github.com/microsoft/playwright-mcp).
+    The skill's "Using another agent" section has the settings and which tool does
+    what.
+- A browser profile with nothing else signed in, signed in to the app you want to
   demo. Use a sandbox or test tenant if you can.
-- A clone of this repository, open in Claude Code.
+- A clone of this repository, open in the agent, with `npm install` and
+  `npx playwright install chromium` done.
+- For the narration voice: `npm install --no-save kokoro-js` and
+  [ffmpeg](https://ffmpeg.org/). For exact caption timings, also
+  `pip install faster-whisper`.
 
 ## Install the skill
 
@@ -24,6 +32,10 @@ The easiest way is the plugin, which installs only the skill:
 Or copy `plugin/skills/demo-anything/` into your agent's skills folder by hand. For
 Claude Code that is `~/.claude/skills/demo-anything/` (all projects) or
 `.claude/skills/demo-anything/` (this project only).
+
+Agents without skills can read the file directly: tell them to follow
+`plugin/skills/demo-anything/SKILL.md`. Most coding agents also read `AGENTS.md`, the
+repository's rules, by themselves.
 
 ## Ask your agent
 
@@ -41,6 +53,9 @@ from https://app.example.com, teaching https://docs.example.com/isolate-device
 and the video on that page.
 ```
 
+For an agent without skills, start with: "Read AGENTS.md and
+plugin/skills/demo-anything/SKILL.md, and follow them exactly."
+
 The agent will:
 
 1. list everything the guide and video cover in a coverage checklist, and plan a step
@@ -49,10 +64,12 @@ The agent will:
 3. capture one screenshot per click and measure the click target
 4. preview the boxes and fix any that are off
 5. list everything identifying in `redact.json`, redact, and check every image
-6. import, finish `flow.json`, validate and run the tests
-7. tick every checklist item against the finished flow and fill any gaps
-8. commit in small steps and report what it captured, what differed, and the
-   checklist
+6. import and finish `flow.json`
+7. narrate every step with a natural voice and word-by-word captions
+8. validate, play the flow through in the browser, and run the tests
+9. tick every checklist item against the finished flow and fill any gaps
+10. commit in small steps and report what it captured, what differed, and the
+    checklist
 
 It stops and asks you at any sign-in or MFA page, and never clicks Save, Submit,
 Delete, toggles or anything that changes data. It still screenshots those controls
@@ -63,3 +80,7 @@ so the walkthrough can point at them.
 Always look at the cleaned screenshots yourself before you publish. Automated
 redaction relies on finding every sensitive area; a second pair of eyes catches
 what it misses.
+
+For an independent check, ask a second agent (ideally a different model) to build
+its own coverage list from the source and compare it with the flow, without seeing
+the first agent's checklist.

@@ -24,7 +24,7 @@ const PROVIDERS = [
   {
     id: 'kokoro', module: kokoro, cost: 'Free, runs on your computer',
     ready: async () => { try { await import('kokoro-js'); return true; } catch { return false; } },
-    why: 'npm install kokoro-js',
+    why: 'npm install --no-save kokoro-js',
     voices: async () => ['bm_george', 'bf_emma', 'bm_daniel'],
   },
   {

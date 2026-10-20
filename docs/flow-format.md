@@ -145,6 +145,13 @@ Errors (the flow fails):
 - hotspot `x` and `y` are between 0 and 1
 - every checkpoint has a hotspot (or `autoAdvanceAfterMs`)
 - a video step's `end` is later than its `start`
+- with a narrator that makes files (`kokoro`, `elevenlabs`, `google` or `recorded`),
+  every narration script has its audio, made from the **current** script, voice and
+  speed; otherwise the captions wouldn't match what is said. Run
+  `npm run voice -- flows/<id>` to fix it
+- end-card buttons link to `https://`, `#` or a same-site path, and links in text to
+  `https://` or `#`, as the player only follows those
+- no symbolic links anywhere in the flow folder, and the folder isn't one
 
 Warnings (fix before you publish):
 

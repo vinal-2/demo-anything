@@ -50,6 +50,10 @@ GitHub Pages or anywhere else, with no account and no build step.
 3. Sign in to the app you want to demo in a Chrome profile with nothing else signed
    in. A sandbox or test tenant is best.
 
+Using another agent? Give it [Playwright MCP](https://github.com/microsoft/playwright-mcp)
+and tell it to follow `AGENTS.md` and the skill file; see
+[docs/agent-workflow.md](docs/agent-workflow.md).
+
 ### Ask your agent
 
 ```text
@@ -59,7 +63,7 @@ Home → Settings → Notifications → the Email alerts switch.
 ```
 
 The agent walks the app read-only, captures each step, redacts anything
-identifying, builds the flow and tests it. It stops at sign-in and MFA pages and
+identifying, builds and narrates the flow, plays it through and tests it. It stops at sign-in and MFA pages and
 never clicks Save, Submit or Delete. See [docs/agent-workflow.md](docs/agent-workflow.md).
 
 ### Use the terminal
@@ -172,11 +176,14 @@ editor. If you need those, a hosted product may suit you better.
 <details>
 <summary><strong>Which agents can use Demo Anything?</strong></summary>
 
-The skill is written for [Claude Code](https://code.claude.com/docs/en/overview)
-with [Claude in Chrome](https://code.claude.com/docs/en/chrome), which gives the
-agent your real browser. The skill itself is a plain Markdown file and the tools
-are ordinary Node.js scripts, so any agent that can drive a browser and run
-commands can follow it.
+Any coding agent that can run commands and control a browser. With
+[Claude Code](https://code.claude.com/docs/en/overview), use
+[Claude in Chrome](https://code.claude.com/docs/en/chrome), which gives the agent
+your real browser. With other agents, use
+[Playwright MCP](https://github.com/microsoft/playwright-mcp); the skill's "Using
+another agent" section says which tool does what. The skill is a plain Markdown
+file, the rules are in `AGENTS.md`, and every check is a command, so the result is
+checked the same way whichever model builds it.
 </details>
 
 <details>

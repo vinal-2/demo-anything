@@ -14,6 +14,7 @@ import { imageSize } from './lib/image-size.mjs';
 import { LIMITS, checkMedia, megabytes } from './lib/media.mjs';
 import { findSensitive, loadTerms, strings } from './lib/sensitive.mjs';
 import { SAFE_BUTTON_HREF, SAFE_TEXT_HREF, textLinks } from '../player/links.js';
+import { audioProblems } from './make-voice.mjs';
 
 const RATIO_TOLERANCE = 0.002;
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -135,6 +136,10 @@ export function validateFlow(flowDir, { termsFile = DEFAULT_TERMS_FILE } = {}) {
       errors.push(`${where(i)}: subtitle link "${l.href}" won't work. Links in text must start with https:// or #.`);
     });
   });
+
+  // ---- Narration: a recorded narrator needs a current audio file for every script ----
+  const voiceCommand = `npm run voice -- ${path.relative(process.cwd(), root).split(path.sep).join('/') || '.'}`;
+  for (const { i, message } of audioProblems(flow, root)) errors.push(`${where(i)}: ${message}. Run: ${voiceCommand}`);
 
   // ---- Files: everything in the folder is published, so it must be a safe, used file ----
   let total = fs.statSync(file).size;

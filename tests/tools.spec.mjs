@@ -388,6 +388,34 @@ test('end-card links the player would not follow are refused', () => {
   expect(text).not.toMatch(/"Guide"|the guide/);
 });
 
+test('narration audio that is missing or out of date is refused', () => {
+  const dir = copyExample();
+  let narrated = [];
+  editFlow(dir, (flow) => {
+    narrated = flow.steps.map((s, i) => [s, i]).filter(([s]) => s.voice?.script);
+    const [[first, a], [second, b], [third, c]] = narrated;
+    delete first.voice.audio;
+    second.voice.script = `${second.voice.script} Then check the result.`;
+    delete third.voice.variants.emma;
+    narrated = [a, b, c];
+  });
+  const text = validateFlow(dir).errors.join('\n');
+  const [a, b, c] = narrated;
+  expect(text).toMatch(new RegExp(`Step ${a} \\(\\w+\\): no narration audio for kokoro bm_george`));
+  expect(text).toMatch(new RegExp(`Step ${b} \\(\\w+\\): the narration audio for kokoro bm_george is out of date`));
+  expect(text).toMatch(new RegExp(`Step ${c} \\(\\w+\\): no narration audio for narrator "emma"`));
+  expect(text).toContain('npm run voice -- ');
+});
+
+test('a flow read by the browser voice needs no audio files', () => {
+  const dir = copyExample();
+  editFlow(dir, (flow) => {
+    flow.narrators = [{ id: 'browser', label: 'Browser voice', provider: 'browser' }];
+    for (const s of flow.steps) if (s.voice) flow.steps[flow.steps.indexOf(s)].voice = { script: s.voice.script };
+  });
+  expect(validateFlow(dir).errors.join('\n')).not.toContain('narration audio');
+});
+
 test('page titles and descriptions are inserted literally, even with $ patterns', () => {
   const html = '<head><title>x</title><meta name="description" content="y"></head>';
   const out = withHead(html, { title: "Costs $& and $' less", description: 'Save $` and $1 today', extra: '<meta name="e" content="$&">' });

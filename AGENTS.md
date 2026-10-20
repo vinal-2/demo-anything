@@ -55,7 +55,11 @@ npx playwright install chromium   # once
 npm start                          # http://localhost:4173/?flow=example (&edit to author)
 npm run validate:all               # every flow, --strict: must PASS with 0 warnings
 npm test                           # node:test, then Playwright
+npm run voice -- flows/<id> --align   # narration (once: npm install --no-save kokoro-js)
 ```
+
+To build a new flow, follow `plugin/skills/demo-anything/SKILL.md` from start to end,
+whichever agent you are.
 
 On Windows PowerShell, if `npm` is blocked by script signing, use `npm.cmd` and
 `npx.cmd`.

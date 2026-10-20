@@ -3,7 +3,7 @@
 //
 // Providers
 //   browser     (default) no files; the player reads the script with the browser's voice
-//   kokoro      free and local (npm install kokoro-js); default voice bm_george
+//   kokoro      free and local (npm install --no-save kokoro-js); default voice bm_george
 //   elevenlabs  ELEVENLABS_API_KEY; voice from ELEVENLABS_VOICE_ID or --voice
 //   google      GOOGLE_API_KEY; Chirp 3 HD, default en-GB-Chirp3-HD-Charon
 //   recorded    your own voice: put assets/vNN.mp3, .wav or .m4a in the flow and run this
@@ -113,6 +113,39 @@ function narratedSteps(flow, only) {
   const picked = list.filter(({ i }) => i === only);
   if (!picked.length) throw new Error(`Step ${only} has no narration script. Narrated steps: ${list.map(({ i }) => i).join(', ')}.`);
   return picked;
+}
+
+// For the validator: narrated steps whose audio is missing, or was made from an older
+// script, voice or speed (so its captions wouldn't match what is said). Only flow.json
+// decides the narrator here, so a voice set in .env doesn't change the result.
+export function audioProblems(flow, dir) {
+  let narrators;
+  try {
+    narrators = narratorList(flow, {}, {});
+  } catch {
+    return []; // the validator reports bad narrators itself
+  }
+  const lexicon = loadLexicon();
+  const problems = [];
+  narrators.forEach((n, k) => {
+    if (n.provider === 'browser') return;
+    const folder = k === 0 ? '' : n.id;
+    const who = folder ? `narrator "${n.id}"` : `${n.provider} ${n.voice}`.trim();
+    for (const { step, i } of narratedSteps(flow)) {
+      const slot = folder ? step.voice.variants?.[folder] : step.voice;
+      if (!slot?.audio) {
+        problems.push({ i, message: `no narration audio for ${who}` });
+        continue;
+      }
+      const file = path.join(dir, String(slot.audio));
+      if (n.provider === 'recorded' && !fs.existsSync(file)) continue; // reported as a missing file
+      const expected = n.provider === 'recorded'
+        ? sha(fs.readFileSync(file))
+        : sha(`${n.provider}|${n.voice}|${n.speed}|${applyLexicon(step.voice.script, lexicon)}`);
+      if (slot.hash !== expected) problems.push({ i, message: `the narration audio for ${who} is out of date (the script, voice or speed changed after it was made)` });
+    }
+  });
+  return problems;
 }
 
 // The newest recording for step i: assets/[<narrator>/]vNN.wav, .m4a, .mp3, .ogg or .flac.

@@ -1,5 +1,5 @@
 // Kokoro: a free voice that runs on your own computer. Apache-2.0.
-// Needs `npm install kokoro-js` (about 210 MB with its runtime) and downloads an ~90 MB model
+// Needs `npm install --no-save kokoro-js` (about 210 MB with its runtime) and downloads an ~90 MB model
 // the first time. It returns WAV; make-voice turns that into the shared MP3 format.
 
 const MODEL = 'onnx-community/Kokoro-82M-v1.0-ONNX';
@@ -12,7 +12,7 @@ async function model() {
     try {
       ({ KokoroTTS } = await import('kokoro-js'));
     } catch {
-      throw new Error('Kokoro needs its package: npm install kokoro-js');
+      throw new Error('Kokoro needs its package: npm install --no-save kokoro-js');
     }
     return KokoroTTS.from_pretrained(MODEL, { dtype: 'q8', device: 'cpu' });
   })();

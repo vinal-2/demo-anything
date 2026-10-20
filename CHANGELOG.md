@@ -8,6 +8,10 @@ All notable changes are listed here. The format follows
 
 ### Added
 
+- The agent skill now runs end to end with any coding agent: a narration phase
+  (Kokoro voice with word-by-word captions), a play-through check in the browser,
+  and a "Using another agent" section that maps each Claude in Chrome tool to
+  [Playwright MCP](https://github.com/microsoft/playwright-mcp).
 - A coverage benchmark for walkthroughs that teach from a guide or video: they cover
   at least every section, step and path of the guide and every point of its video,
   checked against a coverage checklist. New guide `docs/coverage.md`; the agent skill
@@ -24,6 +28,13 @@ All notable changes are listed here. The format follows
   `plugin.json` and the skill (`plugin/skills/demo-anything/SKILL.md`). Installing
   the plugin no longer copies the rest of the repository. The install command is
   unchanged; to copy the skill by hand, copy `plugin/skills/demo-anything/`.
+
+- `validate` fails when a narrated step has no audio, or its audio was made from an
+  older script, voice or speed (the captions would no longer match what is said).
+  Before, a flow that was never narrated passed and quietly fell back to the
+  browser's voice.
+- Kokoro's install hint is now `npm install --no-save kokoro-js`, so the 210 MB
+  package stays out of `package.json`.
 
 ### Security
 
