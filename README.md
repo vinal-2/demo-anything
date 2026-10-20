@@ -247,6 +247,8 @@ it privately; see [SECURITY.md](SECURITY.md).
 - [Getting started](docs/getting-started.md): install, make a flow by hand, commands
 - [The player](docs/player.md): controls, authoring mode, voice and embedding
 - [Build flows with an agent](docs/agent-workflow.md): the skill and what it does
+- [Cover the whole source](docs/coverage.md): the coverage checklist for walkthroughs
+  that teach from a guide or video
 - [Redaction](docs/redaction.md): what to hide and how
 - [Flow format](docs/flow-format.md): `steps.json`, `flow.json` and validation rules
 - [Publishing](docs/publishing.md): GitHub Pages and other hosts

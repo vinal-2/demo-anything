@@ -33,14 +33,26 @@ Use the demo-anything skill. Build flow "settings-tour" named
 Home → Settings → Notifications → the Email alerts switch.
 ```
 
+If the walkthrough teaches from a guide or video, give the agent the links:
+
+```text
+Use the demo-anything skill. Build flow "isolate-device" named "Isolate a device"
+from https://app.example.com, teaching https://docs.example.com/isolate-device
+and the video on that page.
+```
+
 The agent will:
 
-1. size the browser window and check the page size
-2. capture one screenshot per click and measure the click target
-3. preview the boxes and fix any that are off
-4. list everything identifying in `redact.json`, redact, and check every image
-5. import, finish `flow.json`, validate and run the tests
-6. commit in small steps and report what it captured and what differed
+1. list everything the guide and video cover in a coverage checklist, and plan a step
+   for each item (see [coverage.md](coverage.md))
+2. size the browser window and check the page size
+3. capture one screenshot per click and measure the click target
+4. preview the boxes and fix any that are off
+5. list everything identifying in `redact.json`, redact, and check every image
+6. import, finish `flow.json`, validate and run the tests
+7. tick every checklist item against the finished flow and fill any gaps
+8. commit in small steps and report what it captured, what differed, and the
+   checklist
 
 It stops and asks you at any sign-in or MFA page, and never clicks Save, Submit,
 Delete, toggles or anything that changes data. It still screenshots those controls

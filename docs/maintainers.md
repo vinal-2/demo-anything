@@ -30,8 +30,11 @@ what an agent or GitHub Actions does. So review in this order, **on GitHub first
    fully cover what they hide.
 4. **Read `flow.json`** for text that names a real person or organisation, and links
    you wouldn't want on the site.
-5. **Check the contributor declaration** boxes are ticked.
-6. **Merge with "Squash and merge"** only when all of the above is fine.
+5. **If the flow teaches from a guide or video**, check the coverage checklist in the
+   pull request ([coverage.md](coverage.md)): open the source and spot-check that a
+   few items, including a branch or a note, really appear in the flow.
+6. **Check the contributor declaration** boxes are ticked.
+7. **Merge with "Squash and merge"** only when all of the above is fine.
 
 ### Don't run untrusted pull requests locally
 

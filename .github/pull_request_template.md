@@ -9,6 +9,9 @@
 - [ ] Nothing under `capture/` is committed
 - [ ] New or changed flows: every screenshot is redacted and I have looked at each one
 - [ ] New or changed flows: `npm run validate -- --strict flows/<id>` prints PASS with 0 warnings
+- [ ] Flows that teach from a guide or video: every section, step and path of the
+      source is covered, and the coverage checklist is pasted below
+      ([docs/coverage.md](https://github.com/vinal-2/demo-anything/blob/main/docs/coverage.md))
 
 ## Contributor declaration
 

@@ -96,6 +96,8 @@ A change is done when:
   `tests/tools.spec.mjs` or `node:test` for the tools)
 - `npm run validate:all` prints `PASS` with `0 warnings`
 - `npm test` passes; every flow in `flows/` is played from cover to end card
+- a flow that teaches from a guide or video covers everything in it, checked against
+  a coverage checklist ([docs/coverage.md](docs/coverage.md))
 - docs and [CHANGELOG.md](CHANGELOG.md) describe any change in behaviour
 - `git status` shows nothing under `capture/`
 

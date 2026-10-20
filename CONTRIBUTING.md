@@ -22,6 +22,9 @@ You need Node.js 20.11 or later (`.nvmrc` pins the version CI uses).
    - `npm run validate -- --strict flows/<id>` prints `PASS` with `0 warnings`
    - `npm test` passes
    - nothing under `capture/` is in your commit
+   - if the demo teaches from a guide or video, it covers every section, step and
+     path of it; paste your coverage checklist into the pull request (see
+     [docs/coverage.md](docs/coverage.md))
 3. Only capture systems you are allowed to use, ideally a sandbox. See
    [DISCLAIMER.md](DISCLAIMER.md).
 4. A flow folder may only hold `flow.json` and the images, videos and audio it uses

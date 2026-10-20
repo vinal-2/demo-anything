@@ -8,6 +8,10 @@ All notable changes are listed here. The format follows
 
 ### Added
 
+- A coverage benchmark for walkthroughs that teach from a guide or video: they cover
+  at least every section, step and path of the guide and every point of its video,
+  checked against a coverage checklist. New guide `docs/coverage.md`; the agent skill
+  plans and ticks the checklist, and the pull request template asks for it.
 - The repository is a template: **Use this template** makes a separate copy (which
   can be private). The getting-started guide explains template vs fork and what to
   change after copying.
